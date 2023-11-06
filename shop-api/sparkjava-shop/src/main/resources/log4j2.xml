@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Properties>
+        <Property name="logsDirectory">./logs</Property>
+    </Properties>
+
+    <Appenders>
+        <RollingFile
+                name="rollingFile"
+                fileName="${logsDirectory}/application.log"
+                filePattern="${logsDirectory}/application-%d{yyyy-MM-dd}.%i.log"
+        >
+            <PatternLayout pattern="%d %-5p --- [%t] %C (%F:%L) - %m%n"/>
+            <SizeBasedTriggeringPolicy size="10 MB" />
+        </RollingFile>
+
+        <Console name="console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %-5p --- [%t] %C (%F:%L) - %m%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="console"/>
+            <AppenderRef ref="rollingFile"/>
+        </Root>
+    </Loggers>
+</Configuration>
