@@ -3,6 +3,11 @@ package com.instrument.shop.controller;
 import com.google.gson.Gson;
 import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
+import com.sparkjava.context.annotation.DeleteMapping;
+import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.PostMapping;
+import com.sparkjava.context.annotation.PutMapping;
+import com.sparkjava.context.annotation.RequestMapping;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.jetty.http.HttpStatus;
@@ -12,12 +17,8 @@ import spark.Response;
 import java.util.Map;
 import java.util.TreeMap;
 
-import static spark.Spark.delete;
-import static spark.Spark.get;
-import static spark.Spark.post;
-import static spark.Spark.put;
-
 @Singleton
+@RequestMapping("api/users")
 public class UserController {
     private final Gson gson;
 
@@ -40,14 +41,9 @@ public class UserController {
             );
             users.put(user.getId(), user);
         }
-
-        post("api/users", this::add);
-        get("api/users", this::getAll);
-        get("api/users/:id", this::getById);
-        put("api/users/:id", this::update);
-        delete("api/users/:id", this::deleteUser);
     }
 
+    @PostMapping
     public String add(Request request, Response response) {
         User saved = new User(
                 (long) users.size() + 1,
@@ -65,15 +61,18 @@ public class UserController {
         return HttpStatus.CREATED_201 + " " + HttpStatus.getMessage(HttpStatus.CREATED_201);
     }
 
+    @GetMapping
     public String getAll(Request request, Response response) {
         return gson.toJson(users.values());
     }
 
+    @GetMapping("/:id")
     public String getById(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         return gson.toJson(users.get(id));
     }
 
+    @PutMapping("/:id")
     public String update(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         User updated = users.get(id);
@@ -86,6 +85,7 @@ public class UserController {
         return gson.toJson(updated);
     }
 
+    @DeleteMapping("/:id")
     public String deleteUser(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         User deleted = users.get(id);
