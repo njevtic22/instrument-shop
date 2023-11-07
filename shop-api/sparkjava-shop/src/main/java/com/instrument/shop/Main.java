@@ -1,12 +1,15 @@
 package com.instrument.shop;
 
-import com.sparkjava.context.SparkJavaContext;
-
-import static spark.Spark.get;
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+import com.instrument.shop.controller.UserController;
+import com.instrument.shop.guiceConfig.module.GsonModule;
 
 public class Main {
     public static void main(String[] args) {
-        SparkJavaContext.init();
-        get("/hello", (request, response) -> "Hello World!");
+        Injector injector = Guice.createInjector(
+                new GsonModule()
+        );
+        injector.getInstance(UserController.class);
     }
 }
