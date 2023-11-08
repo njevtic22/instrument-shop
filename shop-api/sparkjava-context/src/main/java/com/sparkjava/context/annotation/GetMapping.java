@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface GetMapping {
     String value() default "";
+
+    String consumes() default "";
 }

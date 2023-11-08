@@ -77,36 +77,53 @@ public class SparkJavaContext {
     private static void mapRoutesToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, List<Annotation> methodMappings) {
         String sparkMethodName = null;
         String methodPath = null;
+        String consumes = controllerMapping.consumes();
 
         for (Annotation methodMapping : methodMappings) {
             switch (methodMapping.annotationType().getSimpleName()) {
-                case "GetMapping":
+                case "GetMapping" -> {
                     GetMapping getMapping = (GetMapping) methodMapping;
                     methodPath = controllerMapping.value() + getMapping.value();
                     sparkMethodName = "get";
-                    break;
-                case "PostMapping":
+                    if (!getMapping.consumes().isBlank()) {
+                        consumes = getMapping.consumes();
+                    }
+                }
+                case "PostMapping" -> {
                     PostMapping postMapping = (PostMapping) methodMapping;
                     methodPath = controllerMapping.value() + postMapping.value();
                     sparkMethodName = "post";
-                    break;
-                case "PutMapping":
+                    if (!postMapping.consumes().isBlank()) {
+                        consumes = postMapping.consumes();
+                    }
+                }
+                case "PutMapping" -> {
                     PutMapping putMapping = (PutMapping) methodMapping;
                     methodPath = controllerMapping.value() + putMapping.value();
                     sparkMethodName = "put";
-                    break;
-                case "DeleteMapping":
+                    if (!putMapping.consumes().isBlank()) {
+                        consumes = putMapping.consumes();
+                    }
+                }
+                case "DeleteMapping" -> {
                     DeleteMapping deleteMapping = (DeleteMapping) methodMapping;
                     methodPath = controllerMapping.value() + deleteMapping.value();
                     sparkMethodName = "delete";
-                    break;
+                    if (!deleteMapping.consumes().isBlank()) {
+                        consumes = deleteMapping.consumes();
+                    }
+                }
+            }
+
+            if (consumes.isBlank()) {
+                consumes = "application/json;charset=UTF-8";
             }
 
             Route route = (Request request, Response response) -> mappedMethod.invoke(controller, request, response);
 
             try {
-                Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Route.class);
-                sparkMethod.invoke(null, methodPath, route);
+                Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
+                sparkMethod.invoke(null, methodPath, consumes, route);
                 logger.info("Created endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                 logger.info("Could not create endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");

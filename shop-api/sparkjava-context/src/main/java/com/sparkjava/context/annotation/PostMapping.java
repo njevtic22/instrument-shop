@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface PostMapping {
     String value() default "";
+
+    String consumes() default "";
 }

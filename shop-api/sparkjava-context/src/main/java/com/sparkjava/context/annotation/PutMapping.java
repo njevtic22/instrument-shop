@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface PutMapping {
     String value() default "";
+
+    String consumes() default "";
 }
