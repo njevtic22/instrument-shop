@@ -45,16 +45,16 @@ public class SparkJavaContext {
 
             RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
             Method[] methods = controllerClass.getDeclaredMethods();
-//            Arrays.sort(methods, nullsLast(comparing(m1 -> m1.getAnnotation(MethodOrder.class).value())));
             Arrays.sort(methods, (m1, m2) -> {
                 MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
                 MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
 
                 int returnValue = 0;
 
-                if (methodOrder1 == null && methodOrder2 == null) {
-                    returnValue = m1.getName().compareTo(m2.getName());
-                } else if (methodOrder1 == null) {
+//                if (methodOrder1 == null && methodOrder2 == null) {
+//                    returnValue = 0;
+//                } else
+                if (methodOrder1 == null) {
                     returnValue = -1;
                 } else if (methodOrder2 == null) {
                     returnValue = 1;
