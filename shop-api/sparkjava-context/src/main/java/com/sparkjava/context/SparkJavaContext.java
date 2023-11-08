@@ -2,6 +2,7 @@ package com.sparkjava.context;
 
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -43,8 +44,25 @@ public class SparkJavaContext {
 
 
             RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
-            Method[] methods = controllerClass.getMethods();
-//            Arrays.sort(methods, Comparator.comparing(Method::getName));
+            Method[] methods = controllerClass.getDeclaredMethods();
+//            Arrays.sort(methods, nullsLast(comparing(m1 -> m1.getAnnotation(MethodOrder.class).value())));
+            Arrays.sort(methods, (m1, m2) -> {
+                MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
+                MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
+
+                int returnValue = 0;
+
+                if (methodOrder1 == null && methodOrder2 == null) {
+                    returnValue = m1.getName().compareTo(m2.getName());
+                } else if (methodOrder1 == null) {
+                    returnValue = -1;
+                } else if (methodOrder2 == null) {
+                    returnValue = 1;
+                } else {
+                    returnValue = Integer.compare(methodOrder1.value(), methodOrder2.value());
+                }
+                return -returnValue;
+            });
             for (Method method : methods) {
                 List<Annotation> methodMappings = getMethodMappings(method);
                 methodMappings.sort(Comparator.comparing(a -> a.annotationType().getSimpleName()));

@@ -5,6 +5,7 @@ import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -44,6 +45,7 @@ public class UserController {
     }
 
     @PostMapping
+    @MethodOrder(100)
     public String add(Request request, Response response) {
         User saved = new User(
                 (long) users.size() + 1,
@@ -62,17 +64,20 @@ public class UserController {
     }
 
     @GetMapping
+    @MethodOrder(80)
     public String getAll(Request request, Response response) {
         return gson.toJson(users.values());
     }
 
     @GetMapping("/:id")
+    @MethodOrder(60)
     public String getById(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         return gson.toJson(users.get(id));
     }
 
     @PutMapping("/:id")
+    @MethodOrder(40)
     public String update(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         User updated = users.get(id);
@@ -86,6 +91,7 @@ public class UserController {
     }
 
     @DeleteMapping("/:id")
+    @MethodOrder(20)
     public String deleteUser(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         User deleted = users.get(id);
