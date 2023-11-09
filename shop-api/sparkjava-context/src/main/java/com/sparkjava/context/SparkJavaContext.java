@@ -77,7 +77,7 @@ public class SparkJavaContext {
     private static void mapRoutesToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, List<Annotation> methodMappings) {
         String sparkMethodName = null;
         String methodPath = null;
-        String consumes = controllerMapping.consumes();
+        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "DEFAULT application/json;charset=UTF-8";
 
         for (Annotation methodMapping : methodMappings) {
             switch (methodMapping.annotationType().getSimpleName()) {
@@ -115,10 +115,7 @@ public class SparkJavaContext {
                 }
             }
 
-            if (consumes.isBlank()) {
-                consumes = "application/json;charset=UTF-8";
-            }
-
+            System.out.println(sparkMethodName + "(" + methodPath + ", " + consumes + ", (req, res) -> {...})");
             Route route = (Request request, Response response) -> mappedMethod.invoke(controller, request, response);
 
             try {
