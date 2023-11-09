@@ -15,4 +15,6 @@ public @interface RequestMapping {
     String value() default "";
 
     String consumes() default "";
+
+    String produces() default "";
 }

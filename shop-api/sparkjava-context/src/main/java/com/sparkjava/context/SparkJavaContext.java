@@ -77,7 +77,8 @@ public class SparkJavaContext {
     private static void mapRoutesToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, List<Annotation> methodMappings) {
         String sparkMethodName = null;
         String methodPath = null;
-        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "DEFAULT application/json;charset=UTF-8";
+        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "application/json;charset=UTF-8";
+        String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : "application/json;charset=UTF-8";
 
         for (Annotation methodMapping : methodMappings) {
             switch (methodMapping.annotationType().getSimpleName()) {
@@ -88,6 +89,9 @@ public class SparkJavaContext {
                     if (!getMapping.consumes().isBlank()) {
                         consumes = getMapping.consumes();
                     }
+                    if (!getMapping.produces().isBlank()) {
+                        produces = getMapping.produces();
+                    }
                 }
                 case "PostMapping" -> {
                     PostMapping postMapping = (PostMapping) methodMapping;
@@ -95,6 +99,9 @@ public class SparkJavaContext {
                     sparkMethodName = "post";
                     if (!postMapping.consumes().isBlank()) {
                         consumes = postMapping.consumes();
+                    }
+                    if (!postMapping.produces().isBlank()) {
+                        produces = postMapping.produces();
                     }
                 }
                 case "PutMapping" -> {
@@ -104,6 +111,9 @@ public class SparkJavaContext {
                     if (!putMapping.consumes().isBlank()) {
                         consumes = putMapping.consumes();
                     }
+                    if (!putMapping.produces().isBlank()) {
+                        produces = putMapping.produces();
+                    }
                 }
                 case "DeleteMapping" -> {
                     DeleteMapping deleteMapping = (DeleteMapping) methodMapping;
@@ -112,11 +122,17 @@ public class SparkJavaContext {
                     if (!deleteMapping.consumes().isBlank()) {
                         consumes = deleteMapping.consumes();
                     }
+                    if (!deleteMapping.produces().isBlank()) {
+                        produces = deleteMapping.produces();
+                    }
                 }
             }
 
-            System.out.println(sparkMethodName + "(" + methodPath + ", " + consumes + ", (req, res) -> {...})");
-            Route route = (Request request, Response response) -> mappedMethod.invoke(controller, request, response);
+            final String finalProduces = produces;
+            Route route = (Request request, Response response) -> {
+                response.type(finalProduces);
+                return mappedMethod.invoke(controller, request, response);
+            };
 
             try {
                 Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);

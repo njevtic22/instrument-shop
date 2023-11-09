@@ -13,4 +13,6 @@ public @interface DeleteMapping {
     String value() default "";
 
     String consumes() default "";
+
+    String produces() default "";
 }

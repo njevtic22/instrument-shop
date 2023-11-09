@@ -13,4 +13,6 @@ public @interface GetMapping {
     String value() default "";
 
     String consumes() default "";
+
+    String produces() default "";
 }

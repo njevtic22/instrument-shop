@@ -13,4 +13,6 @@ public @interface PutMapping {
     String value() default "";
 
     String consumes() default "";
+
+    String produces() default "";
 }
