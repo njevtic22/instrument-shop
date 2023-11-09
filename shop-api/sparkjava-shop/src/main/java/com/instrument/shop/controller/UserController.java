@@ -9,6 +9,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.eclipse.jetty.http.HttpStatus;
@@ -46,6 +47,7 @@ public class UserController {
 
     @PostMapping
     @MethodOrder(100)
+    @ResponseStatus(201)
     public String add(Request request, Response response) {
         User saved = new User(
                 (long) users.size() + 1,
@@ -92,6 +94,7 @@ public class UserController {
 
     @DeleteMapping("/:id")
     @MethodOrder(20)
+    @ResponseStatus(204)
     public String deleteUser(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         User deleted = users.get(id);

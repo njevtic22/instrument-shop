@@ -6,6 +6,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.exceptions.MissingAnnotationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -128,9 +129,19 @@ public class SparkJavaContext {
                 }
             }
 
+            int status = 0;
+            if (mappedMethod.isAnnotationPresent(ResponseStatus.class)) {
+                ResponseStatus responseStatus = mappedMethod.getAnnotation(ResponseStatus.class);
+                status = responseStatus.value();
+            }
+
+            final int finalStatus = status;
             final String finalProduces = produces;
             Route route = (Request request, Response response) -> {
                 response.type(finalProduces);
+                if (finalStatus != 0) {
+                    response.status(finalStatus);
+                }
                 return mappedMethod.invoke(controller, request, response);
             };
 
