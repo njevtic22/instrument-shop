@@ -1,11 +1,12 @@
 package com.instrument.shop.repository.impl;
 
-import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
+import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,24 +15,12 @@ import java.util.TreeMap;
 @Singleton
 public class UserRepositoryImpl implements UserRepository {
     private final TreeMap<Long, User> data;
+    private final NumberGenerator<Long> userId;
 
     @Inject
-    public UserRepositoryImpl(Map<Long, User> data) {
+    public UserRepositoryImpl(Map<Long, User> data, NumberGenerator<Long> userId) {
         this.data = new TreeMap<>(data);
-
-        for (int i = 1; i <= 10; i++) {
-            User user = new User(
-                    (long) i,
-                    "Name " + i,
-                    "Name " + i,
-                    "Name " + i,
-                    "Name " + i,
-                    "Name " + i,
-                    false,
-                    Role.MANAGER
-            );
-            this.data.put(user.getId(), user);
-        }
+        this.userId = userId;
     }
 
     @Override
@@ -40,7 +29,47 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public User save(User user) {
+        if (user.getId() == null) {
+            setId(user, userId.next());
+        }
+
+        data.put(user.getId(), user);
+        // TODO: serialize
+        return user;
+    }
+
+    @Override
+    public List<User> saveAll(Iterable<User> users) {
+        ArrayList<User> savedUsers = new ArrayList<>(10);
+
+        for (User user : users) {
+            if (user.getId() == null) {
+                setId(user, userId.next());
+            }
+
+            data.put(user.getId(), user);
+            savedUsers.add(user);
+        }
+
+        // TODO: serialize
+        return savedUsers;
+    }
+
+    @Override
     public List<User> findAll() {
         return new ArrayList<>(data.values());
+    }
+
+    private void setId(User user, Long id) {
+        Class<? extends User> userClass = user.getClass();
+
+        try {
+            Field idField = userClass.getDeclaredField("id");
+            idField.setAccessible(true);
+            idField.set(user, id);
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

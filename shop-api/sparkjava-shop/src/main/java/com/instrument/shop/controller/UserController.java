@@ -1,6 +1,7 @@
 package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
+import com.instrument.shop.model.User;
 import com.instrument.shop.service.UserService;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
@@ -30,13 +31,12 @@ public class UserController {
     @MethodOrder(100)
     @ResponseStatus(201)
     public String add(Request request, Response response) {
+        User toAdd = gson.fromJson(request.body(), User.class);
+                                        // TODO: change to actual repeated password
+        User added = service.add(toAdd, toAdd.getPassword());
 
-
-//        response.header("location", request.url() + "/" + saved.getId());
-//        return HttpStatus.CREATED_201 + " " + HttpStatus.getMessage(HttpStatus.CREATED_201);
-
-
-        return "To be implemented";
+        response.header("location", "api/users/" + added.getId());
+        return "201 created";
     }
 
     @GetMapping
