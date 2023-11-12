@@ -2,6 +2,7 @@ package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
 import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
@@ -72,17 +73,14 @@ public class UserController {
     @PutMapping("/:id")
     @MethodOrder(40)
     public String update(Request request, Response response) {
-//        Long id = Long.valueOf(request.params(":id"));
-//        User updated = users.get(id);
-//        updated.setName("Changed " + updated.getId());
-//        updated.setSurname("Changed " + updated.getId());
-//        updated.setEmail("Changed " + updated.getId());
-//        updated.setUsername("Changed " + updated.getId());
-//        users.put(updated.getId(), updated);
-//
-//        return gson.toJson(updated);
+        Long id = Long.valueOf(request.params(":id"));
+        UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
 
-        return "To be implemented";
+        User changes = mapper.toModel(changesDto);
+        User updated = service.update(id, changes);
+        UserViewDto updatedDto = mapper.toViewDto(updated);
+
+        return gson.toJson(updatedDto);
     }
 
     @DeleteMapping("/:id")

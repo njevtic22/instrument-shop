@@ -1,6 +1,7 @@
 package com.instrument.shop.mapper;
 
 import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
@@ -17,6 +18,18 @@ public class UserMapper {
                 addUserDto.getPassword(),
                 false,
                 Role.valueOf(addUserDto.getRole())
+        );
+    }
+
+    public User toModel(UpdateUserDto updateUserDto) {
+        return new User(
+                updateUserDto.getName(),
+                updateUserDto.getSurname(),
+                updateUserDto.getEmail(),
+                updateUserDto.getUsername(),
+                "",
+                false,
+                Role.valueOf(updateUserDto.getRole())
         );
     }
 

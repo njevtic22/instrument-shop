@@ -41,6 +41,18 @@ public class User {
         return Objects.hash(id, email, username);
     }
 
+    public boolean isManager() {
+        return role.equals(Role.MANAGER);
+    }
+
+    public boolean isSalesman() {
+        return role.equals(Role.SALESMAN);
+    }
+
+    public boolean isCustomer() {
+        return role.equals(Role.CUSTOMER);
+    }
+
     public Long getId() {
         return id;
     }

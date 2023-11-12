@@ -5,7 +5,7 @@ public class AddUserDto extends RequestUserDto {
     private final String password;
     private final String repeatedPassword;
 
-    protected AddUserDto(String name, String surname, String email, String username, String role, String password, String repeatedPassword) {
+    public AddUserDto(String name, String surname, String email, String username, String role, String password, String repeatedPassword) {
         super(name, surname, email, username);
         this.role = role;
         this.password = password;

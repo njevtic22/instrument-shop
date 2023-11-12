@@ -8,4 +8,6 @@ public interface CrudService<ID, T> {
     List<T> getAll();
 
     T getById(ID id);
+
+    T update(ID id, T changes);
 }
