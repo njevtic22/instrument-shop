@@ -1,6 +1,8 @@
 package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
+import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.service.UserService;
 import com.sparkjava.context.annotation.DeleteMapping;
@@ -19,11 +21,13 @@ import spark.Response;
 @RequestMapping("api/users")
 public class UserController {
     private final Gson gson;
+    private final UserMapper mapper;
     private final UserService service;
 
     @Inject
-    public UserController(Gson gson, UserService service) {
+    public UserController(Gson gson, UserMapper mapper, UserService service) {
         this.gson = gson;
+        this.mapper = mapper;
         this.service = service;
     }
 
@@ -31,9 +35,10 @@ public class UserController {
     @MethodOrder(100)
     @ResponseStatus(201)
     public String add(Request request, Response response) {
-        User toAdd = gson.fromJson(request.body(), User.class);
-                                        // TODO: change to actual repeated password
-        User added = service.add(toAdd, toAdd.getPassword());
+        AddUserDto toAddDto = gson.fromJson(request.body(), AddUserDto.class);
+
+        User toAdd = mapper.toModel(toAddDto);
+        User added = service.add(toAdd, toAddDto.getRepeatedPassword());
 
         response.header("location", "api/users/" + added.getId());
         return "201 created";
