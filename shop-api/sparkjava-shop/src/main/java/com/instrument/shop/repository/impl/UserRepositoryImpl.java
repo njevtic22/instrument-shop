@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 
 @Singleton
@@ -59,6 +60,11 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public List<User> findAll() {
         return new ArrayList<>(data.values());
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        return Optional.ofNullable(data.get(id));
     }
 
     private void setId(User user, Long id) {

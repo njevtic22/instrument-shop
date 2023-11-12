@@ -6,4 +6,6 @@ public interface CrudService<ID, T> {
     T add(T entity);
 
     List<T> getAll();
+
+    T getById(ID id);
 }

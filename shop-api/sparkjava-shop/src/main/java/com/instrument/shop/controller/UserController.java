@@ -2,6 +2,7 @@ package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
 import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.service.UserService;
@@ -16,6 +17,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import spark.Request;
 import spark.Response;
+
+import java.util.List;
 
 @Singleton
 @RequestMapping("api/users")
@@ -47,16 +50,23 @@ public class UserController {
     @GetMapping
     @MethodOrder(80)
     public String getAll(Request request, Response response) {
-        return gson.toJson(service.getAll());
+        List<User> allUsers = service.getAll();
+        List<UserViewDto> allUsersDto = allUsers
+                .stream()
+                .map(mapper::toViewDto)
+                .toList();
+
+        return gson.toJson(allUsersDto);
     }
 
     @GetMapping("/:id")
     @MethodOrder(60)
     public String getById(Request request, Response response) {
-//        Long id = Long.valueOf(request.params(":id"));
-//        return gson.toJson(users.get(id));
+        Long id = Long.valueOf(request.params(":id"));
+        User found = service.getById(id);
+        UserViewDto foundDto = mapper.toViewDto(found);
 
-        return "To be implemented";
+        return gson.toJson(foundDto);
     }
 
     @PutMapping("/:id")

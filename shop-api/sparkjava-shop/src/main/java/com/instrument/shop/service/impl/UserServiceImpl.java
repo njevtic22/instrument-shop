@@ -1,5 +1,6 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.core.error.exceptions.InvalidPasswordException;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
@@ -8,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.List;
+import java.util.Objects;
 
 @Singleton
 public class UserServiceImpl implements UserService {
@@ -41,5 +43,12 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAll() {
         return repository.findAll();
+    }
+
+    @Override
+    public User getById(Long id) {
+        Objects.requireNonNull(id, "User id must not be null");
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("User", id));
     }
 }

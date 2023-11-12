@@ -1,6 +1,7 @@
 package com.instrument.shop.mapper;
 
 import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
 import jakarta.inject.Singleton;
@@ -16,6 +17,17 @@ public class UserMapper {
                 addUserDto.getPassword(),
                 false,
                 Role.valueOf(addUserDto.getRole())
+        );
+    }
+
+    public UserViewDto toViewDto(User user) {
+        return new UserViewDto(
+                user.getId(),
+                user.getName(),
+                user.getSurname(),
+                user.getEmail(),
+                user.getUsername(),
+                user.getRole().toString()
         );
     }
 }
