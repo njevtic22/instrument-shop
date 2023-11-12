@@ -76,4 +76,16 @@ public class UserServiceImpl implements UserService {
 
         return repository.save(existing);
     }
+
+    @Override
+    public void delete(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
+
+        // TODO: change to logical delete
+//        if (!repository.existsById(id)) {
+//            throw new EntityNotFoundException("User", id);
+//        }
+
+        repository.deleteById(id);
+    }
 }

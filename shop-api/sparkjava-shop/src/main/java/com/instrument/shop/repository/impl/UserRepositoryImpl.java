@@ -1,5 +1,6 @@
 package com.instrument.shop.repository.impl;
 
+import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.util.NumberGenerator;
@@ -65,6 +66,27 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(data.get(id));
+    }
+
+    @Override
+    public boolean existsById(Long id) {
+        return findById(id).isPresent();
+    }
+
+    @Override
+    public void delete(User user) {
+        data.remove(user.getId(), user);
+        // TODO: serialize
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        if (!existsById(id)) {
+            throw new EntityNotFoundException("User", id);
+        }
+
+        data.remove(id);
+        // TODO: serialize
     }
 
     private void setId(User user, Long id) {

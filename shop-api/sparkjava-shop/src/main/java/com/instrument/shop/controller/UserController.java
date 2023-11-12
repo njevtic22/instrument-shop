@@ -44,7 +44,7 @@ public class UserController {
         User toAdd = mapper.toModel(toAddDto);
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
 
-        response.header("location", "api/users/" + added.getId());
+        response.header("location", request.url() + "/" + added.getId());
         return "201 created";
     }
 
@@ -87,13 +87,9 @@ public class UserController {
     @MethodOrder(20)
     @ResponseStatus(204)
     public String deleteUser(Request request, Response response) {
-//        Long id = Long.valueOf(request.params(":id"));
-//        User deleted = users.get(id);
-//        deleted.setArchived(true);
-//        users.put(deleted.getId(), deleted);
+        Long id = Long.valueOf(request.params(":id"));
+        service.delete(id);
 
-//        return HttpStatus.NO_CONTENT_204 + " " + HttpStatus.getMessage(HttpStatus.NO_CONTENT_204);
-
-        return "To be implemented";
+        return "204 no content";
     }
 }

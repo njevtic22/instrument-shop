@@ -13,4 +13,10 @@ public interface CrudRepository<ID, T> {
     List<T> findAll();
 
     Optional<T> findById(ID id);
+
+    boolean existsById(ID id);
+
+    void delete(T entity);
+
+    void deleteById(ID id);
 }
