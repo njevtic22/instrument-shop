@@ -7,6 +7,7 @@ import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.List;
 import java.util.Objects;
@@ -14,10 +15,12 @@ import java.util.Objects;
 @Singleton
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final PasswordEncoder encoder;
 
     @Inject
-    public UserServiceImpl(UserRepository repository) {
+    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder) {
         this.repository = repository;
+        this.encoder = encoder;
     }
 
     @Override
@@ -33,8 +36,7 @@ public class UserServiceImpl implements UserService {
         // TODO: validateEmail
         // TODO: validateUsername
 
-        // TODO: encode password
-        newUser.setPassword("ENCODED " + newUser.getPassword());
+        newUser.setPassword(encoder.encode(newUser.getPassword()));
         newUser.setArchived(false);
 
         return repository.save(newUser);
