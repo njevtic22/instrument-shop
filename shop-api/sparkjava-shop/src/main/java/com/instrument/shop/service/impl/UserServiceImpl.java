@@ -42,13 +42,13 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAll() {
-        return repository.findAll();
+        return repository.findAllByArchivedFalse();
     }
 
     @Override
     public User getById(Long id) {
         Objects.requireNonNull(id, "User id must not be null");
-        return repository.findById(id)
+        return repository.findByIdAndArchivedFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException("User", id));
     }
 
@@ -81,11 +81,14 @@ public class UserServiceImpl implements UserService {
     public void delete(Long id) {
         Objects.requireNonNull(id, "Id must not be null");
 
-        // TODO: change to logical delete
 //        if (!repository.existsById(id)) {
 //            throw new EntityNotFoundException("User", id);
 //        }
+//
+//        repository.deleteById(id);
 
-        repository.deleteById(id);
+        User foundById = getById(id);
+        foundById.setArchived(true);
+        repository.save(foundById);
     }
 }

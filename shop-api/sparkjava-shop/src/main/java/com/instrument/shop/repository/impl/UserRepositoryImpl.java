@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 @Singleton
 public class UserRepositoryImpl implements UserRepository {
@@ -88,6 +89,46 @@ public class UserRepositoryImpl implements UserRepository {
         data.remove(id);
         // TODO: serialize
     }
+
+    @Override
+    public List<User> findAllByArchivedFalse() {
+        return findAll()
+                .stream()
+                .filter(user -> !user.isArchived())
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Optional<User> findByIdAndArchivedFalse(Long id) {
+        Optional<User> foundOptional = findById(id);
+
+        if (foundOptional.isPresent() && !foundOptional.get().isArchived()) {
+            return foundOptional;
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public boolean existsByIdAndArchivedFalse(Long id) {
+        return findByIdAndArchivedFalse(id).isPresent();
+    }
+
+//    @Override
+//    public void archive(User user) {
+//        setArchived(user, true);
+//
+//        data.put(user.getId(), user);
+//        // TODO: serialize
+//    }
+//
+//    @Override
+//    public void archiveById(Long id) {
+//        User user = findByIdAndArchivedFalse(id)
+//                .orElseThrow(() -> new EntityNotFoundException("User", id));
+//
+//        archive(user);
+//    }
 
     private void setId(User user, Long id) {
         Class<? extends User> userClass = user.getClass();
