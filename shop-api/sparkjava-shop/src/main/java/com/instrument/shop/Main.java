@@ -6,6 +6,7 @@ import com.instrument.shop.controller.UserController;
 import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.PasswordModule;
 import com.instrument.shop.guiceConfig.module.RepositoryModule;
+import com.instrument.shop.guiceConfig.module.ValidatorModule;
 import com.sparkjava.context.SparkJavaContext;
 
 public class Main {
@@ -13,7 +14,8 @@ public class Main {
         Injector injector = Guice.createInjector(
                 new GsonModule(),
                 new RepositoryModule(),
-                new PasswordModule()
+                new PasswordModule(),
+                new ValidatorModule()
         );
 
         SparkJavaContext.init(

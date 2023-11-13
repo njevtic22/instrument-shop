@@ -7,6 +7,7 @@ import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.service.UserService;
+import com.instrument.shop.util.Validator;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
@@ -27,12 +28,14 @@ public class UserController {
     private final Gson gson;
     private final UserMapper mapper;
     private final UserService service;
+    private final Validator validator;
 
     @Inject
-    public UserController(Gson gson, UserMapper mapper, UserService service) {
+    public UserController(Gson gson, UserMapper mapper, UserService service, Validator validator) {
         this.gson = gson;
         this.mapper = mapper;
         this.service = service;
+        this.validator = validator;
     }
 
     @PostMapping
@@ -40,6 +43,7 @@ public class UserController {
     @ResponseStatus(201)
     public String add(Request request, Response response) {
         AddUserDto toAddDto = gson.fromJson(request.body(), AddUserDto.class);
+        validator.validate(toAddDto);
 
         User toAdd = mapper.toModel(toAddDto);
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
@@ -75,6 +79,7 @@ public class UserController {
     public String update(Request request, Response response) {
         Long id = Long.valueOf(request.params(":id"));
         UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
+        validator.validate(changesDto);
 
         User changes = mapper.toModel(changesDto);
         User updated = service.update(id, changes);
