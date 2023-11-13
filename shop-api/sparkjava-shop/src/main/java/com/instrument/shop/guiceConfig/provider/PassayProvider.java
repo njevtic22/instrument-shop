@@ -1,5 +1,6 @@
 package com.instrument.shop.guiceConfig.provider;
 
+import com.instrument.shop.core.validation.passwordRule.BlacklistRule;
 import jakarta.inject.Provider;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
@@ -21,6 +22,16 @@ public class PassayProvider implements Provider<PasswordValidator> {
     public PasswordValidator get() {
         // TODO: inject these
         final String passayMessagesPath = "./src/main/resources/passay-messages.properties";
+
+        /*
+         * Blacklist source with 1_000_000 blacklisted passwords
+         * https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000000.txt
+         * */
+
+        // Filtered out those blacklisted passwords which do not pass org.passay.PasswordValidator
+        // whenever org.passay.PasswordValidator rules changes,
+        // password-blacklist.txt must be updated (filtering out from 1_000_000  blacklisted passwords must be done)
+        final String blacklistPath = "./src/main/resources/password-blacklist.txt";
 
         Properties messageProperties = new Properties();
         try {
@@ -45,7 +56,9 @@ public class PassayProvider implements Provider<PasswordValidator> {
                 new IllegalSequenceRule(EnglishSequenceData.Numerical, 5, false),
                 new IllegalSequenceRule(EnglishSequenceData.USQwerty, 5, false),
 
-                new WhitespaceRule()
+                new WhitespaceRule(),
+
+                new BlacklistRule(blacklistPath)
         );
     }
 }
