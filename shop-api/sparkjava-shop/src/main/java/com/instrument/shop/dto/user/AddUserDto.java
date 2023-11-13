@@ -1,12 +1,13 @@
 package com.instrument.shop.dto.user;
 
+import com.instrument.shop.core.validation.annotation.Password;
 import jakarta.validation.constraints.NotBlank;
 
 public class AddUserDto extends RequestUserDto {
     @NotBlank(message = "Role must not be blank")
     private final String role;
 
-    @NotBlank(message = "Password must not be blank")
+    @Password
     private final String password;
 
     @NotBlank(message = "Repeated password must not be blank")
