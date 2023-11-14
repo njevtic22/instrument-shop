@@ -6,9 +6,9 @@ import org.passay.RuleResult;
 import org.passay.RuleResultMetadata;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -25,7 +25,7 @@ public class BlacklistRule implements Rule {
         RuleResult result = new RuleResult();
         String password = passwordData.getPassword();
 
-        try (BufferedReader in = new BufferedReader(new FileReader(new File(blacklistPath)))) {
+        try (BufferedReader in = new BufferedReader(getBlacklistStream(blacklistPath))) {
             String forbiddenPassword = "";
             while ((forbiddenPassword = in.readLine()) != null) {
                 if (forbiddenPassword.equals(password)) {
@@ -49,5 +49,10 @@ public class BlacklistRule implements Rule {
 
     private RuleResultMetadata createRuleResultMetadata(PasswordData passwordData) {
         return new RuleResultMetadata(RuleResultMetadata.CountCategory.Illegal, passwordData.getPassword().length());
+    }
+
+    private InputStreamReader getBlacklistStream(String passwordBlacklist) {
+        InputStream blacklistStream = getClass().getClassLoader().getResourceAsStream(passwordBlacklist);
+        return new InputStreamReader(blacklistStream);
     }
 }
