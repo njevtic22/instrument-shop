@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
@@ -24,7 +25,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User add(User newUser, String repeatedPassword) {
+    public User add(User newUser, String repeatedPassword) throws IOException {
         if (!newUser.getPassword().equals(repeatedPassword)) {     // passwords are not encoded
             throw new InvalidPasswordException("New password and repeated password do not match.");
         }
@@ -32,7 +33,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User add(User newUser) {
+    public User add(User newUser) throws IOException {
         // TODO: validateEmail
         // TODO: validateUsername
 
@@ -55,7 +56,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(Long id, User changes) {
+    public User update(Long id, User changes) throws IOException {
         User existing = getById(id);
 
         // TODO: validate email
@@ -80,7 +81,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long id) {
+    public void delete(Long id) throws IOException {
         Objects.requireNonNull(id, "Id must not be null");
 
 //        if (!repository.existsById(id)) {

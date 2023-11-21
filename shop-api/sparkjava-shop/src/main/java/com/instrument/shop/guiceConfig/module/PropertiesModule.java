@@ -16,6 +16,8 @@ public class PropertiesModule extends AbstractModule {
         bind(Properties.class).annotatedWith(Names.named("passayMessages")).toInstance(getProperties(properties.getProperty("passay.messages.properties")));
 
         bind(String.class).annotatedWith(Names.named("passwordBlacklist")).toInstance(properties.getProperty("password.blacklist"));
+
+        bind(String.class).annotatedWith(Names.named("userFilePath")).toInstance(properties.getProperty("database.json.user-file-path"));
     }
 
     private Properties getProperties(String propertiesPath) {

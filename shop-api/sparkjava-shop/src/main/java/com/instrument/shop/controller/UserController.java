@@ -20,6 +20,7 @@ import jakarta.inject.Singleton;
 import spark.Request;
 import spark.Response;
 
+import java.io.IOException;
 import java.util.List;
 
 @Singleton
@@ -41,7 +42,7 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
-    public String add(Request request, Response response) {
+    public String add(Request request, Response response) throws IOException {
         AddUserDto toAddDto = gson.fromJson(request.body(), AddUserDto.class);
         validator.validate(toAddDto);
 
@@ -76,7 +77,7 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(Request request, Response response) {
+    public String update(Request request, Response response) throws IOException {
         Long id = Long.valueOf(request.params(":id"));
         UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
         validator.validate(changesDto);
@@ -91,7 +92,7 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
-    public String deleteUser(Request request, Response response) {
+    public String deleteUser(Request request, Response response) throws IOException {
         Long id = Long.valueOf(request.params(":id"));
         service.delete(id);
 

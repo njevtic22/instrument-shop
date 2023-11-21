@@ -3,6 +3,7 @@ package com.instrument.shop;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.instrument.shop.controller.UserController;
+import com.instrument.shop.guiceConfig.module.FileSerializerModule;
 import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.PasswordModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
@@ -17,6 +18,7 @@ public class Main {
         Injector injector = Guice.createInjector(
                 new GsonModule(),
                 new PropertiesModule(),
+                new FileSerializerModule(),
                 new RepositoryModule(),
                 new PasswordModule(),
                 new ValidatorModule()

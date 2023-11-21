@@ -3,10 +3,12 @@ package com.instrument.shop.repository.impl;
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
+import com.instrument.shop.serializers.fileSerializers.FileSerializer;
 import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +21,17 @@ import java.util.stream.Collectors;
 public class UserRepositoryImpl implements UserRepository {
     private final TreeMap<Long, User> data;
     private final NumberGenerator<Long> userId;
+    private final FileSerializer<Long, User> serializer;
 
     @Inject
-    public UserRepositoryImpl(Map<Long, User> data, NumberGenerator<Long> userId) {
+    public UserRepositoryImpl(
+            Map<Long, User> data,
+            NumberGenerator<Long> userId,
+            FileSerializer<Long, User> serializer
+    ) {
         this.data = new TreeMap<>(data);
         this.userId = userId;
+        this.serializer = serializer;
     }
 
     @Override
@@ -32,18 +40,18 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User save(User user) {
+    public User save(User user) throws IOException {
         if (user.getId() == null) {
             setId(user, userId.next());
         }
 
         data.put(user.getId(), user);
-        // TODO: serialize
+        serializer.serialize(data);
         return user;
     }
 
     @Override
-    public List<User> saveAll(Iterable<User> users) {
+    public List<User> saveAll(Iterable<User> users) throws IOException {
         ArrayList<User> savedUsers = new ArrayList<>(10);
 
         for (User user : users) {
@@ -55,7 +63,7 @@ public class UserRepositoryImpl implements UserRepository {
             savedUsers.add(user);
         }
 
-        // TODO: serialize
+        serializer.serialize(data);
         return savedUsers;
     }
 
@@ -75,19 +83,19 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void delete(User user) {
+    public void delete(User user) throws IOException {
         data.remove(user.getId(), user);
-        // TODO: serialize
+        serializer.serialize(data);
     }
 
     @Override
-    public void deleteById(Long id) {
+    public void deleteById(Long id) throws IOException {
         if (!existsById(id)) {
             throw new EntityNotFoundException("User", id);
         }
 
         data.remove(id);
-        // TODO: serialize
+        serializer.serialize(data);
     }
 
     @Override
@@ -119,7 +127,7 @@ public class UserRepositoryImpl implements UserRepository {
 //        setArchived(user, true);
 //
 //        data.put(user.getId(), user);
-//        // TODO: serialize
+//        serializer.serialize(data);
 //    }
 //
 //    @Override
