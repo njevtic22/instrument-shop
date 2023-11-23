@@ -1,9 +1,11 @@
 package com.instrument.shop.repository.impl;
 
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.serializers.fileSerializers.FileSerializer;
+import com.instrument.shop.sorter.Sorter;
 import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -22,16 +24,19 @@ public class UserRepositoryImpl implements UserRepository {
     private final TreeMap<Long, User> data;
     private final NumberGenerator<Long> userId;
     private final FileSerializer<Long, User> serializer;
+    private final Sorter<User> sorter;
 
     @Inject
     public UserRepositoryImpl(
             Map<Long, User> data,
             NumberGenerator<Long> userId,
-            FileSerializer<Long, User> serializer
+            FileSerializer<Long, User> serializer,
+            Sorter<User> sorter
     ) {
         this.data = new TreeMap<>(data);
         this.userId = userId;
         this.serializer = serializer;
+        this.sorter = sorter;
     }
 
     @Override
@@ -73,6 +78,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public List<User> findAll(Sort sort) {
+        ArrayList<User> allUsers = new ArrayList<>(data.values());
+        sorter.sort(allUsers, sort);
+        return allUsers;
+    }
+
+    @Override
     public Optional<User> findById(Long id) {
         return Optional.ofNullable(data.get(id));
     }
@@ -104,6 +116,16 @@ public class UserRepositoryImpl implements UserRepository {
                 .stream()
                 .filter(user -> !user.isArchived())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<User> findAllByArchivedFalse(Sort sort) {
+        List<User> allUsers = findAll()
+                .stream()
+                .filter(user -> !user.isArchived())
+                .collect(Collectors.toList());
+        sorter.sort(allUsers, sort);
+        return allUsers;
     }
 
     @Override

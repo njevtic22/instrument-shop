@@ -1,5 +1,7 @@
 package com.instrument.shop.repository;
 
+import com.instrument.shop.core.pagination.Sort;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
@@ -12,6 +14,8 @@ public interface CrudRepository<ID, T> {
     List<T> saveAll(Iterable<T> entities) throws IOException;
 
     List<T> findAll();
+
+    List<T> findAll(Sort sort);
 
     Optional<T> findById(ID id);
 

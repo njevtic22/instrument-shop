@@ -1,6 +1,8 @@
 package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
+import com.instrument.shop.core.pagination.PagingFilteringUtil;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.user.AddUserDto;
 import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
@@ -30,13 +32,21 @@ public class UserController {
     private final UserMapper mapper;
     private final UserService service;
     private final Validator validator;
+    private final PagingFilteringUtil pagingFilteringUtil;
 
     @Inject
-    public UserController(Gson gson, UserMapper mapper, UserService service, Validator validator) {
+    public UserController(
+            Gson gson,
+            UserMapper mapper,
+            UserService service,
+            Validator validator,
+            PagingFilteringUtil pagingFilteringUtil
+    ) {
         this.gson = gson;
         this.mapper = mapper;
         this.service = service;
         this.validator = validator;
+        this.pagingFilteringUtil = pagingFilteringUtil;
     }
 
     @PostMapping
@@ -56,7 +66,9 @@ public class UserController {
     @GetMapping
     @MethodOrder(80)
     public String getAll(Request request, Response response) {
-        List<User> allUsers = service.getAll();
+        Sort sort = pagingFilteringUtil.buildSort(request);
+
+        List<User> allUsers = service.getAll(sort);
         List<UserViewDto> allUsersDto = allUsers
                 .stream()
                 .map(mapper::toViewDto)

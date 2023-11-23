@@ -2,6 +2,7 @@ package com.instrument.shop.service.impl;
 
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.core.error.exceptions.InvalidPasswordException;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.service.UserService;
@@ -45,7 +46,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public List<User> getAll() {
-        return repository.findAllByArchivedFalse();
+        return getAll(Sort.UNSORTED);
+    }
+
+    @Override
+    public List<User> getAll(Sort sort) {
+        return repository.findAllByArchivedFalse(sort);
     }
 
     @Override

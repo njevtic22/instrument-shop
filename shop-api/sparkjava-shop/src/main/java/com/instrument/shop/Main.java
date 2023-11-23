@@ -10,6 +10,7 @@ import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.PasswordModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
 import com.instrument.shop.guiceConfig.module.RepositoryModule;
+import com.instrument.shop.guiceConfig.module.SorterModule;
 import com.instrument.shop.guiceConfig.module.ValidatorModule;
 import com.instrument.shop.repository.UserRepository;
 import com.sparkjava.context.SparkJavaContext;
@@ -22,11 +23,12 @@ public class Main {
     public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalAccessException {
         Injector injector = Guice.createInjector(
                 new GsonModule(),
-                new PropertiesModule(),
-                new FileSerializerModule(),
-                new RepositoryModule(),
                 new PasswordModule(),
-                new ValidatorModule()
+                new ValidatorModule(),
+                new SorterModule(),
+                new RepositoryModule(),
+                new FileSerializerModule(),
+                new PropertiesModule()
         );
 
         Properties properties = injector.getInstance(Properties.class);

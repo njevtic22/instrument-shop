@@ -1,6 +1,7 @@
 package com.instrument.shop.repository;
 
 import com.google.inject.ImplementedBy;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.impl.UserRepositoryImpl;
 
@@ -10,6 +11,8 @@ import java.util.Optional;
 @ImplementedBy(UserRepositoryImpl.class)
 public interface UserRepository extends CrudRepository<Long, User> {
     List<User> findAllByArchivedFalse();
+
+    List<User> findAllByArchivedFalse(Sort sort);
 
     Optional<User> findByIdAndArchivedFalse(Long id);
 
