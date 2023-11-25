@@ -1,16 +1,15 @@
 package com.instrument.shop.service;
 
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 
 import java.io.IOException;
-import java.util.List;
 
 public interface CrudService<ID, T> {
     T add(T entity) throws IOException;
 
-    List<T> getAll();
-
-    List<T> getAll(Sort sort);
+    PaginatedResponse<T> getAll(Sort sort, PageRequest pageRequest);
 
     T getById(ID id);
 

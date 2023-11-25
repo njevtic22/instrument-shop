@@ -18,4 +18,10 @@ public class PagingFilteringUtil {
             throw new IllegalArgumentException("Sort query param value must be formed as: <property>,<asc/desc>");
         }
     }
+
+    public PageRequest buildPageRequest(Request request) {
+        String page = request.queryParams("page") != null ? request.queryParams("page") : "0";
+        String size = request.queryParams("size") != null ? request.queryParams("size") : "20";
+        return new PageRequest(page, size);
+    }
 }

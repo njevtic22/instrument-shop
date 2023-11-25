@@ -1,6 +1,8 @@
 package com.instrument.shop.controller;
 
 import com.google.gson.Gson;
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.user.AddUserDto;
@@ -67,14 +69,20 @@ public class UserController {
     @MethodOrder(80)
     public String getAll(Request request, Response response) {
         Sort sort = pagingFilteringUtil.buildSort(request);
+        PageRequest pageRequest = pagingFilteringUtil.buildPageRequest(request);
 
-        List<User> allUsers = service.getAll(sort);
-        List<UserViewDto> allUsersDto = allUsers
+        PaginatedResponse<User> allUsersPaginated = service.getAll(sort, pageRequest);
+        List<UserViewDto> allUsersDto = allUsersPaginated.data()
                 .stream()
                 .map(mapper::toViewDto)
                 .toList();
 
-        return gson.toJson(allUsersDto);
+        PaginatedResponse<UserViewDto> responseDto = new PaginatedResponse<>(
+                allUsersDto,
+                allUsersPaginated.totalElements(),
+                allUsersPaginated.totalPages()
+        );
+        return gson.toJson(responseDto);
     }
 
     @GetMapping("/:id")

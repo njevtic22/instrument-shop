@@ -2,6 +2,8 @@ package com.instrument.shop.service.impl;
 
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.core.error.exceptions.InvalidPasswordException;
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
@@ -11,7 +13,6 @@ import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Objects;
 
 @Singleton
@@ -45,13 +46,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<User> getAll() {
-        return getAll(Sort.UNSORTED);
-    }
-
-    @Override
-    public List<User> getAll(Sort sort) {
-        return repository.findAllByArchivedFalse(sort);
+    public PaginatedResponse<User> getAll(Sort sort, PageRequest pageRequest) {
+        return repository.findAllByArchivedFalse(sort, pageRequest);
     }
 
     @Override
