@@ -26,6 +26,7 @@ import spark.Response;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 @RequestMapping("api/users")
@@ -68,10 +69,11 @@ public class UserController {
     @GetMapping
     @MethodOrder(80)
     public String getAll(Request request, Response response) {
+        Map<String, String> filterData = buildFilterData(request);
         Sort sort = pagingFilteringUtil.buildSort(request);
         PageRequest pageRequest = pagingFilteringUtil.buildPageRequest(request);
 
-        PaginatedResponse<User> allUsersPaginated = service.getAll(sort, pageRequest);
+        PaginatedResponse<User> allUsersPaginated = service.getAll(filterData, sort, pageRequest);
         List<UserViewDto> allUsersDto = allUsersPaginated.data()
                 .stream()
                 .map(mapper::toViewDto)
@@ -117,5 +119,10 @@ public class UserController {
         service.delete(id);
 
         return "204 no content";
+    }
+
+    private Map<String, String> buildFilterData(Request request) {
+        String[] filterKeys = {"filterName", "filterSurname", "filterEmail", "filterUsername", "filterRole"};
+        return pagingFilteringUtil.buildFilterData(request, filterKeys);
     }
 }

@@ -6,6 +6,7 @@ import com.instrument.shop.core.pagination.Sort;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface CrudRepository<ID, T> {
@@ -15,7 +16,7 @@ public interface CrudRepository<ID, T> {
 
     List<T> saveAll(Iterable<T> entities) throws IOException;
 
-    PaginatedResponse<T> findAll(Sort sort, PageRequest pageRequest);
+    PaginatedResponse<T> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 
     Optional<T> findById(ID id);
 

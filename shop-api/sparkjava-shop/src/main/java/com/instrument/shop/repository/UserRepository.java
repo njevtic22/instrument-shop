@@ -7,11 +7,12 @@ import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.impl.UserRepositoryImpl;
 
+import java.util.Map;
 import java.util.Optional;
 
 @ImplementedBy(UserRepositoryImpl.class)
 public interface UserRepository extends CrudRepository<Long, User> {
-    PaginatedResponse<User> findAllByArchivedFalse(Sort sort, PageRequest pageRequest);
+    PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 
     Optional<User> findByIdAndArchivedFalse(Long id);
 

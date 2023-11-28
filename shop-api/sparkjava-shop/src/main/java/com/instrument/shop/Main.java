@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.dbContext.JsonDbContext;
 import com.instrument.shop.guiceConfig.module.FileSerializerModule;
+import com.instrument.shop.guiceConfig.module.FilterModule;
 import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.PasswordModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
@@ -26,6 +27,7 @@ public class Main {
                 new PasswordModule(),
                 new ValidatorModule(),
                 new SorterModule(),
+                new FilterModule(),
                 new RepositoryModule(),
                 new FileSerializerModule(),
                 new PropertiesModule()

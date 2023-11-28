@@ -5,6 +5,7 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Paginator;
 import com.instrument.shop.core.pagination.Sort;
+import com.instrument.shop.filter.Filter;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.serializers.fileSerializers.FileSerializer;
@@ -27,6 +28,7 @@ public class UserRepositoryImpl implements UserRepository {
     private final TreeMap<Long, User> data;
     private final NumberGenerator<Long> userId;
     private final FileSerializer<Long, User> serializer;
+    private final Filter<User> filter;
     private final Sorter<User> sorter;
     private final Paginator paginator;
 
@@ -35,12 +37,14 @@ public class UserRepositoryImpl implements UserRepository {
             Map<Long, User> data,
             NumberGenerator<Long> userId,
             FileSerializer<Long, User> serializer,
+            Filter<User> filter,
             Sorter<User> sorter,
             Paginator paginator
     ) {
         this.data = new TreeMap<>(data);
         this.userId = userId;
         this.serializer = serializer;
+        this.filter = filter;
         this.sorter = sorter;
         this.paginator = paginator;
     }
@@ -79,8 +83,9 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public PaginatedResponse<User> findAll(Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         ArrayList<User> allUsers = new ArrayList<>(data.values());
+        filter.filter(allUsers, filterData);
         sorter.sort(allUsers, sort);
         return paginator.paginate(allUsers, pageRequest);
     }
@@ -112,12 +117,13 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public PaginatedResponse<User> findAllByArchivedFalse(Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         List<User> allUsers = new ArrayList<>(data.values())
                 .stream()
                 .filter(user -> !user.isArchived())
                 .collect(Collectors.toList());
 
+        filter.filter(allUsers, filterData);
         sorter.sort(allUsers, sort);
         return paginator.paginate(allUsers, pageRequest);
     }

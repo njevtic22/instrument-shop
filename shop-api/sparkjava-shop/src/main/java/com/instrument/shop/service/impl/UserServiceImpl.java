@@ -13,6 +13,7 @@ import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.io.IOException;
+import java.util.Map;
 import java.util.Objects;
 
 @Singleton
@@ -46,8 +47,8 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PaginatedResponse<User> getAll(Sort sort, PageRequest pageRequest) {
-        return repository.findAllByArchivedFalse(sort, pageRequest);
+    public PaginatedResponse<User> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findAllByArchivedFalse(filterData, sort, pageRequest);
     }
 
     @Override

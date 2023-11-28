@@ -3,8 +3,24 @@ package com.instrument.shop.core.pagination;
 import jakarta.inject.Singleton;
 import spark.Request;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @Singleton
 public class PagingFilteringUtil {
+    public Map<String, String> buildFilterData(Request request, String... filterKeys) {
+        HashMap<String, String> filterData = new HashMap<>(filterKeys.length);
+
+        for (String filterKey : filterKeys) {
+            String filterValue = request.queryParams(filterKey);
+            if (filterValue != null) {
+                filterData.put(filterKey, filterValue);
+            }
+        }
+
+        return filterData;
+    }
+
     public Sort buildSort(Request request) {
         String querySort = request.queryParams("sort");
         if (querySort == null) {
