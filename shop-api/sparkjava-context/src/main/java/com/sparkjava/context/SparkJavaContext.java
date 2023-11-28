@@ -50,109 +50,105 @@ public class SparkJavaContext {
                 MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
                 MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
 
-                int returnValue = 0;
-
-//                if (methodOrder1 == null && methodOrder2 == null) {
-//                    returnValue = 0;
-//                } else
-                if (methodOrder1 == null) {
-                    returnValue = -1;
+                int comparingResult = 0;
+                if (methodOrder1 == null && methodOrder2 == null) {
+                    comparingResult = 0;
+                } else if (methodOrder1 == null) {
+                    comparingResult = -1;
                 } else if (methodOrder2 == null) {
-                    returnValue = 1;
+                    comparingResult = 1;
                 } else {
-                    returnValue = Integer.compare(methodOrder1.value(), methodOrder2.value());
+                    comparingResult = Integer.compare(methodOrder1.value(), methodOrder2.value());
                 }
-                return -returnValue;
+                return -comparingResult;
             });
             for (Method method : methods) {
                 List<Annotation> methodMappings = getMethodMappings(method);
                 methodMappings.sort(Comparator.comparing(a -> a.annotationType().getSimpleName()));
-                if (!methodMappings.isEmpty()) {
-                    mapRoutesToMethod(controller, controllerMapping, method, methodMappings);
+                for (Annotation methodMapping : methodMappings) {
+                    mapRouteToMethod(controller, controllerMapping, method, methodMapping);
                 }
             }
 
         }
     }
 
-    private static void mapRoutesToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, List<Annotation> methodMappings) {
+    private static void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation methodMapping) {
         String sparkMethodName = null;
         String methodPath = null;
         String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "application/json;charset=UTF-8";
         String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : "application/json;charset=UTF-8";
 
-        for (Annotation methodMapping : methodMappings) {
-            switch (methodMapping.annotationType().getSimpleName()) {
-                case "GetMapping" -> {
-                    GetMapping getMapping = (GetMapping) methodMapping;
-                    methodPath = controllerMapping.value() + getMapping.value();
-                    sparkMethodName = "get";
-                    if (!getMapping.consumes().isBlank()) {
-                        consumes = getMapping.consumes();
-                    }
-                    if (!getMapping.produces().isBlank()) {
-                        produces = getMapping.produces();
-                    }
+        switch (methodMapping.annotationType().getSimpleName()) {
+            case "GetMapping" -> {
+                GetMapping getMapping = (GetMapping) methodMapping;
+                methodPath = controllerMapping.value() + getMapping.value();
+                sparkMethodName = "get";
+                if (!getMapping.consumes().isBlank()) {
+                    consumes = getMapping.consumes();
                 }
-                case "PostMapping" -> {
-                    PostMapping postMapping = (PostMapping) methodMapping;
-                    methodPath = controllerMapping.value() + postMapping.value();
-                    sparkMethodName = "post";
-                    if (!postMapping.consumes().isBlank()) {
-                        consumes = postMapping.consumes();
-                    }
-                    if (!postMapping.produces().isBlank()) {
-                        produces = postMapping.produces();
-                    }
-                }
-                case "PutMapping" -> {
-                    PutMapping putMapping = (PutMapping) methodMapping;
-                    methodPath = controllerMapping.value() + putMapping.value();
-                    sparkMethodName = "put";
-                    if (!putMapping.consumes().isBlank()) {
-                        consumes = putMapping.consumes();
-                    }
-                    if (!putMapping.produces().isBlank()) {
-                        produces = putMapping.produces();
-                    }
-                }
-                case "DeleteMapping" -> {
-                    DeleteMapping deleteMapping = (DeleteMapping) methodMapping;
-                    methodPath = controllerMapping.value() + deleteMapping.value();
-                    sparkMethodName = "delete";
-                    if (!deleteMapping.consumes().isBlank()) {
-                        consumes = deleteMapping.consumes();
-                    }
-                    if (!deleteMapping.produces().isBlank()) {
-                        produces = deleteMapping.produces();
-                    }
+                if (!getMapping.produces().isBlank()) {
+                    produces = getMapping.produces();
                 }
             }
-
-            int status = 0;
-            if (mappedMethod.isAnnotationPresent(ResponseStatus.class)) {
-                ResponseStatus responseStatus = mappedMethod.getAnnotation(ResponseStatus.class);
-                status = responseStatus.value();
-            }
-
-            final int finalStatus = status;
-            final String finalProduces = produces;
-            Route route = (Request request, Response response) -> {
-                response.type(finalProduces);
-                if (finalStatus != 0) {
-                    response.status(finalStatus);
+            case "PostMapping" -> {
+                PostMapping postMapping = (PostMapping) methodMapping;
+                methodPath = controllerMapping.value() + postMapping.value();
+                sparkMethodName = "post";
+                if (!postMapping.consumes().isBlank()) {
+                    consumes = postMapping.consumes();
                 }
-                return mappedMethod.invoke(controller, request, response);
-            };
-
-            try {
-                Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
-                sparkMethod.invoke(null, methodPath, consumes, route);
-                logger.info("Created endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
-            } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-                logger.info("Could not create endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
-                throw new RuntimeException(e);
+                if (!postMapping.produces().isBlank()) {
+                    produces = postMapping.produces();
+                }
             }
+            case "PutMapping" -> {
+                PutMapping putMapping = (PutMapping) methodMapping;
+                methodPath = controllerMapping.value() + putMapping.value();
+                sparkMethodName = "put";
+                if (!putMapping.consumes().isBlank()) {
+                    consumes = putMapping.consumes();
+                }
+                if (!putMapping.produces().isBlank()) {
+                    produces = putMapping.produces();
+                }
+            }
+            case "DeleteMapping" -> {
+                DeleteMapping deleteMapping = (DeleteMapping) methodMapping;
+                methodPath = controllerMapping.value() + deleteMapping.value();
+                sparkMethodName = "delete";
+                if (!deleteMapping.consumes().isBlank()) {
+                    consumes = deleteMapping.consumes();
+                }
+                if (!deleteMapping.produces().isBlank()) {
+                    produces = deleteMapping.produces();
+                }
+            }
+        }
+
+        int status = 0;
+        if (mappedMethod.isAnnotationPresent(ResponseStatus.class)) {
+            ResponseStatus responseStatus = mappedMethod.getAnnotation(ResponseStatus.class);
+            status = responseStatus.value();
+        }
+
+        final int finalStatus = status;
+        final String finalProduces = produces;
+        Route route = (Request request, Response response) -> {
+            response.type(finalProduces);
+            if (finalStatus != 0) {
+                response.status(finalStatus);
+            }
+            return mappedMethod.invoke(controller, request, response);
+        };
+
+        try {
+            Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
+            sparkMethod.invoke(null, methodPath, consumes, route);
+            logger.info("Created endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.info("Could not create endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            throw new RuntimeException(e);
         }
     }
 
