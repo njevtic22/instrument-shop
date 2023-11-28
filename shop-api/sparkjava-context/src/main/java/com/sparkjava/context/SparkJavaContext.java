@@ -20,13 +20,12 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 
 public class SparkJavaContext {
     private static final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
 
-    private static final List<Class<? extends Annotation>> mappingAnnotations = List.of(
+    private static final List<Class<? extends Annotation>> endpointMappings = List.of(
             GetMapping.class,
             PostMapping.class,
             PutMapping.class,
@@ -43,8 +42,8 @@ public class SparkJavaContext {
                 throw new MissingAnnotationException(RequestMapping.class.getSimpleName(), controllerClass.getSimpleName());
             }
 
-
             RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
+
             Method[] methods = controllerClass.getDeclaredMethods();
             Arrays.sort(methods, (m1, m2) -> {
                 MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
@@ -63,25 +62,23 @@ public class SparkJavaContext {
                 return -comparingResult;
             });
             for (Method method : methods) {
-                List<Annotation> methodMappings = getMethodMappings(method);
-                methodMappings.sort(Comparator.comparing(a -> a.annotationType().getSimpleName()));
-                for (Annotation methodMapping : methodMappings) {
-                    mapRouteToMethod(controller, controllerMapping, method, methodMapping);
+                List<Annotation> endpointMappings = getEndpointMappings(method);
+                for (Annotation endpointMapping : endpointMappings) {
+                    mapRouteToMethod(controller, controllerMapping, method, endpointMapping);
                 }
             }
-
         }
     }
 
-    private static void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation methodMapping) {
+    private static void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation endpointMapping) {
         String sparkMethodName = null;
         String methodPath = null;
         String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "application/json;charset=UTF-8";
         String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : "application/json;charset=UTF-8";
 
-        switch (methodMapping.annotationType().getSimpleName()) {
+        switch (endpointMapping.annotationType().getSimpleName()) {
             case "GetMapping" -> {
-                GetMapping getMapping = (GetMapping) methodMapping;
+                GetMapping getMapping = (GetMapping) endpointMapping;
                 methodPath = controllerMapping.value() + getMapping.value();
                 sparkMethodName = "get";
                 if (!getMapping.consumes().isBlank()) {
@@ -92,7 +89,7 @@ public class SparkJavaContext {
                 }
             }
             case "PostMapping" -> {
-                PostMapping postMapping = (PostMapping) methodMapping;
+                PostMapping postMapping = (PostMapping) endpointMapping;
                 methodPath = controllerMapping.value() + postMapping.value();
                 sparkMethodName = "post";
                 if (!postMapping.consumes().isBlank()) {
@@ -103,7 +100,7 @@ public class SparkJavaContext {
                 }
             }
             case "PutMapping" -> {
-                PutMapping putMapping = (PutMapping) methodMapping;
+                PutMapping putMapping = (PutMapping) endpointMapping;
                 methodPath = controllerMapping.value() + putMapping.value();
                 sparkMethodName = "put";
                 if (!putMapping.consumes().isBlank()) {
@@ -114,7 +111,7 @@ public class SparkJavaContext {
                 }
             }
             case "DeleteMapping" -> {
-                DeleteMapping deleteMapping = (DeleteMapping) methodMapping;
+                DeleteMapping deleteMapping = (DeleteMapping) endpointMapping;
                 methodPath = controllerMapping.value() + deleteMapping.value();
                 sparkMethodName = "delete";
                 if (!deleteMapping.consumes().isBlank()) {
@@ -152,15 +149,15 @@ public class SparkJavaContext {
         }
     }
 
-    private static List<Annotation> getMethodMappings(Method method) {
-        ArrayList<Annotation> methodMappings = new ArrayList<>();
+    private static List<Annotation> getEndpointMappings(Method method) {
+        ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
 
         for (Annotation annotation : method.getAnnotations()) {
-            if (mappingAnnotations.contains(annotation.annotationType())) {
-                methodMappings.add(annotation);
+            if (endpointMappings.contains(annotation.annotationType())) {
+                endpointAnnotations.add(annotation);
             }
         }
 
-        return methodMappings;
+        return endpointAnnotations;
     }
 }
