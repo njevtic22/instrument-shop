@@ -27,12 +27,12 @@ public class PagingFilteringUtil {
             return Sort.UNSORTED;
         }
 
-        if (querySort.contains(",")) {
-            String[] sortSplit = querySort.split(",");
-            return new Sort(sortSplit[0], Order.fromString(sortSplit[1]));
-        } else {
+        if (!querySort.contains(",")) {
             throw new IllegalArgumentException("Sort query param value must be formed as: <property>,<asc/desc>");
         }
+
+        String[] sortSplit = querySort.split(",");
+        return new Sort(sortSplit[0], Order.fromString(sortSplit[1]));
     }
 
     public PageRequest buildPageRequest(Request request) {
