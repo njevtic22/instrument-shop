@@ -3,6 +3,7 @@ package com.instrument.shop;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.dbContext.JsonDbContext;
 import com.instrument.shop.guiceConfig.module.FileSerializerModule;
@@ -46,6 +47,7 @@ public class Main {
 
         SparkJavaContext.init(
                 Integer.parseInt(properties.getProperty("server.port")),
+                injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class)
         );
     }

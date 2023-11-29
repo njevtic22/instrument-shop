@@ -1,5 +1,6 @@
 package com.sparkjava.context;
 
+import com.sparkjava.context.annotation.BeforeMapping;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
@@ -10,6 +11,7 @@ import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.exceptions.MissingAnnotationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import spark.Filter;
 import spark.Request;
 import spark.Response;
 import spark.Route;
@@ -30,6 +32,10 @@ public class SparkJavaContext {
             PostMapping.class,
             PutMapping.class,
             DeleteMapping.class
+    );
+
+    private static final List<Class<? extends Annotation>> filterMappings = List.of(
+            BeforeMapping.class
     );
 
     public static void init(int port, Object... controllers) {
@@ -62,9 +68,14 @@ public class SparkJavaContext {
                 return -comparingResult;
             });
             for (Method method : methods) {
-                List<Annotation> endpointMappings = getEndpointMappings(method);
+                List<Annotation> endpointMappings = getMappings(method, SparkJavaContext.endpointMappings);
                 for (Annotation endpointMapping : endpointMappings) {
                     mapRouteToMethod(controller, controllerMapping, method, endpointMapping);
+                }
+
+                List<Annotation> filterMappings = getMappings(method, SparkJavaContext.filterMappings);
+                for (Annotation filterMapping : filterMappings) {
+                    mapFilterToMethod(controller, controllerMapping, method, filterMapping);
                 }
             }
         }
@@ -142,18 +153,42 @@ public class SparkJavaContext {
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
             sparkMethod.invoke(null, methodPath, consumes, route);
-            logger.info("Created endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            logger.info("Created endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            logger.info("Could not create endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            logger.info("Could not create endpoint: {} {} on method {}", String.format("%6S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
             throw new RuntimeException(e);
         }
     }
 
-    private static List<Annotation> getEndpointMappings(Method method) {
+    private static void mapFilterToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation filterMapping) {
+        String sparkMethodName = null;
+        String methodPath = null;
+
+        switch (filterMapping.annotationType().getSimpleName()) {
+            case "BeforeMapping" -> {
+                BeforeMapping beforeMapping = (BeforeMapping) filterMapping;
+                methodPath = controllerMapping.value() + beforeMapping.value();
+                sparkMethodName = "before";
+            }
+        }
+
+        Filter filter = (Request request, Response response) -> mappedMethod.invoke(controller, request, response);
+
+        try {
+            Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
+            sparkMethod.invoke(null, methodPath, filter);
+            logger.info("Created filter: {} {} on method {}", String.format("%8S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            logger.info("Could not create filter: {} {} on method {}", String.format("%8S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
         ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
 
         for (Annotation annotation : method.getAnnotations()) {
-            if (endpointMappings.contains(annotation.annotationType())) {
+            if (mappings.contains(annotation.annotationType())) {
                 endpointAnnotations.add(annotation);
             }
         }
