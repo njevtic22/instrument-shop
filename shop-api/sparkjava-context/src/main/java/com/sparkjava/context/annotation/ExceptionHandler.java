@@ -9,10 +9,5 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.TYPE})
-public @interface RequestMapping {
-    String value() default "";
-
-    String consumes() default "";
-
-    String produces() default "";
+public @interface ExceptionHandler {
 }

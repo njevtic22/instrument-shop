@@ -2,6 +2,8 @@ package com.sparkjava.context;
 
 import com.sparkjava.context.annotation.BeforeMapping;
 import com.sparkjava.context.annotation.DeleteMapping;
+import com.sparkjava.context.annotation.ExceptionHandler;
+import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
@@ -22,6 +24,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 
 public class SparkJavaContext {
@@ -38,6 +42,25 @@ public class SparkJavaContext {
             BeforeMapping.class
     );
 
+    private static final Comparator<Method> methodOrderComparator = (Method m1, Method m2) -> {
+        MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
+        MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
+
+        int comparingResult = 0;
+        if (methodOrder1 == null && methodOrder2 == null) {
+            comparingResult = 0;
+        } else if (methodOrder1 == null) {
+            comparingResult = -1;
+        } else if (methodOrder2 == null) {
+            comparingResult = 1;
+        } else {
+            comparingResult = Integer.compare(methodOrder1.value(), methodOrder2.value());
+        }
+        return -comparingResult;
+    };
+
+    private static final HashMap<Class<? extends Exception>, Method> handlers = new HashMap<>();
+
     public static void init(int port, Object... controllers) {
         Spark.port(port);
 
@@ -51,22 +74,7 @@ public class SparkJavaContext {
             RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
 
             Method[] methods = controllerClass.getDeclaredMethods();
-            Arrays.sort(methods, (m1, m2) -> {
-                MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
-                MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
-
-                int comparingResult = 0;
-                if (methodOrder1 == null && methodOrder2 == null) {
-                    comparingResult = 0;
-                } else if (methodOrder1 == null) {
-                    comparingResult = -1;
-                } else if (methodOrder2 == null) {
-                    comparingResult = 1;
-                } else {
-                    comparingResult = Integer.compare(methodOrder1.value(), methodOrder2.value());
-                }
-                return -comparingResult;
-            });
+            Arrays.sort(methods, methodOrderComparator);
             for (Method method : methods) {
                 List<Annotation> endpointMappings = getMappings(method, SparkJavaContext.endpointMappings);
                 for (Annotation endpointMapping : endpointMappings) {
@@ -182,6 +190,35 @@ public class SparkJavaContext {
             logger.info("Could not create filter: {} {} on method {}", String.format("%8S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
             throw new RuntimeException(e);
         }
+    }
+
+    public static void registerExceptionHandler(Object exceptionHandler) {
+        Class<?> exceptionHandlerClass = exceptionHandler.getClass();
+        if (!exceptionHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
+            throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
+        }
+
+        Method[] methods = exceptionHandlerClass.getDeclaredMethods();
+        Arrays.sort(methods, methodOrderComparator);
+        for (Method method : methods) {
+            if (method.isAnnotationPresent(Exceptions.class)) {
+                Class<? extends Exception>[] exceptionClasses = method.getAnnotation(Exceptions.class).value();
+                for (Class<? extends Exception> exceptionClass : exceptionClasses) {
+                    handlers.put(exceptionClass, method);
+                }
+            }
+        }
+
+
+        Spark.exception(InvocationTargetException.class, (InvocationTargetException ex, Request request, Response response) -> {
+            Throwable cause = ex.getCause();
+            Method method = handlers.get(cause.getClass());
+            try {
+                method.invoke(exceptionHandler, cause, request, response);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                throw new RuntimeException(e);
+            }
+        });
     }
 
     private static List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {

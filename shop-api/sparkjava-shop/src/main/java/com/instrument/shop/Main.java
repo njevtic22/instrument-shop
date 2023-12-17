@@ -5,6 +5,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.UserController;
+import com.instrument.shop.core.error.ApplicationExceptionHandler;
 import com.instrument.shop.dbContext.JsonDbContext;
 import com.instrument.shop.guiceConfig.module.FileSerializerModule;
 import com.instrument.shop.guiceConfig.module.FilterModule;
@@ -44,6 +45,8 @@ public class Main {
                 injector.getInstance(UserRepository.class)
         );
         dbContext.loadData();
+
+        SparkJavaContext.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
 
         SparkJavaContext.init(
                 Integer.parseInt(properties.getProperty("server.port")),
