@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import spark.Request;
@@ -22,8 +23,9 @@ public class ApplicationExceptionHandler {
         this.gson = gson;
     }
 
+    @ResponseStatus(404)
     @Exceptions({EntityNotFoundException.class})
-    public void handleBadRequest(RuntimeException ex, Request request, Response response) {
+    public void handleNotFound(RuntimeException ex, Request request, Response response) {
         Map<String, Object> body = Map.of(
                 "timestamp", LocalDateTime.now().toString(),
                 "message", ex.getMessage()

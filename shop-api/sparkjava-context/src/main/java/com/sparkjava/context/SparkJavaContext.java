@@ -22,6 +22,7 @@ import spark.Spark;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -198,25 +199,34 @@ public class SparkJavaContext {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
         }
 
-        Method[] methods = exceptionHandlerClass.getDeclaredMethods();
-        Arrays.sort(methods, methodOrderComparator);
-        for (Method method : methods) {
-            if (method.isAnnotationPresent(Exceptions.class)) {
-                Class<? extends Exception>[] exceptionClasses = method.getAnnotation(Exceptions.class).value();
+        Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
+        Arrays.sort(methodHandlers, methodOrderComparator);
+        for (Method methodHandler : methodHandlers) {
+            if (methodHandler.isAnnotationPresent(Exceptions.class)) {
+                Class<? extends Exception>[] exceptionClasses = methodHandler.getAnnotation(Exceptions.class).value();
                 for (Class<? extends Exception> exceptionClass : exceptionClasses) {
-                    handlers.put(exceptionClass, method);
+                    handlers.put(exceptionClass, methodHandler);
                 }
             }
         }
 
 
         Spark.exception(InvocationTargetException.class, (InvocationTargetException ex, Request request, Response response) -> {
-            Throwable cause = ex.getCause();
-            Method method = handlers.get(cause.getClass());
             try {
-                method.invoke(exceptionHandler, cause, request, response);
+                Throwable cause = ex.getCause();
+                Method methodHandler = handlers.get(cause.getClass());
+
+                if (methodHandler.isAnnotationPresent(ResponseStatus.class)) {
+                    ResponseStatus responseStatus = methodHandler.getAnnotation(ResponseStatus.class);
+                    response.status(responseStatus.value());
+                }
+
+                methodHandler.invoke(exceptionHandler, cause, request, response);
             } catch (IllegalAccessException | InvocationTargetException e) {
-                throw new RuntimeException(e);
+                response.status(500);
+                String body = "{\"timestamp\":\"" + LocalDateTime.now() +
+                              "\",\"message\":\"" + e.getMessage() + "\"}";
+                response.body(body);
             }
         });
     }
