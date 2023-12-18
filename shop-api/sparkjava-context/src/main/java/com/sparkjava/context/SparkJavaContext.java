@@ -224,9 +224,10 @@ public class SparkJavaContext {
                 methodHandler.invoke(exceptionHandler, cause, request, response);
             } catch (IllegalAccessException | InvocationTargetException e) {
                 response.status(500);
-                String body = "{\"timestamp\":\"" + LocalDateTime.now() +
-                              "\",\"message\":\"" + e.getMessage() + "\"}";
-                response.body(body);
+                String errorMessage = e.getMessage() != null ? e.getMessage() : "e.getMessage() is null. Cause of e is: " + e.getCause().getMessage();
+                String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
+                              "\",\"message\":\"" + errorMessage + "\"}";
+                response.body(errorBody);
             }
         });
     }

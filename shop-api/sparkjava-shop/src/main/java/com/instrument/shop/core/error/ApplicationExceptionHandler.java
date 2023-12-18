@@ -10,9 +10,6 @@ import jakarta.inject.Singleton;
 import spark.Request;
 import spark.Response;
 
-import java.time.LocalDateTime;
-import java.util.Map;
-
 @Singleton
 @ExceptionHandler
 public class ApplicationExceptionHandler {
@@ -26,10 +23,7 @@ public class ApplicationExceptionHandler {
     @ResponseStatus(404)
     @Exceptions({EntityNotFoundException.class})
     public void handleNotFound(RuntimeException ex, Request request, Response response) {
-        Map<String, Object> body = Map.of(
-                "timestamp", LocalDateTime.now().toString(),
-                "message", ex.getMessage()
-        );
-        response.body(gson.toJson(body));
+        ApiError errorBody = new ApiError(ex.getMessage());
+        response.body(gson.toJson(errorBody));
     }
 }
