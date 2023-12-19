@@ -22,8 +22,8 @@ public class ApplicationExceptionHandler {
 
     @ResponseStatus(404)
     @Exceptions({EntityNotFoundException.class})
-    public void handleNotFound(RuntimeException ex, Request request, Response response) {
+    public String handleNotFound(RuntimeException ex, Request request, Response response) {
         ApiError errorBody = new ApiError(ex.getMessage());
-        response.body(gson.toJson(errorBody));
+        return gson.toJson(errorBody);
     }
 }

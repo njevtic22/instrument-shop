@@ -221,7 +221,11 @@ public class SparkJavaContext {
                     response.status(responseStatus.value());
                 }
 
-                methodHandler.invoke(exceptionHandler, cause, request, response);
+                Object result = methodHandler.invoke(exceptionHandler, cause, request, response);
+                if (result != null) {
+                    // TODO: add serializer
+                    response.body((String) result);
+                }
             } catch (IllegalAccessException | InvocationTargetException e) {
                 response.status(500);
                 String errorMessage = e.getMessage() != null ? e.getMessage() : "e.getMessage() is null. Cause of e is: " + e.getCause().getMessage();
