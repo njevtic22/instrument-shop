@@ -200,7 +200,6 @@ public class SparkJavaContext {
         }
 
         Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
-        Arrays.sort(methodHandlers, methodOrderComparator);
         for (Method methodHandler : methodHandlers) {
             if (methodHandler.isAnnotationPresent(Exceptions.class)) {
                 Class<? extends Exception>[] exceptionClasses = methodHandler.getAnnotation(Exceptions.class).value();
