@@ -26,4 +26,11 @@ public class ApplicationExceptionHandler {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);
     }
+
+    @ResponseStatus(500)
+    @Exceptions({Exception.class})
+    public String handleInternalServer(Exception ex, Request request, Response response) {
+        ApiError errorBody = new ApiError(ex.getMessage());
+        return gson.toJson(errorBody);
+    }
 }

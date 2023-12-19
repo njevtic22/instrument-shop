@@ -215,6 +215,9 @@ public class SparkJavaContext {
             try {
                 Throwable cause = ex.getCause();
                 Method methodHandler = handlers.get(cause.getClass());
+                if (methodHandler == null) {
+                    methodHandler = handlers.get(Exception.class);
+                }
 
                 if (methodHandler.isAnnotationPresent(ResponseStatus.class)) {
                     ResponseStatus responseStatus = methodHandler.getAnnotation(ResponseStatus.class);
@@ -226,7 +229,7 @@ public class SparkJavaContext {
                     // TODO: add serializer
                     response.body((String) result);
                 }
-            } catch (IllegalAccessException | InvocationTargetException e) {
+            } catch (IllegalAccessException | InvocationTargetException | NullPointerException e) {
                 response.status(500);
                 String errorMessage = e.getMessage() != null ? e.getMessage() : "e.getMessage() is null. Cause of e is: " + e.getCause().getMessage();
                 String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
