@@ -44,7 +44,7 @@ public class ApplicationExceptionHandler {
     }
 
     @ResponseStatus(400)
-    @Exceptions({BlankStringException.class})
+    @Exceptions({IllegalArgumentException.class, BlankStringException.class})
     public String handleBadRequest(RuntimeException ex, Request request, Response response) {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);
