@@ -144,6 +144,28 @@ public class UserRepositoryImpl implements UserRepository {
         return findByIdAndArchivedFalse(id).isPresent();
     }
 
+    @Override
+    public boolean existsByUsername(String username) {
+        for (User user : data.values()) {
+            if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+        for (User user : data.values()) {
+            if (user.getEmail().equals(email)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
 //    @Override
 //    public void archive(User user) {
 //        setArchived(user, true);

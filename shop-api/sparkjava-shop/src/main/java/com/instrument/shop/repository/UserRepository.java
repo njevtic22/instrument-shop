@@ -22,13 +22,9 @@ public interface UserRepository extends CrudRepository<Long, User> {
 
     boolean existsByIdAndArchivedFalse(Long id);
 
-//    boolean existsByUsername(String username);
-//
-//    boolean existsByEmail(String email);
-//
-//    boolean existsByUsernameAndArchivedFalse(String username);
-//
-//    boolean existsByEmailAndArchivedFalse(String email);
+    boolean existsByUsername(String username);
+
+    boolean existsByEmail(String email);
 
 //    void archive(User user);
 //

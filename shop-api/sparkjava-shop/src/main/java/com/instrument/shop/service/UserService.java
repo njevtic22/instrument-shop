@@ -9,4 +9,8 @@ import java.io.IOException;
 @ImplementedBy(UserServiceImpl.class)
 public interface UserService extends CrudService<Long, User> {
     User add(User newUser, String repeatedPassword) throws IOException;
+
+    void validateEmail(String email);
+
+    void validateUsername(String username);
 }

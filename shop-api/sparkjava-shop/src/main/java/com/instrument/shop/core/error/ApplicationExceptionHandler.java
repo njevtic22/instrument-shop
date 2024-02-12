@@ -3,6 +3,7 @@ package com.instrument.shop.core.error;
 import com.google.gson.Gson;
 import com.instrument.shop.core.error.exceptions.BlankStringException;
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
+import com.instrument.shop.core.error.exceptions.UniquePropertyException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.ResponseStatus;
@@ -44,7 +45,11 @@ public class ApplicationExceptionHandler {
     }
 
     @ResponseStatus(400)
-    @Exceptions({IllegalArgumentException.class, BlankStringException.class})
+    @Exceptions({
+            IllegalArgumentException.class,
+            UniquePropertyException.class,
+            BlankStringException.class
+    })
     public String handleBadRequest(RuntimeException ex, Request request, Response response) {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);

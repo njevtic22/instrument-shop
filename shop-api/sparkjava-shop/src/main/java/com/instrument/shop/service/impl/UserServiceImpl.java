@@ -2,6 +2,7 @@ package com.instrument.shop.service.impl;
 
 import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
 import com.instrument.shop.core.error.exceptions.InvalidPasswordException;
+import com.instrument.shop.core.error.exceptions.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
@@ -37,8 +38,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User add(User newUser) throws IOException {
-        // TODO: validateEmail
-        // TODO: validateUsername
+        validateEmail(newUser.getEmail());
+        validateUsername(newUser.getUsername());
 
         newUser.setPassword(encoder.encode(newUser.getPassword()));
         newUser.setArchived(false);
@@ -62,8 +63,8 @@ public class UserServiceImpl implements UserService {
     public User update(Long id, User changes) throws IOException {
         User existing = getById(id);
 
-        // TODO: validate email
-        // TODO: validate username
+        validateEmail(changes.getEmail());
+        validateUsername(changes.getUsername());
 
         if (!existing.getRole().equals(changes.getRole())) {
             if (existing.isCustomer()) {
@@ -96,5 +97,19 @@ public class UserServiceImpl implements UserService {
         User foundById = getById(id);
         foundById.setArchived(true);
         repository.save(foundById);
+    }
+
+    @Override
+    public void validateEmail(String email) {
+        if (repository.existsByEmail(email)) {
+            throw new UniquePropertyException("Email '" + email + "' is already taken.");
+        }
+    }
+
+    @Override
+    public void validateUsername(String username) {
+        if (repository.existsByUsername(username)) {
+            throw new UniquePropertyException("Username '" + username + "' is already taken.");
+        }
     }
 }
