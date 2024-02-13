@@ -10,6 +10,7 @@ import com.instrument.shop.dbContext.JsonDbContext;
 import com.instrument.shop.guiceConfig.module.FileSerializerModule;
 import com.instrument.shop.guiceConfig.module.FilterModule;
 import com.instrument.shop.guiceConfig.module.GsonModule;
+import com.instrument.shop.guiceConfig.module.LoggingModule;
 import com.instrument.shop.guiceConfig.module.PasswordModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
 import com.instrument.shop.guiceConfig.module.RepositoryModule;
@@ -32,7 +33,8 @@ public class Main {
                 new FilterModule(),
                 new RepositoryModule(),
                 new FileSerializerModule(),
-                new PropertiesModule()
+                new PropertiesModule(),
+                new LoggingModule()
         );
 
         Properties properties = injector.getInstance(Properties.class);
