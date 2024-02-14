@@ -194,7 +194,8 @@ public class SparkJavaContext {
     }
 
     public static void registerExceptionHandler(Object exceptionHandler) {
-        Class<?> exceptionHandlerClass = exceptionHandler.getClass();
+        // TODO: fix .getSuperclass()
+        Class<?> exceptionHandlerClass = exceptionHandler.getClass().getSuperclass();
         if (!exceptionHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
         }
@@ -206,6 +207,7 @@ public class SparkJavaContext {
                 for (Class<? extends Exception> exceptionClass : exceptionClasses) {
                     handlers.put(exceptionClass, methodHandler);
                 }
+                logger.info("Registered exception handler: {}.{}({})", exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", Arrays.stream(methodHandler.getParameterTypes()).map(Class::getSimpleName).toList()));
             }
         }
 
