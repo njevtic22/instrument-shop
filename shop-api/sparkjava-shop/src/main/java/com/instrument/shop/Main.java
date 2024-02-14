@@ -48,12 +48,12 @@ public class Main {
         );
         dbContext.loadData();
 
-        SparkJavaContext.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
-
         SparkJavaContext.init(
                 Integer.parseInt(properties.getProperty("server.port")),
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class)
         );
+
+        SparkJavaContext.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }
 }
