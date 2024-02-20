@@ -234,7 +234,7 @@ public class SparkJavaContext {
                 response.status(500);
                 String errorMessage = e.getMessage() != null ? e.getMessage() : "e.getMessage() is null. Cause of e is: " + e.getCause().getMessage();
                 String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
-                              "\",\"message\":\"" + errorMessage + "\"}";
+                              "\",\"message\":\"" + errorMessage.replaceAll("\"", "'") + "\"}";
                 response.body(errorBody);
             }
         });
