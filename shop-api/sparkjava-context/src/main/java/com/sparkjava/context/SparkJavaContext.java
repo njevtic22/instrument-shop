@@ -10,7 +10,7 @@ import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
-import com.sparkjava.context.exceptions.MissingAnnotationException;
+import com.sparkjava.context.exception.MissingAnnotationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
