@@ -143,21 +143,13 @@ public class SparkJavaContext {
             }
         }
 
-        int status = 0;
+        int status = 200;
         if (mappedMethod.isAnnotationPresent(ResponseStatus.class)) {
             ResponseStatus responseStatus = mappedMethod.getAnnotation(ResponseStatus.class);
             status = responseStatus.value();
         }
 
-        final int finalStatus = status;
-        final String finalProduces = produces;
-        Route route = (Request request, Response response) -> {
-            response.type(finalProduces);
-            if (finalStatus != 0) {
-                response.status(finalStatus);
-            }
-            return mappedMethod.invoke(controller, request, response);
-        };
+        Route route = new ContextRoute(status, produces, mappedMethod, controller);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
