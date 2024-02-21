@@ -1,6 +1,6 @@
 package com.instrument.shop.repository.impl;
 
-import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Paginator;

@@ -1,4 +1,4 @@
-package com.instrument.shop.core.error.exceptions;
+package com.instrument.shop.core.error.exception;
 
 public class BlankStringException extends IllegalArgumentException {
     public BlankStringException() {

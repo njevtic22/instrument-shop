@@ -1,9 +1,9 @@
 package com.instrument.shop.core.error;
 
 import com.google.gson.Gson;
-import com.instrument.shop.core.error.exceptions.BlankStringException;
-import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
-import com.instrument.shop.core.error.exceptions.UniquePropertyException;
+import com.instrument.shop.core.error.exception.BlankStringException;
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
+import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.ResponseStatus;

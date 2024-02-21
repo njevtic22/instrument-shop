@@ -1,8 +1,8 @@
 package com.instrument.shop.service.impl;
 
-import com.instrument.shop.core.error.exceptions.EntityNotFoundException;
-import com.instrument.shop.core.error.exceptions.InvalidPasswordException;
-import com.instrument.shop.core.error.exceptions.UniquePropertyException;
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
+import com.instrument.shop.core.error.exception.InvalidPasswordException;
+import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
