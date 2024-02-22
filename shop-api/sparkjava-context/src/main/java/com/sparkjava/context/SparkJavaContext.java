@@ -11,18 +11,16 @@ import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.exception.MissingAnnotationException;
+import com.sparkjava.context.exception.handler.InvocationTargetExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
-import spark.Request;
-import spark.Response;
 import spark.Route;
 import spark.Spark;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -59,8 +57,6 @@ public class SparkJavaContext {
         }
         return -comparingResult;
     };
-
-    private static final HashMap<Class<? extends Exception>, Method> handlers = new HashMap<>();
 
     public static void init(int port, Object... controllers) {
         Spark.port(port);
@@ -192,6 +188,8 @@ public class SparkJavaContext {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
         }
 
+        HashMap<Class<? extends Exception>, Method> handlers = new HashMap<>();
+
         Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
         for (Method methodHandler : methodHandlers) {
             if (methodHandler.isAnnotationPresent(Exceptions.class)) {
@@ -203,33 +201,7 @@ public class SparkJavaContext {
             }
         }
 
-
-        Spark.exception(InvocationTargetException.class, (InvocationTargetException ex, Request request, Response response) -> {
-            try {
-                Throwable cause = ex.getCause();
-                Method methodHandler = handlers.get(cause.getClass());
-                if (methodHandler == null) {
-                    methodHandler = handlers.get(Exception.class);
-                }
-
-                if (methodHandler.isAnnotationPresent(ResponseStatus.class)) {
-                    ResponseStatus responseStatus = methodHandler.getAnnotation(ResponseStatus.class);
-                    response.status(responseStatus.value());
-                }
-
-                Object result = methodHandler.invoke(exceptionHandler, cause, request, response);
-                if (result != null) {
-                    // TODO: add serializer
-                    response.body((String) result);
-                }
-            } catch (IllegalAccessException | InvocationTargetException | NullPointerException e) {
-                response.status(500);
-                String errorMessage = e.getMessage() != null ? e.getMessage() : "e.getMessage() is null. Cause of e is: " + e.getCause().getMessage();
-                String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
-                              "\",\"message\":\"" + errorMessage.replaceAll("\"", "'") + "\"}";
-                response.body(errorBody);
-            }
-        });
+        Spark.exception(InvocationTargetException.class, new InvocationTargetExceptionHandler(exceptionHandler, handlers));
     }
 
     private static List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
