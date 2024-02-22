@@ -173,7 +173,7 @@ public class SparkJavaContext {
             }
         }
 
-        Filter filter = (Request request, Response response) -> mappedMethod.invoke(controller, request, response);
+        Filter filter = new ContextFilter(mappedMethod, controller);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
