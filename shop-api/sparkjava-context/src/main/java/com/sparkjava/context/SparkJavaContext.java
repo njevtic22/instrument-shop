@@ -5,11 +5,13 @@ import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.GetMapping;
-import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
+import com.sparkjava.context.core.ContextFilter;
+import com.sparkjava.context.core.ContextRoute;
+import com.sparkjava.context.core.MethodOrderComparator;
 import com.sparkjava.context.exception.MissingAnnotationException;
 import com.sparkjava.context.exception.handler.InvocationTargetExceptionHandler;
 import org.slf4j.Logger;
@@ -23,44 +25,28 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 
 public class SparkJavaContext {
-    private static final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
+    private final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
 
-    private static final List<Class<? extends Annotation>> endpointMappings = List.of(
+    private final List<Class<? extends Annotation>> endpointMappings = List.of(
             GetMapping.class,
             PostMapping.class,
             PutMapping.class,
             DeleteMapping.class
     );
 
-    private static final List<Class<? extends Annotation>> filterMappings = List.of(
+    private final List<Class<? extends Annotation>> filterMappings = List.of(
             BeforeMapping.class
     );
 
-    private static final Comparator<Method> methodOrderComparator = (Method m1, Method m2) -> {
-        MethodOrder methodOrder1 = m1.getAnnotation(MethodOrder.class);
-        MethodOrder methodOrder2 = m2.getAnnotation(MethodOrder.class);
-
-        int comparingResult = 0;
-        if (methodOrder1 == null && methodOrder2 == null) {
-            comparingResult = 0;
-        } else if (methodOrder1 == null) {
-            comparingResult = -1;
-        } else if (methodOrder2 == null) {
-            comparingResult = 1;
-        } else {
-            comparingResult = Integer.compare(methodOrder1.value(), methodOrder2.value());
-        }
-        return -comparingResult;
-    };
-
-    public static void init(int port, Object... controllers) {
+    public SparkJavaContext(int port) {
         Spark.port(port);
+    }
 
+    public void createEndpoints(Object... controllers) {
         for (Object controller : controllers) {
             Class<?> controllerClass = controller.getClass();
 
@@ -71,22 +57,22 @@ public class SparkJavaContext {
             RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
 
             Method[] methods = controllerClass.getDeclaredMethods();
-            Arrays.sort(methods, methodOrderComparator);
+            Arrays.sort(methods, new MethodOrderComparator());
             for (Method method : methods) {
-                List<Annotation> endpointMappings = getMappings(method, SparkJavaContext.endpointMappings);
-                for (Annotation endpointMapping : endpointMappings) {
-                    mapRouteToMethod(controller, controllerMapping, method, endpointMapping);
-                }
-
-                List<Annotation> filterMappings = getMappings(method, SparkJavaContext.filterMappings);
+                List<Annotation> filterMappings = getMappings(method, this.filterMappings);
                 for (Annotation filterMapping : filterMappings) {
                     mapFilterToMethod(controller, controllerMapping, method, filterMapping);
+                }
+
+                List<Annotation> endpointMappings = getMappings(method, this.endpointMappings);
+                for (Annotation endpointMapping : endpointMappings) {
+                    mapRouteToMethod(controller, controllerMapping, method, endpointMapping);
                 }
             }
         }
     }
 
-    private static void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation endpointMapping) {
+    private void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation endpointMapping) {
         String sparkMethodName = null;
         String methodPath = null;
         String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "application/json;charset=UTF-8";
@@ -157,7 +143,7 @@ public class SparkJavaContext {
         }
     }
 
-    private static void mapFilterToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation filterMapping) {
+    private void mapFilterToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation filterMapping) {
         String sparkMethodName = null;
         String methodPath = null;
 
@@ -181,7 +167,7 @@ public class SparkJavaContext {
         }
     }
 
-    public static void registerExceptionHandler(Object exceptionHandler) {
+    public void registerExceptionHandler(Object exceptionHandler) {
         // TODO: fix .getSuperclass()
         Class<?> exceptionHandlerClass = exceptionHandler.getClass().getSuperclass();
         if (!exceptionHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
@@ -204,7 +190,7 @@ public class SparkJavaContext {
         Spark.exception(InvocationTargetException.class, new InvocationTargetExceptionHandler(exceptionHandler, handlers));
     }
 
-    private static List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
+    private List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
         ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
 
         for (Annotation annotation : method.getAnnotations()) {

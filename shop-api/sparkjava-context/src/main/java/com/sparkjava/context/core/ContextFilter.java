@@ -1,4 +1,4 @@
-package com.sparkjava.context;
+package com.sparkjava.context.core;
 
 import spark.Filter;
 import spark.Request;

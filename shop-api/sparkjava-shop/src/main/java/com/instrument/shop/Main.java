@@ -48,12 +48,11 @@ public class Main {
         );
         dbContext.loadData();
 
-        SparkJavaContext.init(
-                Integer.parseInt(properties.getProperty("server.port")),
+        SparkJavaContext sparkCtx = new SparkJavaContext(Integer.parseInt(properties.getProperty("server.port")));
+        sparkCtx.createEndpoints(
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class)
         );
-
-        SparkJavaContext.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
+        sparkCtx.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }
 }
