@@ -1,5 +1,6 @@
 package com.sparkjava.context;
 
+import com.sparkjava.context.annotation.AfterMapping;
 import com.sparkjava.context.annotation.BeforeMapping;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.ExceptionHandler;
@@ -39,6 +40,7 @@ public class SparkJavaContext {
     );
 
     private final List<Class<? extends Annotation>> filterMappings = List.of(
+            AfterMapping.class,
             BeforeMapping.class
     );
 
@@ -152,6 +154,11 @@ public class SparkJavaContext {
                 BeforeMapping beforeMapping = (BeforeMapping) filterMapping;
                 methodPath = controllerMapping.value() + beforeMapping.value();
                 sparkMethodName = "before";
+            }
+            case "AfterMapping" -> {
+                AfterMapping afterMapping = (AfterMapping) filterMapping;
+                methodPath = controllerMapping.value() + afterMapping.value();
+                sparkMethodName = "after";
             }
         }
 
