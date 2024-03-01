@@ -1,5 +1,6 @@
 package com.instrument.shop.controller;
 
+import com.sparkjava.context.annotation.AfterAfterMapping;
 import com.sparkjava.context.annotation.AfterMapping;
 import com.sparkjava.context.annotation.BeforeMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -21,6 +22,11 @@ public class LoggingController {
     }
 
     @AfterMapping("/*")
+    public void logExample(Request request, Response response) {
+        logger.info("example: " + request.protocol() + " " + response.status() + " " + HttpStatus.getMessage(response.status()));
+    }
+
+    @AfterAfterMapping("/*")
     public void logApiResponse(Request request, Response response) {
         logger.info("response: " + request.protocol() + " " + response.status() + " " + HttpStatus.getMessage(response.status()));
     }
