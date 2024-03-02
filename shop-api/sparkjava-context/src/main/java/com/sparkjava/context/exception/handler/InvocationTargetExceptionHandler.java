@@ -1,6 +1,8 @@
 package com.sparkjava.context.exception.handler;
 
 import com.sparkjava.context.annotation.ResponseStatus;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
@@ -9,11 +11,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Map;
 
 public class InvocationTargetExceptionHandler implements ExceptionHandler<InvocationTargetException> {
     private final Object exceptionHandler;
     private final Map<Class<? extends Exception>, Method> handlers;
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public InvocationTargetExceptionHandler(Object exceptionHandler, Map<Class<? extends Exception>, Method> handlers) {
         this.exceptionHandler = exceptionHandler;
@@ -40,15 +44,31 @@ public class InvocationTargetExceptionHandler implements ExceptionHandler<Invoca
                 // TODO: add serializer
                 response.body((String) result);
             }
-        } catch (IllegalAccessException | InvocationTargetException | NullPointerException e) {
+        } catch (Exception e) {
             response.status(500);
             String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
                     "\",\"message\":\"" + e.getMessage().replaceAll("\"", "'") + "\"}";
             response.body(errorBody);
+            logger.error("Unexpected error", e);
         }
     }
 
     private Object[] parseArgs(Parameter[] parameters, Throwable ex, Request request, Response response) {
-        return new Object[]{ex, request, response};
+        ArrayList<Object> params = new ArrayList<>(parameters.length);
+
+        for (Parameter parameter : parameters) {
+            Class<?> type = parameter.getType();
+            if (type.isInstance(ex)) {
+                params.add(ex);
+            } else if (type.isInstance(request)) {
+                params.add(request);
+            } else if (type.isInstance(response)) {
+                params.add(response);
+            } else {
+                throw new IllegalArgumentException("Unsupported argument type: " + type);
+            }
+        }
+
+        return params.toArray();
     }
 }

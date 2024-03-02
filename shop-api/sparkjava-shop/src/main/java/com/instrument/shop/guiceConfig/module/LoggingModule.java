@@ -17,7 +17,7 @@ public class LoggingModule extends AbstractModule {
             AspectLogger logger = new AspectLogger();
 
             Class<ApplicationExceptionHandler> exceptionHandlerClass = ApplicationExceptionHandler.class;
-            Method handleInternalServerMethod = exceptionHandlerClass.getDeclaredMethod("handleInternalServer", Exception.class, Request.class, Response.class);
+            Method handleInternalServerMethod = exceptionHandlerClass.getDeclaredMethod("handleInternalServer", Exception.class);
 
             Matcher<Object> exceptionMatcher = Matchers.only(handleInternalServerMethod);
             bindInterceptor(

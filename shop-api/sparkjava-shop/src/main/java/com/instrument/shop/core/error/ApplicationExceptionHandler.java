@@ -11,8 +11,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import spark.Request;
-import spark.Response;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -29,8 +27,8 @@ public class ApplicationExceptionHandler {
     }
 
     @ResponseStatus(400)
-    @Exceptions({ConstraintViolationException.class})
-    public String handleConstraintViolation(ConstraintViolationException ex, Request request, Response response) {
+    @Exceptions(ConstraintViolationException.class)
+    public String handleConstraintViolation(ConstraintViolationException ex) {
         ArrayList<FieldErrorMessage> details = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             String fieldName = violation.getPropertyPath().toString();
@@ -50,21 +48,21 @@ public class ApplicationExceptionHandler {
             UniquePropertyException.class,
             BlankStringException.class
     })
-    public String handleBadRequest(RuntimeException ex, Request request, Response response) {
+    public String handleBadRequest(RuntimeException ex) {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);
     }
 
     @ResponseStatus(404)
-    @Exceptions({EntityNotFoundException.class})
-    public String handleNotFound(RuntimeException ex, Request request, Response response) {
+    @Exceptions(EntityNotFoundException.class)
+    public String handleNotFound(RuntimeException ex) {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);
     }
 
     @ResponseStatus(500)
-    @Exceptions({Exception.class})
-    public String handleInternalServer(Exception ex, Request request, Response response) {
+    @Exceptions(Exception.class)
+    public String handleInternalServer(Exception ex) {
         ApiError errorBody = new ApiError(ex.getMessage());
         return gson.toJson(errorBody);
     }
