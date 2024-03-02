@@ -5,8 +5,6 @@ import com.google.inject.matcher.Matcher;
 import com.google.inject.matcher.Matchers;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
 import com.instrument.shop.logging.AspectLogger;
-import spark.Request;
-import spark.Response;
 
 import java.lang.reflect.Method;
 
