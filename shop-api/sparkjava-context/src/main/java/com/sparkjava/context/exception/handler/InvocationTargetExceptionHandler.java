@@ -45,11 +45,12 @@ public class InvocationTargetExceptionHandler implements ExceptionHandler<Invoca
                 response.body((String) result);
             }
         } catch (Exception e) {
-            response.status(500);
-            String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
-                    "\",\"message\":\"" + e.getMessage().replaceAll("\"", "'") + "\"}";
-            response.body(errorBody);
             logger.error("Unexpected error", e);
+            response.status(500);
+            String message = e.getMessage() != null ? e.getMessage() : "null";
+            String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
+                    "\",\"message\":\"" + message.replaceAll("\"", "'") + "\"}";
+            response.body(errorBody);
         }
     }
 
