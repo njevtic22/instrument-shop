@@ -140,9 +140,9 @@ public class SparkJavaContext {
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
             sparkMethod.invoke(null, methodPath, consumes, route);
-            logger.info("Created endpoint: {} {} on method {}", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            logger.info("Created endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            logger.info("Could not create endpoint: {} {} on method {}", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName() + "." + mappedMethod.getName() + "(" + mappedMethod.getParameterTypes()[0].getSimpleName() + ", " + mappedMethod.getParameterTypes()[1].getSimpleName() + ")");
+            logger.info("Could not create endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
             throw new RuntimeException(e);
         }
     }
@@ -197,7 +197,7 @@ public class SparkJavaContext {
                 for (Class<? extends Exception> exceptionClass : exceptionClasses) {
                     handlers.put(exceptionClass, methodHandler);
                 }
-                logger.info("Registered exception handler: {}.{}({})", exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", Arrays.stream(methodHandler.getParameterTypes()).map(Class::getSimpleName).toList()));
+                logger.info("Registered exception handler: {}.{}({})", exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }
         }
 
@@ -214,5 +214,11 @@ public class SparkJavaContext {
         }
 
         return endpointAnnotations;
+    }
+
+    private List<String> getParameterTypeNames(Method method) {
+        return Arrays.stream(method.getParameterTypes())
+                .map(Class::getSimpleName)
+                .toList();
     }
 }

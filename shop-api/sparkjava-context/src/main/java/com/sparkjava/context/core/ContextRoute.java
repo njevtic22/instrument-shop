@@ -6,6 +6,7 @@ import spark.Route;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.util.ArrayList;
 
 public class ContextRoute implements Route {
     private final int responseStatus;
@@ -34,6 +35,19 @@ public class ContextRoute implements Route {
     }
 
     private Object[] parseArgs(Parameter[] parameters, Request request, Response response) {
-        return new Object[]{request, response};
+        ArrayList<Object> params = new ArrayList<>(parameters.length);
+
+        for (Parameter parameter : parameters) {
+            Class<?> type = parameter.getType();
+            if (type.isInstance(request)) {
+                params.add(request);
+            } else if (type.isInstance(response)) {
+                params.add(response);
+            } else {
+                throw new IllegalArgumentException("Unsupported argument type: " + type);
+            }
+        }
+
+        return params.toArray();
     }
 }

@@ -68,7 +68,7 @@ public class UserController {
 
     @GetMapping
     @MethodOrder(80)
-    public String getAll(Request request, Response response) {
+    public String getAll(Request request) {
         Map<String, String> filterData = buildFilterData(request);
         Sort sort = pagingFilteringUtil.buildSort(request);
         PageRequest pageRequest = pagingFilteringUtil.buildPageRequest(request);
@@ -89,7 +89,7 @@ public class UserController {
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    public String getById(Request request, Response response) {
+    public String getById(Request request) {
         Long id = Long.valueOf(request.params(":id"));
         User found = service.getById(id);
         UserViewDto foundDto = mapper.toViewDto(found);
@@ -99,7 +99,7 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(Request request, Response response) throws IOException {
+    public String update(Request request) throws IOException {
         Long id = Long.valueOf(request.params(":id"));
         UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
         validator.validate(changesDto);
@@ -114,7 +114,7 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
-    public String deleteUser(Request request, Response response) throws IOException {
+    public String deleteUser(Request request) throws IOException {
         Long id = Long.valueOf(request.params(":id"));
         service.delete(id);
 
