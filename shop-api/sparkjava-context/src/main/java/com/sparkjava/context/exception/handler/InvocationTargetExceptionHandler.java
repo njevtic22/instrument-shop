@@ -1,6 +1,7 @@
 package com.sparkjava.context.exception.handler;
 
 import com.sparkjava.context.annotation.ResponseStatus;
+import com.sparkjava.context.exception.HandlerNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.ExceptionHandler;
@@ -28,11 +29,12 @@ public class InvocationTargetExceptionHandler implements ExceptionHandler<Invoca
     public void handle(InvocationTargetException exception, Request request, Response response) {
         try {
             Throwable cause = exception.getCause();
-            Method methodHandler = handlers.get(cause.getClass());
+            Method methodHandler = handlers.getOrDefault(cause.getClass(), handlers.get(Exception.class));
             if (methodHandler == null) {
-                methodHandler = handlers.get(Exception.class);
+                throw new HandlerNotFoundException(cause.getClass());
             }
 
+            // TODO: add default status code 500
             if (methodHandler.isAnnotationPresent(ResponseStatus.class)) {
                 ResponseStatus responseStatus = methodHandler.getAnnotation(ResponseStatus.class);
                 response.status(responseStatus.value());

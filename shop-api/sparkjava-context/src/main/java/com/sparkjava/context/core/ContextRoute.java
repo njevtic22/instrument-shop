@@ -30,6 +30,7 @@ public class ContextRoute implements Route {
         response.status(responseStatus);
         response.type(responseType);
 
+        // TODO: Try catch for new IllegalArgumentException("Unsupported argument type: " + type)
         Object[] args = parseArgs(mappedMethod.getParameters(), request, response);
         return mappedMethod.invoke(controller, args);
     }
