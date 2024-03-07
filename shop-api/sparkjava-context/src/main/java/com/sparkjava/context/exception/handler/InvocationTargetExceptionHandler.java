@@ -14,6 +14,7 @@ import java.lang.reflect.Parameter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.Optional;
 
 public class InvocationTargetExceptionHandler implements ExceptionHandler<InvocationTargetException> {
     private final Object exceptionHandler;
@@ -34,11 +35,10 @@ public class InvocationTargetExceptionHandler implements ExceptionHandler<Invoca
                 throw new HandlerNotFoundException(cause.getClass());
             }
 
-            // TODO: add default status code 500
-            if (methodHandler.isAnnotationPresent(ResponseStatus.class)) {
-                ResponseStatus responseStatus = methodHandler.getAnnotation(ResponseStatus.class);
-                response.status(responseStatus.value());
-            }
+            int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
+                    .map(ResponseStatus::value)
+                    .orElse(500);
+            response.status(status);
 
             Object[] args = parseArgs(methodHandler.getParameters(), cause, request, response);
             Object result = methodHandler.invoke(exceptionHandler, args);

@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 public class SparkJavaContext {
     private final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
@@ -129,11 +130,9 @@ public class SparkJavaContext {
             }
         }
 
-        int status = 200;
-        if (mappedMethod.isAnnotationPresent(ResponseStatus.class)) {
-            ResponseStatus responseStatus = mappedMethod.getAnnotation(ResponseStatus.class);
-            status = responseStatus.value();
-        }
+        int status = Optional.ofNullable(mappedMethod.getAnnotation(ResponseStatus.class))
+                .map(ResponseStatus::value)
+                .orElse(200);
 
         Route route = new ContextRoute(status, produces, mappedMethod, controller);
 
