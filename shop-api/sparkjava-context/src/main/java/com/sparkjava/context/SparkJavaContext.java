@@ -15,7 +15,7 @@ import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
 import com.sparkjava.context.exception.MissingAnnotationException;
-import com.sparkjava.context.exception.handler.InvocationTargetExceptionHandler;
+import com.sparkjava.context.exception.handler.ContextExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
@@ -27,7 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 
@@ -187,20 +186,20 @@ public class SparkJavaContext {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
         }
 
-        HashMap<Class<? extends Exception>, Method> handlers = new HashMap<>();
-
         Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
         for (Method methodHandler : methodHandlers) {
             if (methodHandler.isAnnotationPresent(Exceptions.class)) {
                 Class<? extends Exception>[] exceptionClasses = methodHandler.getAnnotation(Exceptions.class).value();
                 for (Class<? extends Exception> exceptionClass : exceptionClasses) {
-                    handlers.put(exceptionClass, methodHandler);
+
+                    int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
+                            .map(ResponseStatus::value)
+                            .orElse(500);
+                    Spark.exception(exceptionClass, new ContextExceptionHandler(status, "application/json;charset=UTF-8", methodHandler, exceptionHandler));
                 }
                 logger.info("Registered exception handler: {}.{}({})", exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }
         }
-
-        Spark.exception(InvocationTargetException.class, new InvocationTargetExceptionHandler(exceptionHandler, handlers));
     }
 
     private List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
