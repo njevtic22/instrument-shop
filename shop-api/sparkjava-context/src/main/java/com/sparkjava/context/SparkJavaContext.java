@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 public class SparkJavaContext {
     private final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
@@ -197,7 +198,7 @@ public class SparkJavaContext {
                             .orElse(500);
                     Spark.exception(exceptionClass, new ContextExceptionHandler(status, "application/json;charset=UTF-8", methodHandler, exceptionHandler));
                 }
-                logger.info("Registered exception handler: {}.{}({})", exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
+                logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }
         }
     }
@@ -215,8 +216,16 @@ public class SparkJavaContext {
     }
 
     private List<String> getParameterTypeNames(Method method) {
-        return Arrays.stream(method.getParameterTypes())
+        return Stream.of(method.getParameterTypes())
                 .map(Class::getSimpleName)
                 .toList();
+    }
+
+    private String exceptionsToString(Class<? extends Exception>[] exceptions) {
+        List<String> exceptionsList = Stream.of(exceptions)
+                .map(e -> e.getSimpleName() + ".class")
+                .toList();
+
+        return "@Exceptions({\n\t" + String.join(",\n\t", exceptionsList) + "\n})";
     }
 }

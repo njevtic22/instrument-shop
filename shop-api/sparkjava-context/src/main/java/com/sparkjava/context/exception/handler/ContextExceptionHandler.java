@@ -44,6 +44,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
                 response.body((String) result);
             }
         } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
+            // TODO: Wrap all in InternalServerException and handle it in InternalServerExceptionHandler ?
             logger.error("Unexpected error", e);
             response.status(500);
             String message = e.getMessage();
