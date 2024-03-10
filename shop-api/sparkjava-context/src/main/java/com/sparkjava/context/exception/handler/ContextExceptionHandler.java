@@ -1,7 +1,6 @@
 package com.sparkjava.context.exception.handler;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.sparkjava.context.exception.InternalServerException;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
@@ -9,7 +8,6 @@ import spark.Response;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class ContextExceptionHandler implements ExceptionHandler<Exception> {
@@ -18,7 +16,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
     private final Method methodHandler;
     private final Object objectHandler;
 
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+    private final ExceptionHandler<Exception> defaultHandler = new InternalServerExceptionHandler();
 
     public ContextExceptionHandler(int responseStatus, String responseType, Method methodHandler, Object objectHandler) {
         if (responseStatus < 100 || responseStatus > 599) {
@@ -43,14 +41,8 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
                 // TODO: add serializer
                 response.body((String) result);
             }
-        } catch (IllegalAccessException | InvocationTargetException | IllegalArgumentException e) {
-            // TODO: Wrap all in InternalServerException and handle it in InternalServerExceptionHandler ?
-            logger.error("Unexpected error", e);
-            response.status(500);
-            String message = e.getMessage();
-            String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
-                    "\",\"message\":\"" + message + "\"}";
-            response.body(errorBody);
+        } catch (IllegalAccessException | InvocationTargetException | InternalServerException e) {
+            defaultHandler.handle(e, request, response);
         }
     }
 
@@ -66,7 +58,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
             } else if (type.isInstance(response)) {
                 params.add(response);
             } else {
-                throw new IllegalArgumentException("Unsupported argument type: " + type);
+                throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }
         }
 

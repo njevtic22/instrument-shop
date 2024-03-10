@@ -1,5 +1,6 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.exception.InternalServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -9,7 +10,6 @@ import spark.Route;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 public class ContextRoute implements Route {
@@ -40,14 +40,6 @@ public class ContextRoute implements Route {
             Object[] args = parseArgs(mappedMethod.getParameters(), request, response);
             // TODO: add serializer
             return mappedMethod.invoke(controller, args);
-        } catch (IllegalArgumentException e) {
-            logger.error("Unexpected error", e);
-            response.status(500);
-            String message = e.getMessage();
-            String errorBody = "{\"timestamp\":\"" + LocalDateTime.now() +
-                    "\",\"message\":\"" + message + "\"}";
-            response.body(errorBody);
-            return null;
         } catch (InvocationTargetException e) {
             logger.debug(e.getMessage(), e);
             throw (Exception) e.getCause();
@@ -64,7 +56,7 @@ public class ContextRoute implements Route {
             } else if (type.isInstance(response)) {
                 params.add(response);
             } else {
-                throw new IllegalArgumentException("Unsupported argument type: " + type);
+                throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }
         }
 
