@@ -15,6 +15,7 @@ import com.instrument.shop.util.Validator;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -89,8 +90,8 @@ public class UserController {
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    public String getById(Request request) {
-        Long id = Long.valueOf(request.params(":id"));
+    public String getById(@PathParam("id") String idStr) {
+        Long id = Long.valueOf(idStr);
         User found = service.getById(id);
         UserViewDto foundDto = mapper.toViewDto(found);
 
@@ -99,8 +100,8 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(Request request) throws IOException {
-        Long id = Long.valueOf(request.params(":id"));
+    public String update(Request request, @PathParam("id") String idStr) throws IOException {
+        Long id = Long.valueOf(idStr);
         UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
         validator.validate(changesDto);
 
@@ -114,8 +115,8 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
-    public String deleteUser(Request request) throws IOException {
-        Long id = Long.valueOf(request.params(":id"));
+    public String deleteUser(@PathParam("id") String idStr) throws IOException {
+        Long id = Long.valueOf(idStr);
         service.delete(id);
 
         return "204 no content";

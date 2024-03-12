@@ -1,5 +1,6 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.exception.InternalServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -55,6 +56,16 @@ public class ContextRoute implements Route {
                 params.add(request);
             } else if (type.isInstance(response)) {
                 params.add(response);
+            } else if (parameter.isAnnotationPresent(PathParam.class)) {
+                PathParam pp = parameter.getAnnotation(PathParam.class);
+                String paramValue = request.params(":" + pp.value());
+                if (paramValue == null && pp.required()) {
+                    throw new InternalServerException(new NullPointerException("Required path param '" + pp.value() + "' is not present"));
+                }
+
+                if (type.isAssignableFrom(String.class)) {
+                    params.add(paramValue);
+                }
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }

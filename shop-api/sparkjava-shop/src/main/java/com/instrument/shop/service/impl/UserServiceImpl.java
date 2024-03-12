@@ -63,6 +63,7 @@ public class UserServiceImpl implements UserService {
     public User update(Long id, User changes) throws IOException {
         User existing = getById(id);
 
+        // TODO: fix same for same user throws exception
         validateEmail(changes.getEmail());
         validateUsername(changes.getUsername());
 
