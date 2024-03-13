@@ -2,6 +2,7 @@ package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.exception.InternalServerException;
+import com.sparkjava.context.util.StringParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -18,6 +19,7 @@ public class ContextRoute implements Route {
     private final String responseType;
     private final Method mappedMethod;
     private final Object controller;
+    private final StringParser parser = new StringParser();
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -52,20 +54,20 @@ public class ContextRoute implements Route {
 
         for (Parameter parameter : parameters) {
             Class<?> type = parameter.getType();
+
             if (type.isInstance(request)) {
                 params.add(request);
             } else if (type.isInstance(response)) {
                 params.add(response);
+
             } else if (parameter.isAnnotationPresent(PathParam.class)) {
                 PathParam pp = parameter.getAnnotation(PathParam.class);
-                String paramValue = request.params(":" + pp.value());
+                String paramValue = pp.value().startsWith(":") ? request.params(pp.value()) : request.params(":" + pp.value());
                 if (paramValue == null && pp.required()) {
                     throw new InternalServerException(new NullPointerException("Required path param '" + pp.value() + "' is not present"));
                 }
 
-                if (type.isAssignableFrom(String.class)) {
-                    params.add(paramValue);
-                }
+                params.add(parser.parse(paramValue, parameter.getType()));
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }

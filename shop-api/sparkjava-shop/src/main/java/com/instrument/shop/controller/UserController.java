@@ -90,8 +90,7 @@ public class UserController {
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    public String getById(@PathParam("id") String idStr) {
-        Long id = Long.valueOf(idStr);
+    public String getById(@PathParam("id") Long id) {
         User found = service.getById(id);
         UserViewDto foundDto = mapper.toViewDto(found);
 
@@ -100,8 +99,7 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(Request request, @PathParam("id") String idStr) throws IOException {
-        Long id = Long.valueOf(idStr);
+    public String update(Request request, @PathParam("id") Long id) throws IOException {
         UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
         validator.validate(changesDto);
 
@@ -115,8 +113,7 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
-    public String deleteUser(@PathParam("id") String idStr) throws IOException {
-        Long id = Long.valueOf(idStr);
+    public String deleteUser(@PathParam("id") Long id) throws IOException {
         service.delete(id);
 
         return "204 no content";
