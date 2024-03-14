@@ -1,6 +1,7 @@
 package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.PathParam;
+import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.util.StringParser;
 import org.slf4j.Logger;
@@ -68,6 +69,15 @@ public class ContextRoute implements Route {
                 }
 
                 params.add(parser.parse(paramValue, parameter.getType()));
+
+            } else if (parameter.isAnnotationPresent(RequestBody.class)) {
+                RequestBody rb = parameter.getAnnotation(RequestBody.class);
+                String body = request.body();
+                if (body.isBlank() && rb.required()) {
+                    throw new InternalServerException(new IllegalArgumentException("Required request body is not present"));
+                }
+
+                params.add(body);
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }

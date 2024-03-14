@@ -18,6 +18,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
+import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
@@ -56,8 +57,8 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
-    public String add(Request request, Response response) throws IOException {
-        AddUserDto toAddDto = gson.fromJson(request.body(), AddUserDto.class);
+    public String add(Request request, Response response, @RequestBody String body) throws IOException {
+        AddUserDto toAddDto = gson.fromJson(body, AddUserDto.class);
         validator.validate(toAddDto);
 
         User toAdd = mapper.toModel(toAddDto);
@@ -99,8 +100,8 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(Request request, @PathParam("id") Long id) throws IOException {
-        UpdateUserDto changesDto = gson.fromJson(request.body(), UpdateUserDto.class);
+    public String update(@PathParam("id") Long id, @RequestBody String body) throws IOException {
+        UpdateUserDto changesDto = gson.fromJson(body, UpdateUserDto.class);
         validator.validate(changesDto);
 
         User changes = mapper.toModel(changesDto);
