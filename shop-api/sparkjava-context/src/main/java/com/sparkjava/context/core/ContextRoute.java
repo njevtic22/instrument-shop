@@ -1,6 +1,7 @@
 package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.PathParam;
+import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.util.StringParser;
@@ -69,6 +70,19 @@ public class ContextRoute implements Route {
                 }
 
                 params.add(parser.parse(paramValue, parameter.getType()));
+
+            } else if (parameter.isAnnotationPresent(QueryParam.class)) {
+                QueryParam qp = parameter.getAnnotation(QueryParam.class);
+                String queryValue = request.queryParams(qp.value());
+                if (queryValue == null) {
+                    queryValue = qp.defaultValue();
+                }
+
+                if (queryValue.isEmpty() && qp.required()) {
+                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
+                }
+
+                params.add(queryValue);
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);

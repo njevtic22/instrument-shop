@@ -18,6 +18,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
+import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
@@ -70,9 +71,12 @@ public class UserController {
 
     @GetMapping
     @MethodOrder(80)
-    public String getAll(Request request) {
+    public String getAll(
+            Request request,
+            @QueryParam(value = "sort") String sortStr
+    ) {
         Map<String, String> filterData = buildFilterData(request);
-        Sort sort = pagingFilteringUtil.buildSort(request);
+        Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = pagingFilteringUtil.buildPageRequest(request);
 
         PaginatedResponse<User> allUsersPaginated = service.getAll(filterData, sort, pageRequest);

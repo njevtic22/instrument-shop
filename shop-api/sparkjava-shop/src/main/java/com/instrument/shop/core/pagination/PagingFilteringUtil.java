@@ -22,16 +22,19 @@ public class PagingFilteringUtil {
     }
 
     public Sort buildSort(Request request) {
-        String querySort = request.queryParams("sort");
-        if (querySort == null) {
+        return buildSort(request.queryParams("sort"));
+    }
+
+    public Sort buildSort(String sort) {
+        if (sort == null || sort.isBlank() || sort.equalsIgnoreCase("unsorted")) {
             return Sort.UNSORTED;
         }
 
-        if (!querySort.contains(",")) {
+        if (!sort.contains(",")) {
             throw new IllegalArgumentException("Sort query param value must be formed as: <property>,<asc/desc>");
         }
 
-        String[] sortSplit = querySort.split(",");
+        String[] sortSplit = sort.split(",");
         return new Sort(sortSplit[0], Order.fromString(sortSplit[1]));
     }
 
