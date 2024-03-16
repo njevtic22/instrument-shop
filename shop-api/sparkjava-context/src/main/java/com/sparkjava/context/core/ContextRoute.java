@@ -82,7 +82,7 @@ public class ContextRoute implements Route {
                     throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
                 }
 
-                params.add(queryValue);
+                params.add(parser.parse(queryValue, parameter.getType()));
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);

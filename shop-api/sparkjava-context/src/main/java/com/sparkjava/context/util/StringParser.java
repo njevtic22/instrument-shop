@@ -7,9 +7,11 @@ import java.util.function.Function;
 
 public class StringParser {
     private static final Map<Class<?>, Function<String, ?>> parsers = Map.of(
-            long.class,   Long::parseLong,
-            Long.class,   Long::valueOf,
-            String.class, String::valueOf
+            int.class,     Integer::parseInt,
+            long.class,    Long::parseLong,
+            Integer.class, Integer::valueOf,
+            Long.class,    Long::valueOf,
+            String.class,  String::valueOf
     );
 
     public Object parse(String arg, Class<?> desiredType) {

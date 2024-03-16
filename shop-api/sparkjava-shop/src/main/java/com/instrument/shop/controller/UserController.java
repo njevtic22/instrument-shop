@@ -73,11 +73,13 @@ public class UserController {
     @MethodOrder(80)
     public String getAll(
             Request request,
-            @QueryParam(value = "sort") String sortStr
+            @QueryParam(value = "sort", defaultValue = "unsorted") String sortStr,
+            @QueryParam(value = "page", defaultValue = "0") int page,
+            @QueryParam(value = "size", defaultValue = "20") int size
     ) {
         Map<String, String> filterData = buildFilterData(request);
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
-        PageRequest pageRequest = pagingFilteringUtil.buildPageRequest(request);
+        PageRequest pageRequest = new PageRequest(page, size);
 
         PaginatedResponse<User> allUsersPaginated = service.getAll(filterData, sort, pageRequest);
         List<UserViewDto> allUsersDto = allUsersPaginated.data()
