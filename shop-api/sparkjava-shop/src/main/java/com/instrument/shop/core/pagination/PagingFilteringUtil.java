@@ -38,6 +38,30 @@ public class PagingFilteringUtil {
         return new Sort(sortSplit[0], Order.fromString(sortSplit[1]));
     }
 
+    public Sort buildSortValues(Request request) {
+        return buildSort(request.queryParamsValues("sort"));
+    }
+
+    public Sort buildSort(String[] sortArr) {
+        if (sortArr == null || sortArr.length == 0 || sortArr[0].equalsIgnoreCase("unsorted")) {
+            return Sort.UNSORTED;
+        }
+
+        Sort next = null;
+        for (int i = sortArr.length - 1; i >= 0; i--) {
+            String sortBy = sortArr[i];
+            if (!sortBy.contains(",")) {
+                throw new IllegalArgumentException("Sort query param value must be formed as: <property>,<asc/desc>");
+            }
+
+            String[] sortBySplit = sortBy.split(",");
+            Sort sort = new Sort(sortBySplit[0], Order.fromString(sortBySplit[1]), next);
+            next = sort;
+        }
+
+        return next;
+    }
+
     public PageRequest buildPageRequest(Request request) {
         String page = request.queryParams("page") != null ? request.queryParams("page") : "0";
         String size = request.queryParams("size") != null ? request.queryParams("size") : "20";

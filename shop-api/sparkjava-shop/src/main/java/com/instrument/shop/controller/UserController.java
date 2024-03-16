@@ -73,7 +73,7 @@ public class UserController {
     @MethodOrder(80)
     public String getAll(
             Request request,
-            @QueryParam(value = "sort", defaultValue = "unsorted") String sortStr,
+            @QueryParam(value = "sort", defaultValue = "unsorted") String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {

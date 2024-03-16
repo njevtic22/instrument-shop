@@ -15,6 +15,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ContextRoute implements Route {
     private final int responseStatus;
@@ -73,16 +74,44 @@ public class ContextRoute implements Route {
 
             } else if (parameter.isAnnotationPresent(QueryParam.class)) {
                 QueryParam qp = parameter.getAnnotation(QueryParam.class);
-                String queryValue = request.queryParams(qp.value());
-                if (queryValue == null) {
-                    queryValue = qp.defaultValue();
-                }
+                if (type.isArray()) {
+                    // Parameter is array
+                    String[] queryValues = request.queryParamsValues(qp.value());
+                    if (queryValues == null) {
+                        queryValues = qp.defaultValue().split(",");
+                    }
 
-                if (queryValue.isEmpty() && qp.required()) {
-                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
-                }
+                    if (queryValues.length == 1 && queryValues[0].isEmpty() && qp.required()) {
+                        throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
+                    }
 
-                params.add(parser.parse(queryValue, parameter.getType()));
+                    Object[] parsedQueries = getArray(type, queryValues.length);
+                    for (int i = 0; i < queryValues.length; i++) {
+                        parsedQueries[i] = parser.parse(queryValues[i].strip(), type.componentType());
+                    }
+
+                    Object finalQueries = parsedQueries;
+                    if (type.equals(int[].class)) {
+                        finalQueries = Arrays.stream(parsedQueries).mapToInt(i -> (Integer) i).toArray();
+                    } else if (type.equals(long[].class)) {
+                        finalQueries = Arrays.stream(parsedQueries).mapToLong(l -> (Long) l).toArray();
+                    }
+                    params.add(finalQueries);
+
+
+                } else {
+                    // Parameter is not array
+                    String queryValue = request.queryParams(qp.value());
+                    if (queryValue == null) {
+                        queryValue = qp.defaultValue();
+                    }
+
+                    if (queryValue.isEmpty() && qp.required()) {
+                        throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
+                    }
+
+                    params.add(parser.parse(queryValue, parameter.getType()));
+                }
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
@@ -98,5 +127,17 @@ public class ContextRoute implements Route {
         }
 
         return params.toArray();
+    }
+
+    private Object[] getArray(Class<?> type, int length) {
+        if (type.equals(int[].class) || type.equals(Integer[].class)) {
+            return new Integer[length];
+        } else if (type.equals(long[].class) || type.equals(Long[].class)) {
+            return new Long[length];
+        } else if (type.equals(String[].class)) {
+            return new String[length];
+        } else {
+            throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
+        }
     }
 }
