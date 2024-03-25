@@ -3,6 +3,7 @@ package com.sparkjava.context.core;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.RequestBody;
+import com.sparkjava.context.annotation.RequestHeader;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.util.StringParser;
 import org.slf4j.Logger;
@@ -112,6 +113,19 @@ public class ContextRoute implements Route {
 
                     params.add(parser.parse(queryValue, parameter.getType()));
                 }
+
+            } else if (parameter.isAnnotationPresent(RequestHeader.class)) {
+                RequestHeader rh = parameter.getAnnotation(RequestHeader.class);
+                String header = request.headers(rh.value());
+                if (header == null) {
+                    header = rh.defaultValue();
+                }
+
+                if (header.isEmpty() && rh.required()) {
+                    throw new InternalServerException(new IllegalArgumentException("Required header '" + rh.value() + "' is not present"));
+                }
+
+                params.add(parser.parse(header, parameter.getType()));
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);

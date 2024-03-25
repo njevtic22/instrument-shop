@@ -3,6 +3,7 @@ package com.instrument.shop;
 import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
+import com.instrument.shop.controller.ExampleController;
 import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
@@ -51,7 +52,8 @@ public class Main {
         SparkJavaContext sparkCtx = new SparkJavaContext(Integer.parseInt(properties.getProperty("server.port")));
         sparkCtx.createEndpoints(
                 injector.getInstance(LoggingController.class),
-                injector.getInstance(UserController.class)
+                injector.getInstance(UserController.class),
+                injector.getInstance(ExampleController.class)
         );
         sparkCtx.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }
