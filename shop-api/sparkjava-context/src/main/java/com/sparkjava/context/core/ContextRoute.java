@@ -1,5 +1,6 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.annotation.Multipart;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.RequestBody;
@@ -12,6 +13,10 @@ import spark.Request;
 import spark.Response;
 import spark.Route;
 
+import javax.servlet.MultipartConfigElement;
+import javax.servlet.ServletException;
+import javax.servlet.http.Part;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -53,7 +58,7 @@ public class ContextRoute implements Route {
         }
     }
 
-    private Object[] parseArgs(Parameter[] parameters, Request request, Response response) {
+    private Object[] parseArgs(Parameter[] parameters, Request request, Response response) throws ServletException, IOException {
         ArrayList<Object> params = new ArrayList<>(parameters.length);
 
         for (Parameter parameter : parameters) {
@@ -135,6 +140,20 @@ public class ContextRoute implements Route {
                 }
 
                 params.add(body);
+
+            } else if (parameter.isAnnotationPresent(Multipart.class)) {
+                Multipart mp = parameter.getAnnotation(Multipart.class);
+                MultipartConfigElement mpConfig = new MultipartConfigElement(
+                        mp.location(),
+                        mp.maxFileSize(),
+                        mp.maxRequestSize(),
+                        mp.fileSizeThreshold()
+                );
+                request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
+
+                Part part = request.raw().getPart(mp.value());
+                params.add(part);
+
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
             }
