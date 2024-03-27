@@ -13,12 +13,20 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.Collection;
 
 @Singleton
 @RequestMapping("api/images")
 public class ImageController {
     @PostMapping(consumes = "image/*")
-    public String uploadImage(@Multipart("image 2") Part image2, @Multipart("image 1") Part image1, @Multipart("pdf") Part pdf) throws ServletException, IOException {
+    public String uploadImage(
+            @Multipart("image 2") Part image2,
+            @Multipart("image 1") Part image1,
+            @Multipart("pdf") Part pdf,
+
+            @Multipart Collection<Part> files,
+            @Multipart("image 1,pdf") Collection<Part> files5
+    ) throws ServletException, IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();
 
@@ -37,7 +45,11 @@ public class ImageController {
         out = File.createTempFile("tmp-", "-" + pdf.getSubmittedFileName(), tmpLocal).toPath();
         Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
 
-
+        for (Part file : files) {
+            in = file.getInputStream();
+            out = File.createTempFile("tmp-", "-" + file.getSubmittedFileName(), tmpLocal).toPath();
+            Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
+        }
 
         return "Uploaded";
     }

@@ -22,6 +22,10 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class ContextRoute implements Route {
     private final int responseStatus;
@@ -151,8 +155,22 @@ public class ContextRoute implements Route {
                 );
                 request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
-                Part part = request.raw().getPart(mp.value());
-                params.add(part);
+                if (type.isAssignableFrom(Collection.class)) {
+                    ArrayList<Part> parts = new ArrayList<>(request.raw().getParts());
+                    String[] requiredParts = mp.value().split(",");
+                    if (requiredParts.length == 1 && requiredParts[0].isEmpty()) {
+                        params.add(parts);
+                        continue;
+                    }
+
+                    HashSet<String> requiredPartsSet = new HashSet<>(List.of(requiredParts));
+                    ArrayList<Part> filteredParts = parts.stream().filter(part -> requiredPartsSet.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
+
+                    params.add(filteredParts);
+                } else {
+                    Part part = request.raw().getPart(mp.value());
+                    params.add(part);
+                }
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
