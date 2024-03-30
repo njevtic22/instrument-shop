@@ -63,9 +63,12 @@ public class UserServiceImpl implements UserService {
     public User update(Long id, User changes) throws IOException {
         User existing = getById(id);
 
-        // TODO: fix same for same user throws exception
-        validateEmail(changes.getEmail());
-        validateUsername(changes.getUsername());
+        if (!existing.getEmail().equals(changes.getEmail())) {
+            validateEmail(changes.getEmail());
+        }
+        if (!existing.getUsername().equals(changes.getUsername())) {
+            validateUsername(changes.getUsername());
+        }
 
         if (!existing.getRole().equals(changes.getRole())) {
             if (existing.isCustomer()) {
