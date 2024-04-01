@@ -76,10 +76,14 @@ public class ContextRoute implements Route {
             } else if (parameter.isAnnotationPresent(PathParam.class)) {
                 PathParam pp = parameter.getAnnotation(PathParam.class);
                 String paramValue = pp.value().startsWith(":") ? request.params(pp.value()) : request.params(":" + pp.value());
-                if (paramValue == null && pp.required()) {
-                    throw new InternalServerException(new NullPointerException("Required path param '" + pp.value() + "' is not present"));
-                }
+                if (paramValue == null) {
+                    if (pp.required()) {
+                        throw new InternalServerException(new NullPointerException("Required path param '" + pp.value() + "' is not present"));
+                    }
 
+                    params.add(null);
+                    continue;
+                }
                 params.add(parser.parse(paramValue, parameter.getType()));
 
             } else if (parameter.isAnnotationPresent(QueryParam.class)) {
