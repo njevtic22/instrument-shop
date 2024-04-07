@@ -1,6 +1,7 @@
 package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.Multipart;
+import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.RequestBody;
@@ -22,7 +23,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -159,22 +159,29 @@ public class ContextRoute implements Route {
                 );
                 request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
-                if (type.isAssignableFrom(Collection.class)) {
-                    ArrayList<Part> parts = new ArrayList<>(request.raw().getParts());
-                    String[] requiredParts = mp.value().split(",");
-                    if (requiredParts.length == 1 && requiredParts[0].isEmpty()) {
-                        params.add(parts);
-                        continue;
-                    }
+                Part part = request.raw().getPart(mp.value());
+                params.add(part);
 
-                    HashSet<String> requiredPartsSet = new HashSet<>(List.of(requiredParts));
-                    ArrayList<Part> filteredParts = parts.stream().filter(part -> requiredPartsSet.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
+            } else if (parameter.isAnnotationPresent(MultipartValues.class)) {
+                MultipartValues mpv = parameter.getAnnotation(MultipartValues.class);
+                MultipartConfigElement mpConfig = new MultipartConfigElement(
+                        mpv.location(),
+                        mpv.maxFileSize(),
+                        mpv.maxRequestSize(),
+                        mpv.fileSizeThreshold()
+                );
+                request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
-                    params.add(filteredParts);
-                } else {
-                    Part part = request.raw().getPart(mp.value());
-                    params.add(part);
+                ArrayList<Part> allParts = new ArrayList<>(request.raw().getParts());
+                HashSet<String> requiredParts = new HashSet<>(List.of(mpv.value()));
+                if (requiredParts.isEmpty()) {
+                    params.add(allParts);
+                    continue;
                 }
+
+                ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
+
+                params.add(filteredParts);
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));

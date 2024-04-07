@@ -9,8 +9,8 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface Multipart {
-    String value();
+public @interface MultipartValues {
+    String[] value() default {};
 
     // location where spark-java-context will store files
     String location() default "/spark-context-temp";

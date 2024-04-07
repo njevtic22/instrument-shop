@@ -1,6 +1,7 @@
 package com.instrument.shop.controller;
 
 import com.sparkjava.context.annotation.Multipart;
+import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import jakarta.inject.Singleton;
@@ -24,8 +25,8 @@ public class ImageController {
             @Multipart("image 1") Part image1,
             @Multipart("pdf") Part pdf,
 
-            @Multipart Collection<Part> files,
-            @Multipart("image 1,pdf") Collection<Part> files5
+            @MultipartValues Collection<Part> allFiles,
+            @MultipartValues({"pdf", "image 1", "kljuc"}) Collection<Part> files
     ) throws ServletException, IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();
