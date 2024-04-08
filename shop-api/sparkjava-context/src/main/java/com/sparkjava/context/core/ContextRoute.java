@@ -4,6 +4,7 @@ import com.sparkjava.context.annotation.Multipart;
 import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
+import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestHeader;
 import com.sparkjava.context.exception.InternalServerException;
@@ -54,7 +55,7 @@ public class ContextRoute implements Route {
 
         try {
             Object[] args = parseArgs(mappedMethod.getParameters(), request, response);
-            // TODO: add serializer
+            // TODO: add serializer if return type is not String
             return mappedMethod.invoke(controller, args);
         } catch (InvocationTargetException e) {
             logger.debug(e.getMessage(), e);
@@ -88,44 +89,40 @@ public class ContextRoute implements Route {
 
             } else if (parameter.isAnnotationPresent(QueryParam.class)) {
                 QueryParam qp = parameter.getAnnotation(QueryParam.class);
-                if (type.isArray()) {
-                    // Parameter is array
-                    String[] queryValues = request.queryParamsValues(qp.value());
-                    if (queryValues == null) {
-                        queryValues = qp.defaultValue().split(",");
-                    }
-
-                    if (queryValues.length == 1 && queryValues[0].isEmpty() && qp.required()) {
-                        throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
-                    }
-
-                    Object[] parsedQueries = getArray(type, queryValues.length);
-                    for (int i = 0; i < queryValues.length; i++) {
-                        parsedQueries[i] = parser.parse(queryValues[i].strip(), type.componentType());
-                    }
-
-                    Object finalQueries = parsedQueries;
-                    if (type.equals(int[].class)) {
-                        finalQueries = Arrays.stream(parsedQueries).mapToInt(i -> (Integer) i).toArray();
-                    } else if (type.equals(long[].class)) {
-                        finalQueries = Arrays.stream(parsedQueries).mapToLong(l -> (Long) l).toArray();
-                    }
-                    params.add(finalQueries);
-
-
-                } else {
-                    // Parameter is not array
-                    String queryValue = request.queryParams(qp.value());
-                    if (queryValue == null) {
-                        queryValue = qp.defaultValue();
-                    }
-
-                    if (queryValue.isEmpty() && qp.required()) {
-                        throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
-                    }
-
-                    params.add(parser.parse(queryValue, parameter.getType()));
+                String queryValue = request.queryParams(qp.value());
+                if (queryValue == null) {
+                    queryValue = qp.defaultValue();
                 }
+
+                if (queryValue.isEmpty() && qp.required()) {
+                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
+                }
+
+                params.add(parser.parse(queryValue, parameter.getType()));
+
+            } else if (parameter.isAnnotationPresent(QueryParamValues.class)) {
+                QueryParamValues qpv = parameter.getAnnotation(QueryParamValues.class);
+                String[] queryValues = request.queryParamsValues(qpv.value());
+                if (queryValues == null) {
+                    queryValues = qpv.defaultValue();
+                }
+
+                if (queryValues.length == 0 && qpv.required()) {
+                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qpv.value() + "' is not present"));
+                }
+
+                Object[] parsedQueries = getArray(type, queryValues.length);
+                for (int i = 0; i < queryValues.length; i++) {
+                    parsedQueries[i] = parser.parse(queryValues[i].strip(), type.componentType());
+                }
+
+                Object finalQueries = parsedQueries;
+                if (type.equals(int[].class)) {
+                    finalQueries = Arrays.stream(parsedQueries).mapToInt(i -> (Integer) i).toArray();
+                } else if (type.equals(long[].class)) {
+                    finalQueries = Arrays.stream(parsedQueries).mapToLong(l -> (Long) l).toArray();
+                }
+                params.add(finalQueries);
 
             } else if (parameter.isAnnotationPresent(RequestHeader.class)) {
                 RequestHeader rh = parameter.getAnnotation(RequestHeader.class);
@@ -147,7 +144,11 @@ public class ContextRoute implements Route {
                     throw new InternalServerException(new IllegalArgumentException("Required request body is not present"));
                 }
 
+                // TODO: If param is type String
                 params.add(body);
+
+                // TODO: else if param is type Object
+                // deserialize
 
             } else if (parameter.isAnnotationPresent(Multipart.class)) {
                 Multipart mp = parameter.getAnnotation(Multipart.class);

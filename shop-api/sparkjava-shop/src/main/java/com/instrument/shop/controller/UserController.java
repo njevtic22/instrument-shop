@@ -19,6 +19,7 @@ import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
+import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
@@ -73,7 +74,7 @@ public class UserController {
     @MethodOrder(80)
     public String getAll(
             Request request,
-            @QueryParam(value = "sort", defaultValue = "unsorted") String[] sortStr,
+            @QueryParamValues(value = "sort", defaultValue = {"unsorted"}) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
