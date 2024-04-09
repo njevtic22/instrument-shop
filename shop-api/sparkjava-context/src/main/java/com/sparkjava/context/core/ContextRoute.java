@@ -79,7 +79,7 @@ public class ContextRoute implements Route {
                 String paramValue = pp.value().startsWith(":") ? request.params(pp.value()) : request.params(":" + pp.value());
                 if (paramValue == null) {
                     if (pp.required()) {
-                        throw new InternalServerException(new NullPointerException("Required path param '" + pp.value() + "' is not present"));
+                        throw new IllegalArgumentException("Required path param '" + pp.value() + "' is not present");
                     }
 
                     params.add(null);
@@ -95,7 +95,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (queryValue.isEmpty() && qp.required()) {
-                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
+                    throw new IllegalArgumentException("Required query param '" + qp.value() + "' is not present");
                 }
 
                 params.add(parser.parse(queryValue, parameter.getType()));
@@ -108,7 +108,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (queryValues.length == 0 && qpv.required()) {
-                    throw new InternalServerException(new IllegalArgumentException("Required query param '" + qpv.value() + "' is not present"));
+                    throw new IllegalArgumentException("Required query param '" + qpv.value() + "' is not present");
                 }
 
                 Object[] parsedQueries = getArray(type, queryValues.length);
@@ -132,7 +132,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (header.isEmpty() && rh.required()) {
-                    throw new InternalServerException(new IllegalArgumentException("Required header '" + rh.value() + "' is not present"));
+                    throw new IllegalArgumentException("Required header '" + rh.value() + "' is not present");
                 }
 
                 params.add(parser.parse(header, parameter.getType()));
@@ -141,7 +141,7 @@ public class ContextRoute implements Route {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
                 String body = request.body();
                 if (body.isBlank() && rb.required()) {
-                    throw new InternalServerException(new IllegalArgumentException("Required request body is not present"));
+                    throw new IllegalArgumentException("Required request body is not present");
                 }
 
                 // TODO: If param is type String

@@ -1,11 +1,9 @@
 package com.sparkjava.context.exception.handler;
 
-import com.sparkjava.context.exception.InternalServerException;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.ArrayList;
@@ -41,7 +39,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
                 // TODO: add serializer
                 response.body((String) result);
             }
-        } catch (IllegalAccessException | InvocationTargetException | InternalServerException e) {
+        } catch (Exception e) {
             defaultHandler.handle(e, request, response);
         }
     }
@@ -58,7 +56,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
             } else if (type.isInstance(response)) {
                 params.add(response);
             } else {
-                throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
+                throw new IllegalArgumentException("Unsupported argument type: " + type);
             }
         }
 
