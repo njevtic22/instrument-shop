@@ -161,6 +161,10 @@ public class ContextRoute implements Route {
                 request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
                 Part part = request.raw().getPart(mp.value());
+                if (part == null && mp.required()) {
+                    throw new IllegalArgumentException("Required multipart with key: " + mp.value() + " is not present");
+                }
+
                 params.add(part);
 
             } else if (parameter.isAnnotationPresent(MultipartValues.class)) {
@@ -174,13 +178,21 @@ public class ContextRoute implements Route {
                 request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
                 ArrayList<Part> allParts = new ArrayList<>(request.raw().getParts());
-                HashSet<String> requiredParts = new HashSet<>(List.of(mpv.value()));
-                if (requiredParts.isEmpty()) {
+                if (mpv.value().length == 0) {
+                    if (allParts.isEmpty() && mpv.requiredNonEmpty()) {
+                        throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present");
+                    }
+
                     params.add(allParts);
                     continue;
                 }
 
+                HashSet<String> requiredParts = new HashSet<>(List.of(mpv.value()));
                 ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
+
+                if (filteredParts.isEmpty() && mpv.requiredNonEmpty()) {
+                    throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present");
+                }
 
                 params.add(filteredParts);
 

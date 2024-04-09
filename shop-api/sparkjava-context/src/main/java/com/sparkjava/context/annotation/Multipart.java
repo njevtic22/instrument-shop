@@ -12,6 +12,8 @@ import java.lang.annotation.Target;
 public @interface Multipart {
     String value();
 
+    boolean required() default true;
+
     // location where spark-java-context will store files
     String location() default "/spark-context-temp";
 

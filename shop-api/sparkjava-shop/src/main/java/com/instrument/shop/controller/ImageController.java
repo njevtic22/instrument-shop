@@ -25,8 +25,14 @@ public class ImageController {
             @Multipart("image 1") Part image1,
             @Multipart("pdf") Part pdf,
 
+            @Multipart("emptyString") Part empty,
+            @Multipart(value = "nonExisting", required = false) Part none,
+
+            @Multipart("key") Part key,
+
             @MultipartValues Collection<Part> allFiles,
-            @MultipartValues({"pdf", "image 1", "kljuc"}) Collection<Part> files
+            @MultipartValues(value = {"pdf", "image 1", "key"}, requiredNonEmpty = false) Collection<Part> nonRequiredFiles,
+            @MultipartValues({"key"}) Collection<Part> onlyKeys
     ) throws ServletException, IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();
@@ -46,7 +52,7 @@ public class ImageController {
         out = File.createTempFile("tmp-", "-" + pdf.getSubmittedFileName(), tmpLocal).toPath();
         Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
 
-        for (Part file : files) {
+        for (Part file : nonRequiredFiles) {
             in = file.getInputStream();
             out = File.createTempFile("tmp-", "-" + file.getSubmittedFileName(), tmpLocal).toPath();
             Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
