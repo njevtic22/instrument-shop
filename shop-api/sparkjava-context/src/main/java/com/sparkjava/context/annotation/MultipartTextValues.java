@@ -9,12 +9,12 @@ import java.lang.annotation.Target;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.PARAMETER)
-public @interface MultipartText {
-    String value();
+public @interface MultipartTextValues {
+    String[] value() default {};
 
-    boolean required() default true;
+    boolean requiredNonEmpty() default true;
 
-    String defaultValue() default "";
+    String[] defaultValues() default {};
 
     // location where spark-java-context will store files
     String location() default "/spark-context-temp";

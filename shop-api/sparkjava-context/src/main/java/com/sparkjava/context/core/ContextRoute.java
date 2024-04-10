@@ -2,6 +2,7 @@ package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.Multipart;
 import com.sparkjava.context.annotation.MultipartText;
+import com.sparkjava.context.annotation.MultipartTextValues;
 import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
@@ -20,6 +21,7 @@ import javax.servlet.MultipartConfigElement;
 import javax.servlet.ServletException;
 import javax.servlet.http.Part;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
@@ -200,12 +202,7 @@ public class ContextRoute implements Route {
 
             } else if (parameter.isAnnotationPresent(MultipartText.class)) {
                 MultipartText mpt = parameter.getAnnotation(MultipartText.class);
-                MultipartConfigElement mpConfig = new MultipartConfigElement(
-                        mpt.location(),
-                        mpt.maxFileSize(),
-                        mpt.maxRequestSize(),
-                        mpt.fileSizeThreshold()
-                );
+                MultipartConfigElement mpConfig = new MultipartConfigElement(mpt.location());
                 request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
 
                 Part part = request.raw().getPart(mpt.value());
@@ -222,6 +219,71 @@ public class ContextRoute implements Route {
                 String text = sc.hasNext() ? sc.next() : "";
                 sc.close();
                 params.add(text);
+
+            } else if (parameter.isAnnotationPresent(MultipartTextValues.class)) {
+                MultipartTextValues mptv = parameter.getAnnotation(MultipartTextValues.class);
+                MultipartConfigElement mpConfig = new MultipartConfigElement(mptv.location());
+                request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
+
+                ArrayList<Part> allParts = new ArrayList<>(request.raw().getParts());
+                if (mptv.value().length == 0) {
+                    if (allParts.isEmpty()) {
+                        if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
+                            throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present");
+                        }
+
+                        ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
+                        params.add(partValues);
+                        continue;
+                    }
+
+                    ArrayList<String> partValues = allParts.stream().map(part -> {
+                                InputStream in = null;
+                                try {
+                                    in = part.getInputStream();
+                                } catch (IOException e) {
+                                    throw new RuntimeException(e);
+                                }
+                                Scanner sc = new Scanner(in).useDelimiter("\\A");
+                                String text = sc.hasNext() ? sc.next() : "";
+                                sc.close();
+                                return text;
+                            })
+                            .collect(Collectors.toCollection(ArrayList::new));
+
+                    params.add(partValues);
+                    continue;
+                }
+
+                HashSet<String> requiredParts = new HashSet<>(List.of(mptv.value()));
+                ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
+
+                if (filteredParts.isEmpty()) {
+                    if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
+                        throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present");
+                    }
+
+                    ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
+                    params.add(partValues);
+                    continue;
+                }
+
+
+                ArrayList<String> partValues = filteredParts.stream().map(part -> {
+                            InputStream in = null;
+                            try {
+                                in = part.getInputStream();
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                            Scanner sc = new Scanner(in).useDelimiter("\\A");
+                            String text = sc.hasNext() ? sc.next() : "";
+                            sc.close();
+                            return text;
+                        })
+                        .collect(Collectors.toCollection(ArrayList::new));
+
+                params.add(partValues);
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));

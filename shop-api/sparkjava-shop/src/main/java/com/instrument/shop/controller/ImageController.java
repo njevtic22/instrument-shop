@@ -2,6 +2,7 @@ package com.instrument.shop.controller;
 
 import com.sparkjava.context.annotation.Multipart;
 import com.sparkjava.context.annotation.MultipartText;
+import com.sparkjava.context.annotation.MultipartTextValues;
 import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -20,7 +21,7 @@ import java.util.Collection;
 @Singleton
 @RequestMapping("api/images")
 public class ImageController {
-    @PostMapping(consumes = "image/*")
+    @PostMapping(consumes = "multipart/form-data")
     public String uploadImage(
             @Multipart("image 2") Part image2,
             @Multipart("image 1") Part image1,
@@ -35,7 +36,13 @@ public class ImageController {
             @MultipartValues(value = {"pdf", "image 1", "key"}, requiredNonEmpty = false) Collection<Part> nonRequiredFiles,
             @MultipartValues({"key"}) Collection<Part> onlyKeys,
 
-            @MultipartText("strKey") String strKey
+            @MultipartText("strKey") String strKey,
+            @MultipartTextValues Collection<String> allTexts,
+            @MultipartTextValues({"key"}) Collection<String> allKeys,
+            @MultipartTextValues(value = {"empty"}, requiredNonEmpty = false) Collection<String> emptyCollection,
+            @MultipartTextValues(value = {"default1", "default2"}, defaultValues = {"value1", "value2"}) Collection<String> defaultValues,
+            @MultipartTextValues({"strKey", "param"}) Collection<String> texts
+//            @MultipartTextValues({"exception"}) Collection<String> exception
     ) throws ServletException, IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();
