@@ -18,14 +18,14 @@ import java.util.Collection;
 @RequestMapping("api/images")
 public class ImageController {
     @PostMapping(consumes = "multipart/form-data")
-    public String uploadImage(@MultipartValues({"images"}) Collection<Part> allFiles) throws IOException {
+    public String uploadImage(@MultipartValues({"images"}) Collection<Part> images) throws IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();
 
-        for (Part file : allFiles) {
-            validateImageType(file.getContentType());
-            InputStream in = file.getInputStream();
-            Path out = File.createTempFile("tmp-", "-" + file.getSubmittedFileName(), tmpLocal).toPath();
+        for (Part image : images) {
+            validateImageType(image.getContentType());
+            InputStream in = image.getInputStream();
+            Path out = File.createTempFile("tmp-", "-" + image.getSubmittedFileName(), tmpLocal).toPath();
             Files.copy(in, out, StandardCopyOption.REPLACE_EXISTING);
         }
 
