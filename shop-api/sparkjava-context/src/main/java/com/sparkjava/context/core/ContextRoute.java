@@ -1,6 +1,7 @@
 package com.sparkjava.context.core;
 
 import com.sparkjava.context.annotation.Multipart;
+import com.sparkjava.context.annotation.MultipartText;
 import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class ContextRoute implements Route {
@@ -195,6 +197,31 @@ public class ContextRoute implements Route {
                 }
 
                 params.add(filteredParts);
+
+            } else if (parameter.isAnnotationPresent(MultipartText.class)) {
+                MultipartText mpt = parameter.getAnnotation(MultipartText.class);
+                MultipartConfigElement mpConfig = new MultipartConfigElement(
+                        mpt.location(),
+                        mpt.maxFileSize(),
+                        mpt.maxRequestSize(),
+                        mpt.fileSizeThreshold()
+                );
+                request.attribute("org.eclipse.jetty.multipartConfig", mpConfig);
+
+                Part part = request.raw().getPart(mpt.value());
+                if (part == null) {
+                    if (mpt.defaultValue().isEmpty() && mpt.required()) {
+                        throw new IllegalArgumentException("Required multipart with key: " + mpt.value() + " is not present");
+                    }
+
+                    params.add(mpt.defaultValue());
+                    continue;
+                }
+
+                Scanner sc = new Scanner(part.getInputStream()).useDelimiter("\\A");
+                String text = sc.hasNext() ? sc.next() : "";
+                sc.close();
+                params.add(text);
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
