@@ -14,8 +14,10 @@ import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
+import com.sparkjava.context.exception.BadRequestException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.exception.MissingAnnotationException;
+import com.sparkjava.context.exception.handler.BadRequestExceptionHandler;
 import com.sparkjava.context.exception.handler.ContextExceptionHandler;
 import com.sparkjava.context.exception.handler.InternalServerExceptionHandler;
 import org.slf4j.Logger;
@@ -204,6 +206,7 @@ public class SparkJavaContext {
             }
         }
 
+        Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
     }
 

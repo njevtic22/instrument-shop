@@ -9,6 +9,7 @@ import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestHeader;
+import com.sparkjava.context.exception.BadRequestException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.util.StringParser;
 import org.slf4j.Logger;
@@ -83,7 +84,7 @@ public class ContextRoute implements Route {
                 String paramValue = pp.value().startsWith(":") ? request.params(pp.value()) : request.params(":" + pp.value());
                 if (paramValue == null) {
                     if (pp.required()) {
-                        throw new IllegalArgumentException("Required path param '" + pp.value() + "' is not present");
+                        throw new BadRequestException(new IllegalArgumentException("Required path param '" + pp.value() + "' is not present"));
                     }
 
                     params.add(null);
@@ -99,7 +100,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (queryValue.isEmpty() && qp.required()) {
-                    throw new IllegalArgumentException("Required query param '" + qp.value() + "' is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required query param '" + qp.value() + "' is not present"));
                 }
 
                 params.add(parser.parse(queryValue, parameter.getType()));
@@ -112,7 +113,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (queryValues.length == 0 && qpv.required()) {
-                    throw new IllegalArgumentException("Required query param '" + qpv.value() + "' is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required query param '" + qpv.value() + "' is not present"));
                 }
 
                 Object[] parsedQueries = getArray(type, queryValues.length);
@@ -136,7 +137,7 @@ public class ContextRoute implements Route {
                 }
 
                 if (header.isEmpty() && rh.required()) {
-                    throw new IllegalArgumentException("Required header '" + rh.value() + "' is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required header '" + rh.value() + "' is not present"));
                 }
 
                 params.add(parser.parse(header, parameter.getType()));
@@ -145,7 +146,7 @@ public class ContextRoute implements Route {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
                 String body = request.body();
                 if (body.isBlank() && rb.required()) {
-                    throw new IllegalArgumentException("Required request body is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required request body is not present"));
                 }
 
                 // TODO: If param is type String
@@ -166,7 +167,7 @@ public class ContextRoute implements Route {
 
                 Part part = request.raw().getPart(mp.value());
                 if (part == null && mp.required()) {
-                    throw new IllegalArgumentException("Required multipart with key: " + mp.value() + " is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required multipart with key: " + mp.value() + " is not present"));
                 }
 
                 params.add(part);
@@ -184,7 +185,7 @@ public class ContextRoute implements Route {
                 ArrayList<Part> allParts = new ArrayList<>(request.raw().getParts());
                 if (mpv.value().length == 0) {
                     if (allParts.isEmpty() && mpv.requiredNonEmpty()) {
-                        throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present");
+                        throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present"));
                     }
 
                     params.add(allParts);
@@ -195,7 +196,7 @@ public class ContextRoute implements Route {
                 ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
 
                 if (filteredParts.isEmpty() && mpv.requiredNonEmpty()) {
-                    throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present");
+                    throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mpv.value()) + " is not present"));
                 }
 
                 params.add(filteredParts);
@@ -208,7 +209,7 @@ public class ContextRoute implements Route {
                 Part part = request.raw().getPart(mpt.value());
                 if (part == null) {
                     if (mpt.defaultValue().isEmpty() && mpt.required()) {
-                        throw new IllegalArgumentException("Required multipart with key: " + mpt.value() + " is not present");
+                        throw new BadRequestException(new IllegalArgumentException("Required multipart with key: " + mpt.value() + " is not present"));
                     }
 
                     params.add(mpt.defaultValue());
@@ -229,7 +230,7 @@ public class ContextRoute implements Route {
                 if (mptv.value().length == 0) {
                     if (allParts.isEmpty()) {
                         if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
-                            throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present");
+                            throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present"));
                         }
 
                         ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
@@ -260,7 +261,7 @@ public class ContextRoute implements Route {
 
                 if (filteredParts.isEmpty()) {
                     if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
-                        throw new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present");
+                        throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present"));
                     }
 
                     ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
