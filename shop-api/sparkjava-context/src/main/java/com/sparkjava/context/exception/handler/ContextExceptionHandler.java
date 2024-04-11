@@ -1,14 +1,13 @@
 package com.sparkjava.context.exception.handler;
 
+import com.sparkjava.context.core.ArgumentsParser;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
-import java.util.ArrayList;
 
-public class ContextExceptionHandler implements ExceptionHandler<Exception> {
+public class ContextExceptionHandler extends ArgumentsParser implements ExceptionHandler<Exception> {
     private final int responseStatus;
     private final String responseType;
     private final Method methodHandler;
@@ -33,7 +32,7 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
         response.type(responseType);
 
         try {
-            Object[] args = parseArgs(methodHandler.getParameters(), exception, request, response);
+            Object[] args = parseArgs(methodHandler.getParameters(), exception, request, response).toArray();
             Object result = methodHandler.invoke(objectHandler, args);
             if (result != null) {
                 // TODO: add serializer
@@ -42,24 +41,5 @@ public class ContextExceptionHandler implements ExceptionHandler<Exception> {
         } catch (Exception e) {
             defaultHandler.handle(e, request, response);
         }
-    }
-
-    private Object[] parseArgs(Parameter[] parameters, Throwable ex, Request request, Response response) {
-        ArrayList<Object> params = new ArrayList<>(parameters.length);
-
-        for (Parameter parameter : parameters) {
-            Class<?> type = parameter.getType();
-            if (type.isInstance(ex)) {
-                params.add(ex);
-            } else if (type.isInstance(request)) {
-                params.add(request);
-            } else if (type.isInstance(response)) {
-                params.add(response);
-            } else {
-                throw new IllegalArgumentException("Unsupported argument type: " + type);
-            }
-        }
-
-        return params.toArray();
     }
 }
