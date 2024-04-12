@@ -39,30 +39,30 @@ public abstract class ArgumentsParser {
         ArrayList<Object> params = new ArrayList<>(parameters.length);
 
         for (Parameter parameter : parameters) {
-            Class<?> type = parameter.getType();
+            Class<?> paramType = parameter.getType();
 
-            if (ex != null && type.isInstance(ex)) {
+            if (paramType.isInstance(ex)) {
                 params.add(ex);
-            } else if (type.isInstance(request)) {
+            } else if (paramType.isInstance(request)) {
                 params.add(request);
-            } else if (type.isInstance(response)) {
+            } else if (paramType.isInstance(response)) {
                 params.add(response);
 
             } else if (parameter.isAnnotationPresent(PathParam.class)) {
                 PathParam pp = parameter.getAnnotation(PathParam.class);
-                params.add(parsePathParam(pp, request, type));
+                params.add(parsePathParam(pp, request, paramType));
 
             } else if (parameter.isAnnotationPresent(QueryParam.class)) {
                 QueryParam qp = parameter.getAnnotation(QueryParam.class);
-                params.add(parseQueryParam(qp, request, type));
+                params.add(parseQueryParam(qp, request, paramType));
 
             } else if (parameter.isAnnotationPresent(QueryParamValues.class)) {
                 QueryParamValues qpv = parameter.getAnnotation(QueryParamValues.class);
-                params.add(parseQueryParamValues(qpv, request, type));
+                params.add(parseQueryParamValues(qpv, request, paramType));
 
             } else if (parameter.isAnnotationPresent(RequestHeader.class)) {
                 RequestHeader rh = parameter.getAnnotation(RequestHeader.class);
-                params.add(parseRequestHeader(rh, request, type));
+                params.add(parseRequestHeader(rh, request, paramType));
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
@@ -85,7 +85,7 @@ public abstract class ArgumentsParser {
                 params.add(parseMultipartTextValues(mptv, request));
 
             } else {
-                throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + type));
+                throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + paramType));
             }
         }
 
@@ -226,11 +226,7 @@ public abstract class ArgumentsParser {
             return mpt.defaultValue();
         }
 
-        Scanner sc = new Scanner(part.getInputStream()).useDelimiter("\\A");
-        String text = sc.hasNext() ? sc.next() : "";
-        sc.close();
-
-        return text;
+        return inputStreamToString(part.getInputStream());
     }
 
     private Object parseMultipartTextValues(MultipartTextValues mptv, Request request) throws ServletException, IOException {
@@ -239,60 +235,41 @@ public abstract class ArgumentsParser {
 
         ArrayList<Part> allParts = new ArrayList<>(request.raw().getParts());
         if (mptv.value().length == 0) {
-            if (allParts.isEmpty()) {
-                if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
-                    throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present"));
-                }
-
-                ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
-                return partValues;
-            }
-
-            ArrayList<String> partValues = allParts.stream().map(part -> {
-                        InputStream in = null;
-                        try {
-                            in = part.getInputStream();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                        Scanner sc = new Scanner(in).useDelimiter("\\A");
-                        String text = sc.hasNext() ? sc.next() : "";
-                        sc.close();
-                        return text;
-                    })
-                    .collect(Collectors.toCollection(ArrayList::new));
-
-            return partValues;
+            return readPartAsText(mptv, allParts);
         }
 
         HashSet<String> requiredParts = new HashSet<>(List.of(mptv.value()));
         ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
 
-        if (filteredParts.isEmpty()) {
+        return readPartAsText(mptv, filteredParts);
+    }
+
+    private Object readPartAsText(MultipartTextValues mptv, ArrayList<Part> allParts) {
+        if (allParts.isEmpty()) {
             if (mptv.defaultValues().length == 0 && mptv.requiredNonEmpty()) {
                 throw new BadRequestException(new IllegalArgumentException("Required multipart with at least one of keys: " + Arrays.toString(mptv.value()) + " is not present"));
             }
 
-            ArrayList<String> partValues = new ArrayList<>(Arrays.asList(mptv.defaultValues()));
-            return partValues;
+            return new ArrayList<>(Arrays.asList(mptv.defaultValues()));
         }
 
-
-        ArrayList<String> partValues = filteredParts.stream().map(part -> {
-                    InputStream in = null;
+        return allParts.stream()
+                .map(part -> {
                     try {
-                        in = part.getInputStream();
+                        return inputStreamToString(part.getInputStream());
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
-                    Scanner sc = new Scanner(in).useDelimiter("\\A");
-                    String text = sc.hasNext() ? sc.next() : "";
-                    sc.close();
-                    return text;
                 })
                 .collect(Collectors.toCollection(ArrayList::new));
+    }
 
-        return partValues;
+    private String inputStreamToString(InputStream in) {
+        Scanner sc = new Scanner(in).useDelimiter("\\A");
+        String text = sc.hasNext() ? sc.next() : "";
+        sc.close();
+
+        return text;
     }
 
     private Object[] getArray(Class<?> type, int length) {
