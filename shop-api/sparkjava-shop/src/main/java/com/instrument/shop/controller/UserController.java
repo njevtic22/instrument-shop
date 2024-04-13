@@ -59,7 +59,7 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
-    public String add(Request request, Response response, @RequestBody String body) throws IOException {
+    public void add(Request request, Response response, @RequestBody String body) throws IOException {
         AddUserDto toAddDto = gson.fromJson(body, AddUserDto.class);
         validator.validate(toAddDto);
 
@@ -67,7 +67,6 @@ public class UserController {
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
 
         response.header("location", request.url() + "/" + added.getId());
-        return "201 created";
     }
 
     @GetMapping
@@ -121,10 +120,8 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
-    public String deleteUser(@PathParam("id") Long id) throws IOException {
+    public void deleteUser(@PathParam("id") Long id) throws IOException {
         service.delete(id);
-
-        return "204 no content";
     }
 
     private Map<String, String> buildFilterData(Request request) {

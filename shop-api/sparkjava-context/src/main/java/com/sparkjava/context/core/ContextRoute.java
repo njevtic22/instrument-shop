@@ -35,8 +35,17 @@ public class ContextRoute extends ArgumentsParser implements Route {
 
         Object[] args = parseArgs(mappedMethod.getParameters(), request, response).toArray();
         try {
-            // TODO: add serializer if return type is not String
-            return mappedMethod.invoke(controller, args);
+            Object body = mappedMethod.invoke(controller, args);
+
+            if (body == null) {
+                body = "";
+            }
+            if (body instanceof String) {
+                return body;
+            }
+
+            // TODO: add serializer
+            return body;
         } catch (InvocationTargetException e) {
             logger.debug(e.getMessage(), e);
             throw (Exception) e.getCause();
