@@ -33,11 +33,18 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
 
         try {
             Object[] args = parseArgs(methodHandler.getParameters(), exception, request, response).toArray();
-            Object result = methodHandler.invoke(objectHandler, args);
-            if (result != null) {
-                // TODO: add serializer
-                response.body((String) result);
+            Object body = methodHandler.invoke(objectHandler, args);
+
+            if (body == null) {
+                body = "";
             }
+            if (body instanceof String) {
+                response.body((String) body);
+                return;
+            }
+
+            // TODO: add serializer
+            response.body(body.toString());
         } catch (Exception e) {
             defaultHandler.handle(e, request, response);
         }
