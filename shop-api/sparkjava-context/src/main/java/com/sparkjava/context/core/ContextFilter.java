@@ -5,9 +5,8 @@ import spark.Request;
 import spark.Response;
 
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 
-public class ContextFilter implements Filter {
+public class ContextFilter extends ArgumentsParser implements Filter {
     private final Method mappedMethod;
     private final Object controller;
 
@@ -18,11 +17,7 @@ public class ContextFilter implements Filter {
 
     @Override
     public void handle(Request request, Response response) throws Exception {
-        Object[] args = parseArgs(mappedMethod.getParameters(), request, response);
+        Object[] args = parseArgs(mappedMethod.getParameters(), request, response).toArray();
         mappedMethod.invoke(controller, args);
-    }
-
-    private Object[] parseArgs(Parameter[] parameters, Request request, Response response) {
-        return new Object[]{request, response};
     }
 }

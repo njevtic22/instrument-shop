@@ -17,17 +17,17 @@ public class LoggingController {
     private final Logger logger = LoggerFactory.getLogger(LoggingController.class.getName());
 
     @BeforeMapping("/*")
-    public void logApiRequest(Request request, Response response) {
+    public void logApiRequest(Request request) {
         logger.info("request: " + request.requestMethod() + " " + request.uri() + " " + request.protocol());
     }
 
     @AfterMapping("/*")
-    public void logExample(Request request, Response response) {
+    public void logExample(Response response, Request request) {
         logger.info("example: " + request.protocol() + " " + response.status() + " " + HttpStatus.getMessage(response.status()));
     }
 
     @AfterAfterMapping("/*")
-    public void logApiResponse(Request request, Response response) {
+    public void logApiResponse(Response response, Request request) {
         logger.info("response: " + request.protocol() + " " + response.status() + " " + HttpStatus.getMessage(response.status()));
     }
 }
