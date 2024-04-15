@@ -17,7 +17,9 @@ public class ContextRoute extends ArgumentsParser implements Route {
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
-    public ContextRoute(int responseStatus, String responseType, Method mappedMethod, Object controller) {
+    public ContextRoute(int responseStatus, String responseType, Method mappedMethod, Object controller, RequestTransformer reqTransformer) {
+        super(reqTransformer);
+
         if (responseStatus < 100 || responseStatus > 599) {
             throw new IllegalArgumentException("Response status must be between 100 and 599");
         }

@@ -14,6 +14,7 @@ import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
+import com.sparkjava.context.core.RequestTransformer;
 import com.sparkjava.context.exception.BadRequestException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.exception.MissingAnnotationException;
@@ -33,25 +34,36 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 public class SparkJavaContext {
     private final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
 
-    private final List<Class<? extends Annotation>> endpointMappings = List.of(
+    private final Set<Class<? extends Annotation>> endpointMappings = Set.of(
             GetMapping.class,
             PostMapping.class,
             PutMapping.class,
             DeleteMapping.class
     );
 
-    private final List<Class<? extends Annotation>> filterMappings = List.of(
+    private final Set<Class<? extends Annotation>> filterMappings = Set.of(
             AfterMapping.class,
             AfterAfterMapping.class,
             BeforeMapping.class
     );
 
+    private String contentType;
+    private RequestTransformer reqTransformer;
+
     public SparkJavaContext(int port) {
+        this(port, "*/*", (body, modelClass) -> body);
+    }
+
+    public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer) {
+        this.contentType = contentType;
+        this.reqTransformer = reqTransformer;
+
         Spark.port(port);
     }
 
@@ -84,7 +96,7 @@ public class SparkJavaContext {
     private void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation endpointMapping) {
         String sparkMethodName = null;
         String methodPath = null;
-        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : "application/json;charset=UTF-8";
+        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : contentType;
         String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : "application/json;charset=UTF-8";
 
         switch (endpointMapping.annotationType().getSimpleName()) {
@@ -138,7 +150,7 @@ public class SparkJavaContext {
                 .map(ResponseStatus::value)
                 .orElse(200);
 
-        Route route = new ContextRoute(status, produces, mappedMethod, controller);
+        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
@@ -172,7 +184,7 @@ public class SparkJavaContext {
             }
         }
 
-        Filter filter = new ContextFilter(mappedMethod, controller);
+        Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
@@ -200,7 +212,8 @@ public class SparkJavaContext {
                     int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
                             .map(ResponseStatus::value)
                             .orElse(500);
-                    Spark.exception(exceptionClass, new ContextExceptionHandler(status, "application/json;charset=UTF-8", methodHandler, exceptionHandler));
+                    Spark.exception(exceptionClass,
+                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer));
                 }
                 logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }
@@ -210,7 +223,7 @@ public class SparkJavaContext {
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
     }
 
-    private List<Annotation> getMappings(Method method, List<Class<? extends Annotation>> mappings) {
+    private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {
         ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
 
         for (Annotation annotation : method.getAnnotations()) {

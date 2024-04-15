@@ -50,7 +50,11 @@ public class Main {
         );
         dbContext.loadData();
 
-        SparkJavaContext sparkCtx = new SparkJavaContext(Integer.parseInt(properties.getProperty("server.port")));
+        SparkJavaContext sparkCtx = new SparkJavaContext(
+                Integer.parseInt(properties.getProperty("server.port")),
+                "application/json;charset=UTF-8",
+                injector.getInstance(Gson.class)::fromJson
+        );
         sparkCtx.createEndpoints(
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class),

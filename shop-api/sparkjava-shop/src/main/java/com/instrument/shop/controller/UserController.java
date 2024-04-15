@@ -59,8 +59,7 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
-    public void add(Request request, Response response, @RequestBody String body) throws IOException {
-        AddUserDto toAddDto = gson.fromJson(body, AddUserDto.class);
+    public void add(Request request, Response response, @RequestBody AddUserDto toAddDto) throws IOException {
         validator.validate(toAddDto);
 
         User toAdd = mapper.toModel(toAddDto);
@@ -106,8 +105,7 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(@PathParam("id") Long id, @RequestBody String body) throws IOException {
-        UpdateUserDto changesDto = gson.fromJson(body, UpdateUserDto.class);
+    public String update(@PathParam("id") Long id, @RequestBody UpdateUserDto changesDto) throws IOException {
         validator.validate(changesDto);
 
         User changes = mapper.toModel(changesDto);

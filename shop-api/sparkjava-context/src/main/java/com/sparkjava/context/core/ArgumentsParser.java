@@ -29,13 +29,19 @@ import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public abstract class ArgumentsParser {
+    private final RequestTransformer bodyTransformer;
+
     private final StringParser parser = new StringParser();
 
-    protected List<Object> parseArgs(Parameter[] parameters, Request request, Response response) throws ServletException, IOException {
+    public ArgumentsParser(RequestTransformer bodyTransformer) {
+        this.bodyTransformer = bodyTransformer;
+    }
+
+    protected List<Object> parseArgs(Parameter[] parameters, Request request, Response response) throws Exception {
         return parseArgs(parameters, null, request, response);
     }
 
-    protected List<Object> parseArgs(Parameter[] parameters, Throwable ex, Request request, Response response) throws ServletException, IOException {
+    protected List<Object> parseArgs(Parameter[] parameters, Throwable ex, Request request, Response response) throws Exception {
         ArrayList<Object> params = new ArrayList<>(parameters.length);
 
         for (Parameter parameter : parameters) {
@@ -66,7 +72,7 @@ public abstract class ArgumentsParser {
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
-                params.add(parseRequestBody(rb, request));
+                params.add(parseRequestBody(rb, request, paramType));
 
             } else if (parameter.isAnnotationPresent(Multipart.class)) {
                 Multipart mp = parameter.getAnnotation(Multipart.class);
@@ -155,17 +161,17 @@ public abstract class ArgumentsParser {
         return parser.parse(header, paramType);
     }
 
-    private Object parseRequestBody(RequestBody rb, Request request) {
+    private Object parseRequestBody(RequestBody rb, Request request, Class<?> paramType) throws Exception {
         String body = request.body();
         if (body.isBlank() && rb.required()) {
             throw new BadRequestException(new IllegalArgumentException("Required request body is not present"));
         }
 
-        // TODO: If param is type String
-        return body;
+        if (paramType.isAssignableFrom(String.class)) {
+            return body;
+        }
 
-        // TODO: else if param is type Object
-        // deserialize
+        return bodyTransformer.parse(body, paramType);
     }
 
     private Object parseMultipart(Multipart mp, Request request) throws ServletException, IOException {
