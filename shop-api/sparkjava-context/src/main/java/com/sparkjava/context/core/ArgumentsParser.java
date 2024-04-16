@@ -171,6 +171,9 @@ public abstract class ArgumentsParser {
             return body;
         }
 
+        Class<? extends RequestTransformer> transformerClass = rb.parser();
+        RequestTransformer bodyTransformer = transformerClass.equals(RequestTransformer.class) ? this.bodyTransformer : transformerClass.getConstructor().newInstance();
+
         return bodyTransformer.parse(body, paramType);
     }
 
