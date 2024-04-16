@@ -2,6 +2,7 @@ package com.sparkjava.context.exception.handler;
 
 import com.sparkjava.context.core.ArgumentsParser;
 import com.sparkjava.context.core.RequestTransformer;
+import com.sparkjava.context.core.Validator;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
@@ -16,8 +17,8 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
 
     private final ExceptionHandler<Exception> defaultHandler = new InternalServerExceptionHandler();
 
-    public ContextExceptionHandler(int responseStatus, String responseType, Method methodHandler, Object objectHandler, RequestTransformer bodyTransformer) {
-        super(bodyTransformer);
+    public ContextExceptionHandler(int responseStatus, String responseType, Method methodHandler, Object objectHandler, RequestTransformer bodyTransformer, Validator validator) {
+        super(bodyTransformer, validator);
 
         if (responseStatus < 100 || responseStatus > 599) {
             throw new IllegalArgumentException("Response status must be between 100 and 599");

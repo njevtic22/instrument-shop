@@ -12,6 +12,7 @@ import com.sparkjava.context.annotation.RequestHeader;
 import com.sparkjava.context.exception.BadRequestException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.util.StringParser;
+import jakarta.validation.Valid;
 import spark.Request;
 import spark.Response;
 
@@ -30,11 +31,13 @@ import java.util.stream.Collectors;
 
 public abstract class ArgumentsParser {
     private final RequestTransformer bodyTransformer;
+    private final Validator validator;
 
     private final StringParser parser = new StringParser();
 
-    public ArgumentsParser(RequestTransformer bodyTransformer) {
+    public ArgumentsParser(RequestTransformer bodyTransformer, Validator validator) {
         this.bodyTransformer = bodyTransformer;
+        this.validator = validator;
     }
 
     protected List<Object> parseArgs(Parameter[] parameters, Request request, Response response) throws Exception {
@@ -72,7 +75,8 @@ public abstract class ArgumentsParser {
 
             } else if (parameter.isAnnotationPresent(RequestBody.class)) {
                 RequestBody rb = parameter.getAnnotation(RequestBody.class);
-                params.add(parseRequestBody(rb, request, paramType));
+                boolean validateBody = parameter.isAnnotationPresent(Valid.class);
+                params.add(parseRequestBody(rb, request, paramType, validateBody));
 
             } else if (parameter.isAnnotationPresent(Multipart.class)) {
                 Multipart mp = parameter.getAnnotation(Multipart.class);
@@ -161,7 +165,7 @@ public abstract class ArgumentsParser {
         return parser.parse(header, paramType);
     }
 
-    private Object parseRequestBody(RequestBody rb, Request request, Class<?> paramType) throws Exception {
+    private Object parseRequestBody(RequestBody rb, Request request, Class<?> paramType, boolean validateBody) throws Exception {
         String body = request.body();
         if (body.isBlank() && rb.required()) {
             throw new BadRequestException(new IllegalArgumentException("Required request body is not present"));
@@ -174,7 +178,12 @@ public abstract class ArgumentsParser {
         Class<? extends RequestTransformer> transformerClass = rb.parser();
         RequestTransformer bodyTransformer = transformerClass.equals(RequestTransformer.class) ? this.bodyTransformer : transformerClass.getConstructor().newInstance();
 
-        return bodyTransformer.parse(body, paramType);
+        Object parsedBody = bodyTransformer.parse(body, paramType);
+        if (validateBody) {
+            validator.validate(parsedBody);
+        }
+
+        return parsedBody;
     }
 
     private Object parseMultipart(Multipart mp, Request request) throws ServletException, IOException {

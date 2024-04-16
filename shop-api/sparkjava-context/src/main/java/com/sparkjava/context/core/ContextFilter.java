@@ -10,8 +10,8 @@ public class ContextFilter extends ArgumentsParser implements Filter {
     private final Method mappedMethod;
     private final Object controller;
 
-    public ContextFilter(Method mappedMethod, Object controller, RequestTransformer bodyTransformer) {
-        super(bodyTransformer);
+    public ContextFilter(Method mappedMethod, Object controller, RequestTransformer bodyTransformer, Validator validator) {
+        super(bodyTransformer, validator);
 
         this.mappedMethod = mappedMethod;
         this.controller = controller;

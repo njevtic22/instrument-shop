@@ -8,6 +8,7 @@ import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
+import com.instrument.shop.core.validation.validator.Validator;
 import com.instrument.shop.dbContext.JsonDbContext;
 import com.instrument.shop.guiceConfig.module.FileSerializerModule;
 import com.instrument.shop.guiceConfig.module.FilterModule;
@@ -53,7 +54,8 @@ public class Main {
         SparkJavaContext sparkCtx = new SparkJavaContext(
                 Integer.parseInt(properties.getProperty("server.port")),
                 "application/json;charset=UTF-8",
-                injector.getInstance(Gson.class)::fromJson
+                injector.getInstance(Gson.class)::fromJson,
+                injector.getInstance(Validator.class)::validate
         );
         sparkCtx.createEndpoints(
                 injector.getInstance(LoggingController.class),

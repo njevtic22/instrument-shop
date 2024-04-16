@@ -5,13 +5,13 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
+import com.instrument.shop.core.validation.validator.Validator;
 import com.instrument.shop.dto.user.AddUserDto;
 import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.service.UserService;
-import com.instrument.shop.util.Validator;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
@@ -25,6 +25,7 @@ import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import spark.Request;
 import spark.Response;
 
@@ -59,9 +60,7 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
-    public void add(Request request, Response response, @RequestBody AddUserDto toAddDto) throws IOException {
-        validator.validate(toAddDto);
-
+    public void add(Request request, Response response, @Valid @RequestBody AddUserDto toAddDto) throws IOException {
         User toAdd = mapper.toModel(toAddDto);
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
 
@@ -105,9 +104,7 @@ public class UserController {
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(@PathParam("id") Long id, @RequestBody UpdateUserDto changesDto) throws IOException {
-        validator.validate(changesDto);
-
+    public String update(@PathParam("id") Long id, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
         User changes = mapper.toModel(changesDto);
         User updated = service.update(id, changes);
         UserViewDto updatedDto = mapper.toViewDto(updated);

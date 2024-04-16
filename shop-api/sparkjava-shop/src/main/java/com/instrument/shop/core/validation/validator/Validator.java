@@ -1,4 +1,4 @@
-package com.instrument.shop.util;
+package com.instrument.shop.core.validation.validator;
 
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;

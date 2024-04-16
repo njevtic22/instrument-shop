@@ -15,6 +15,7 @@ import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
 import com.sparkjava.context.core.RequestTransformer;
+import com.sparkjava.context.core.Validator;
 import com.sparkjava.context.exception.BadRequestException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.exception.MissingAnnotationException;
@@ -53,16 +54,22 @@ public class SparkJavaContext {
             BeforeMapping.class
     );
 
-    private String contentType;
-    private RequestTransformer reqTransformer;
+    private final String contentType;
+    private final RequestTransformer reqTransformer;
+    private final Validator validator;
 
     public SparkJavaContext(int port) {
         this(port, "*/*", (body, modelClass) -> body);
     }
 
     public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer) {
+        this(port, contentType, reqTransformer, toValidate -> {});
+    }
+
+    public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer, Validator validator) {
         this.contentType = contentType;
         this.reqTransformer = reqTransformer;
+        this.validator = validator;
 
         Spark.port(port);
     }
@@ -150,7 +157,7 @@ public class SparkJavaContext {
                 .map(ResponseStatus::value)
                 .orElse(200);
 
-        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer);
+        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, validator);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
@@ -184,7 +191,7 @@ public class SparkJavaContext {
             }
         }
 
-        Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer);
+        Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer, validator);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
@@ -213,7 +220,7 @@ public class SparkJavaContext {
                             .map(ResponseStatus::value)
                             .orElse(500);
                     Spark.exception(exceptionClass,
-                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer));
+                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer, validator));
                 }
                 logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }
