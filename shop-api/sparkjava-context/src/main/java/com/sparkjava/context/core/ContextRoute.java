@@ -1,5 +1,6 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.annotation.ResponseBody;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -57,10 +58,19 @@ public class ContextRoute extends ArgumentsParser implements Route {
                 return body;
             }
 
+            ResponseTransformer renderer = getRenderer(mappedMethod);
             return renderer.render(body);
         } catch (InvocationTargetException e) {
             logger.debug(e.getMessage(), e);
             throw (Exception) e.getCause();
         }
+    }
+
+    private ResponseTransformer getRenderer(Method mappedMethod) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (mappedMethod.isAnnotationPresent(ResponseBody.class)) {
+            ResponseBody rb = mappedMethod.getAnnotation(ResponseBody.class);
+            return rb.renderer().getConstructor().newInstance();
+        }
+        return renderer;
     }
 }
