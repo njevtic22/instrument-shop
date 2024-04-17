@@ -1,13 +1,11 @@
 package com.instrument.shop.core.error;
 
-import com.google.gson.Gson;
 import com.instrument.shop.core.error.exception.BlankStringException;
 import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.ResponseStatus;
-import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -19,16 +17,9 @@ import java.util.List;
 @Singleton
 @ExceptionHandler
 public class ApplicationExceptionHandler {
-    private final Gson gson;
-
-    @Inject
-    public ApplicationExceptionHandler(Gson gson) {
-        this.gson = gson;
-    }
-
     @ResponseStatus(400)
     @Exceptions(ConstraintViolationException.class)
-    public String handleConstraintViolation(ConstraintViolationException ex) {
+    public ApiFieldError handleConstraintViolation(ConstraintViolationException ex) {
         ArrayList<FieldErrorMessage> details = new ArrayList<>();
         for (ConstraintViolation<?> violation : ex.getConstraintViolations()) {
             String fieldName = violation.getPropertyPath().toString();
@@ -38,8 +29,7 @@ public class ApplicationExceptionHandler {
             details.add(new FieldErrorMessage(fieldName, messagesList));
         }
 
-        ApiFieldError errorBody = new ApiFieldError("Invalid field(s)", details);
-        return gson.toJson(errorBody);
+        return new ApiFieldError("Invalid field(s)", details);
     }
 
     @ResponseStatus(400)
@@ -48,22 +38,19 @@ public class ApplicationExceptionHandler {
             UniquePropertyException.class,
             BlankStringException.class
     })
-    public String handleBadRequest(RuntimeException ex) {
-        ApiError errorBody = new ApiError(ex.getMessage());
-        return gson.toJson(errorBody);
+    public ApiError handleBadRequest(RuntimeException ex) {
+        return new ApiError(ex.getMessage());
     }
 
     @ResponseStatus(404)
     @Exceptions(EntityNotFoundException.class)
-    public String handleNotFound(RuntimeException ex) {
-        ApiError errorBody = new ApiError(ex.getMessage());
-        return gson.toJson(errorBody);
+    public ApiError handleNotFound(RuntimeException ex) {
+        return new ApiError(ex.getMessage());
     }
 
     @ResponseStatus(500)
     @Exceptions(Exception.class)
-    public String handleInternalServer(Exception ex) {
-        ApiError errorBody = new ApiError(ex.getMessage());
-        return gson.toJson(errorBody);
+    public ApiError handleInternalServer(Exception ex) {
+        return new ApiError(ex.getMessage());
     }
 }

@@ -219,17 +219,25 @@ public class SparkJavaContext {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
         }
 
+        ExceptionHandler exceptionMapping = exceptionHandlerClass.getAnnotation(ExceptionHandler.class);
+
         Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
         for (Method methodHandler : methodHandlers) {
             if (methodHandler.isAnnotationPresent(Exceptions.class)) {
-                Class<? extends Exception>[] exceptionClasses = methodHandler.getAnnotation(Exceptions.class).value();
+                Exceptions exceptions = methodHandler.getAnnotation(Exceptions.class);
+                Class<? extends Exception>[] exceptionClasses = exceptions.value();
+                String produces = !exceptionMapping.produces().isBlank() ? exceptionMapping.produces() : contentType;
+                if (!exceptions.produces().isBlank()) {
+                    produces = exceptions.produces();
+                }
+
                 for (Class<? extends Exception> exceptionClass : exceptionClasses) {
 
                     int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
                             .map(ResponseStatus::value)
                             .orElse(500);
                     Spark.exception(exceptionClass,
-                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer, resTransformer, validator));
+                            new ContextExceptionHandler(status, produces, methodHandler, exceptionHandler, reqTransformer, resTransformer, validator));
                 }
                 logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }

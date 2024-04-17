@@ -1,5 +1,6 @@
 package com.sparkjava.context.exception.handler;
 
+import com.sparkjava.context.annotation.ResponseBody;
 import com.sparkjava.context.core.ArgumentsParser;
 import com.sparkjava.context.core.RequestTransformer;
 import com.sparkjava.context.core.Validator;
@@ -8,6 +9,7 @@ import spark.Request;
 import spark.Response;
 import spark.ResponseTransformer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class ContextExceptionHandler extends ArgumentsParser implements ExceptionHandler<Exception> {
@@ -58,10 +60,18 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
                 return;
             }
 
-            // TODO: add serializer
-            response.body(body.toString());
+            ResponseTransformer renderer = getRenderer(methodHandler);
+            response.body(renderer.render(body));
         } catch (Exception e) {
             defaultHandler.handle(e, request, response);
         }
+    }
+
+    private ResponseTransformer getRenderer(Method methodHandler) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+        if (methodHandler.isAnnotationPresent(ResponseBody.class)) {
+            ResponseBody rb = methodHandler.getAnnotation(ResponseBody.class);
+            return rb.renderer().getConstructor().newInstance();
+        }
+        return renderer;
     }
 }

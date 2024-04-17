@@ -11,4 +11,6 @@ import java.lang.annotation.Target;
 @Target({ElementType.METHOD})
 public @interface Exceptions {
     Class<? extends Exception>[] value();
+
+    String produces() default "";
 }
