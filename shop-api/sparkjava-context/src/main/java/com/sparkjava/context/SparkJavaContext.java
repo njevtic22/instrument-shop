@@ -25,6 +25,7 @@ import com.sparkjava.context.exception.handler.InternalServerExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
+import spark.ResponseTransformer;
 import spark.Route;
 import spark.Spark;
 
@@ -56,19 +57,27 @@ public class SparkJavaContext {
 
     private final String contentType;
     private final RequestTransformer reqTransformer;
+    private final ResponseTransformer resTransformer;
     private final Validator validator;
 
     public SparkJavaContext(int port) {
-        this(port, "*/*", (body, modelClass) -> body);
+        this(port, "*/*", (body, modelClass) -> body, Object::toString);
     }
 
-    public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer) {
-        this(port, contentType, reqTransformer, toValidate -> {});
+    public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer, ResponseTransformer resTransformer) {
+        this(port, contentType, reqTransformer, resTransformer, toValidate -> {});
     }
 
-    public SparkJavaContext(int port, String contentType, RequestTransformer reqTransformer, Validator validator) {
+    public SparkJavaContext(
+            int port,
+            String contentType,
+            RequestTransformer reqTransformer,
+            ResponseTransformer resTransformer,
+            Validator validator
+    ) {
         this.contentType = contentType;
         this.reqTransformer = reqTransformer;
+        this.resTransformer = resTransformer;
         this.validator = validator;
 
         Spark.port(port);
@@ -104,7 +113,7 @@ public class SparkJavaContext {
         String sparkMethodName = null;
         String methodPath = null;
         String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : contentType;
-        String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : "application/json;charset=UTF-8";
+        String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : contentType;
 
         switch (endpointMapping.annotationType().getSimpleName()) {
             case "GetMapping" -> {
@@ -157,7 +166,7 @@ public class SparkJavaContext {
                 .map(ResponseStatus::value)
                 .orElse(200);
 
-        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, validator);
+        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, resTransformer, validator);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
@@ -220,7 +229,7 @@ public class SparkJavaContext {
                             .map(ResponseStatus::value)
                             .orElse(500);
                     Spark.exception(exceptionClass,
-                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer, validator));
+                            new ContextExceptionHandler(status, contentType, methodHandler, exceptionHandler, reqTransformer, resTransformer, validator));
                 }
                 logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
             }

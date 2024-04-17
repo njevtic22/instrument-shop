@@ -6,6 +6,7 @@ import com.sparkjava.context.core.Validator;
 import spark.ExceptionHandler;
 import spark.Request;
 import spark.Response;
+import spark.ResponseTransformer;
 
 import java.lang.reflect.Method;
 
@@ -14,10 +15,19 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
     private final String responseType;
     private final Method methodHandler;
     private final Object objectHandler;
+    private final ResponseTransformer renderer;
 
     private final ExceptionHandler<Exception> defaultHandler = new InternalServerExceptionHandler();
 
-    public ContextExceptionHandler(int responseStatus, String responseType, Method methodHandler, Object objectHandler, RequestTransformer bodyTransformer, Validator validator) {
+    public ContextExceptionHandler(
+            int responseStatus,
+            String responseType,
+            Method methodHandler,
+            Object objectHandler,
+            RequestTransformer bodyTransformer,
+            ResponseTransformer renderer,
+            Validator validator
+    ) {
         super(bodyTransformer, validator);
 
         if (responseStatus < 100 || responseStatus > 599) {
@@ -28,6 +38,7 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
         this.responseType = responseType;
         this.methodHandler = methodHandler;
         this.objectHandler = objectHandler;
+        this.renderer = renderer;
     }
 
     @Override

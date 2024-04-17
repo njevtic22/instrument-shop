@@ -42,8 +42,9 @@ public class Main {
 
         Properties properties = injector.getInstance(Properties.class);
 
+        Gson gson = injector.getInstance(Gson.class);
         JsonDbContext dbContext = new JsonDbContext(
-                injector.getInstance(Gson.class),
+                gson,
                 Map.of(
                         "userPath", properties.getProperty("database.json.user-file-path")
                 ),
@@ -54,7 +55,8 @@ public class Main {
         SparkJavaContext sparkCtx = new SparkJavaContext(
                 Integer.parseInt(properties.getProperty("server.port")),
                 "application/json;charset=UTF-8",
-                injector.getInstance(Gson.class)::fromJson,
+                gson::fromJson,
+                gson::toJson,
                 injector.getInstance(Validator.class)::validate
         );
         sparkCtx.createEndpoints(

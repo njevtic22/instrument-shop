@@ -1,11 +1,9 @@
 package com.instrument.shop.controller;
 
-import com.google.gson.Gson;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
-import com.instrument.shop.core.validation.validator.Validator;
 import com.instrument.shop.dto.user.AddUserDto;
 import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
@@ -36,24 +34,18 @@ import java.util.Map;
 @Singleton
 @RequestMapping("api/users")
 public class UserController {
-    private final Gson gson;
     private final UserMapper mapper;
     private final UserService service;
-    private final Validator validator;
     private final PagingFilteringUtil pagingFilteringUtil;
 
     @Inject
     public UserController(
-            Gson gson,
             UserMapper mapper,
             UserService service,
-            Validator validator,
             PagingFilteringUtil pagingFilteringUtil
     ) {
-        this.gson = gson;
         this.mapper = mapper;
         this.service = service;
-        this.validator = validator;
         this.pagingFilteringUtil = pagingFilteringUtil;
     }
 
@@ -69,7 +61,7 @@ public class UserController {
 
     @GetMapping
     @MethodOrder(80)
-    public String getAll(
+    public PaginatedResponse<UserViewDto> getAll(
             Request request,
             @QueryParamValues(value = "sort", defaultValue = {"unsorted"}) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
@@ -85,31 +77,26 @@ public class UserController {
                 .map(mapper::toViewDto)
                 .toList();
 
-        PaginatedResponse<UserViewDto> responseDto = new PaginatedResponse<>(
+        return new PaginatedResponse<>(
                 allUsersDto,
                 allUsersPaginated.totalElements(),
                 allUsersPaginated.totalPages()
         );
-        return gson.toJson(responseDto);
     }
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    public String getById(@PathParam("id") Long id) {
+    public UserViewDto getById(@PathParam("id") Long id) {
         User found = service.getById(id);
-        UserViewDto foundDto = mapper.toViewDto(found);
-
-        return gson.toJson(foundDto);
+        return mapper.toViewDto(found);
     }
 
     @PutMapping("/:id")
     @MethodOrder(40)
-    public String update(@PathParam("id") Long id, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
+    public UserViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
         User changes = mapper.toModel(changesDto);
         User updated = service.update(id, changes);
-        UserViewDto updatedDto = mapper.toViewDto(updated);
-
-        return gson.toJson(updatedDto);
+        return mapper.toViewDto(updated);
     }
 
     @DeleteMapping("/:id")
