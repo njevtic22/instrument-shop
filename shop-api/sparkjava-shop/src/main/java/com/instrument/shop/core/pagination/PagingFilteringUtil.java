@@ -8,6 +8,17 @@ import java.util.Map;
 
 @Singleton
 public class PagingFilteringUtil {
+    public Map<String, String> buildFilterData(String[] filterParams) {
+        HashMap<String, String> filterData = new HashMap<>(filterParams.length);
+
+        for (String filterParam : filterParams) {
+            String[] paramSplit = filterParam.split("-");
+            filterData.put(paramSplit[0], paramSplit[1]);
+        }
+
+        return filterData;
+    }
+
     public Map<String, String> buildFilterData(Request request, String... filterKeys) {
         HashMap<String, String> filterData = new HashMap<>(filterKeys.length);
 

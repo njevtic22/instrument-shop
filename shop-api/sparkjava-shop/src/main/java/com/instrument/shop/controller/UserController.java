@@ -62,12 +62,12 @@ public class UserController {
     @GetMapping
     @MethodOrder(80)
     public PaginatedResponse<UserViewDto> getAll(
-            Request request,
+            @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", defaultValue = {"unsorted"}) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
-        Map<String, String> filterData = buildFilterData(request);
+        Map<String, String> filterData = pagingFilteringUtil.buildFilterData(filterParams);
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 
@@ -104,10 +104,5 @@ public class UserController {
     @ResponseStatus(204)
     public void deleteUser(@PathParam("id") Long id) throws IOException {
         service.delete(id);
-    }
-
-    private Map<String, String> buildFilterData(Request request) {
-        String[] filterKeys = {"filterName", "filterSurname", "filterEmail", "filterUsername", "filterRole"};
-        return pagingFilteringUtil.buildFilterData(request, filterKeys);
     }
 }

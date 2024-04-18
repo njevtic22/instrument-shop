@@ -25,11 +25,11 @@ public class UserFilter implements Filter<User>{
             String filterValue = filterEntry.getValue();
 
             switch (filterBy) {
-                case "filterName" ->     filterPredicate = user -> !user.getName().toLowerCase().contains(filterValue.toLowerCase());
-                case "filterSurname" ->  filterPredicate = user -> !user.getSurname().toLowerCase().contains(filterValue.toLowerCase());
-                case "filterEmail" ->    filterPredicate = user -> !user.getEmail().toLowerCase().contains(filterValue.toLowerCase());
-                case "filterUsername" -> filterPredicate = user -> !user.getUsername().toLowerCase().contains(filterValue.toLowerCase());
-                case "filterRole" ->     filterPredicate = user -> !user.getRole().toString().equals(filterValue.toUpperCase());
+                case "name" ->     filterPredicate = user -> !user.getName().toLowerCase().contains(filterValue.toLowerCase());
+                case "surname" ->  filterPredicate = user -> !user.getSurname().toLowerCase().contains(filterValue.toLowerCase());
+                case "email" ->    filterPredicate = user -> !user.getEmail().toLowerCase().contains(filterValue.toLowerCase());
+                case "username" -> filterPredicate = user -> !user.getUsername().toLowerCase().contains(filterValue.toLowerCase());
+                case "role" ->     filterPredicate = user -> !user.getRole().toString().equals(filterValue.toUpperCase());
             }
 
             if (filterPredicate != null) {
