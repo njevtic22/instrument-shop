@@ -212,39 +212,43 @@ public class SparkJavaContext {
         }
     }
 
-    public void registerExceptionHandler(Object exceptionHandler) {
+    public void registerExceptionHandler(Object objectHandler) {
         // TODO: fix .getSuperclass()
-        Class<?> exceptionHandlerClass = exceptionHandler.getClass().getSuperclass();
-        if (!exceptionHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
-            throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), exceptionHandlerClass.getSimpleName());
+        Class<?> objectHandlerClass = objectHandler.getClass().getSuperclass();
+        if (!objectHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
+            throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), objectHandlerClass.getSimpleName());
         }
 
-        ExceptionHandler exceptionMapping = exceptionHandlerClass.getAnnotation(ExceptionHandler.class);
+        ExceptionHandler exceptionMapping = objectHandlerClass.getAnnotation(ExceptionHandler.class);
 
-        Method[] methodHandlers = exceptionHandlerClass.getDeclaredMethods();
+        Method[] methodHandlers = objectHandlerClass.getDeclaredMethods();
         for (Method methodHandler : methodHandlers) {
             if (methodHandler.isAnnotationPresent(Exceptions.class)) {
                 Exceptions exceptions = methodHandler.getAnnotation(Exceptions.class);
-                Class<? extends Exception>[] exceptionClasses = exceptions.value();
-                String produces = !exceptionMapping.produces().isBlank() ? exceptionMapping.produces() : contentType;
-                if (!exceptions.produces().isBlank()) {
-                    produces = exceptions.produces();
-                }
-
-                for (Class<? extends Exception> exceptionClass : exceptionClasses) {
-
-                    int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
-                            .map(ResponseStatus::value)
-                            .orElse(500);
-                    Spark.exception(exceptionClass,
-                            new ContextExceptionHandler(status, produces, methodHandler, exceptionHandler, reqTransformer, resTransformer, validator));
-                }
-                logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), exceptionHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
+                mapHandlerToMethod(objectHandlerClass, objectHandler, exceptionMapping, methodHandler, exceptions);
             }
         }
 
         Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
+    }
+
+    private void mapHandlerToMethod(Class<?> objectHandlerClass, Object objectHandler, ExceptionHandler exceptionMapping, Method methodHandler, Exceptions exceptions) {
+        String produces = !exceptionMapping.produces().isBlank() ? exceptionMapping.produces() : contentType;
+        if (!exceptions.produces().isBlank()) {
+            produces = exceptions.produces();
+        }
+
+        Class<? extends Exception>[] exceptionClasses = exceptions.value();
+        for (Class<? extends Exception> exceptionClass : exceptionClasses) {
+
+            int status = Optional.ofNullable(methodHandler.getAnnotation(ResponseStatus.class))
+                    .map(ResponseStatus::value)
+                    .orElse(500);
+            Spark.exception(exceptionClass,
+                    new ContextExceptionHandler(status, produces, methodHandler, objectHandler, reqTransformer, resTransformer, validator));
+        }
+        logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), objectHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
     }
 
     private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {
