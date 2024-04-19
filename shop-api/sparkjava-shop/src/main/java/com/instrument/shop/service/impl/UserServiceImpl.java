@@ -125,4 +125,22 @@ public class UserServiceImpl implements UserService {
             throw new UniquePropertyException("Username '" + username + "' is already taken.");
         }
     }
+
+    @Override
+    public void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword) throws IOException {
+        validatePasswordMatch(authenticated, oldPassword, newPassword, repeatedPassword);
+
+        authenticated.setPassword(encoder.encode(newPassword));
+        repository.save(authenticated);
+    }
+
+    private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
+        if (!newPassword.equals(repeatedPassword)) {
+            throw new InvalidPasswordException("New password and repeated password do not match");
+        }
+
+        if (!encoder.matches(oldPassword, existingUser.getPassword())) {
+            throw new InvalidPasswordException("Incorrect password");
+        }
+    }
 }

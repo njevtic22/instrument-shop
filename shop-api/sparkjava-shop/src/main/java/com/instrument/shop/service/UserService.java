@@ -15,4 +15,6 @@ public interface UserService extends CrudService<Long, User> {
     void validateEmail(String email);
 
     void validateUsername(String username);
+
+    void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword) throws IOException;
 }

@@ -1,6 +1,7 @@
-package com.instrument.shop.dto.user;
+package com.instrument.shop.dto.auth;
 
 import com.instrument.shop.core.validation.annotation.Password;
+import com.instrument.shop.dto.user.RequestUserDto;
 import jakarta.validation.constraints.NotBlank;
 
 public class RegisterUserDto extends RequestUserDto {

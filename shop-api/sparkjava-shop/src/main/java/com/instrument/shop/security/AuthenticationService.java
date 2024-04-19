@@ -9,4 +9,6 @@ public interface AuthenticationService {
     Pair<String, String> login(String username, String password);
 
     Pair<String, String> registerUser(User toRegister, String repeatedPassword) throws IOException;
+
+    User getUserFromToken(String jwt);
 }

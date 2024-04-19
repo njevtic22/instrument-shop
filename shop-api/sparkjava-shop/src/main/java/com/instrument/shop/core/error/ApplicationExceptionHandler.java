@@ -7,6 +7,7 @@ import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.ResponseStatus;
+import io.jsonwebtoken.JwtException;
 import jakarta.inject.Singleton;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
@@ -38,7 +39,8 @@ public class ApplicationExceptionHandler {
             IllegalArgumentException.class,
             UniquePropertyException.class,
             BlankStringException.class,
-            InvalidUsernameException.class
+            InvalidUsernameException.class,
+            JwtException.class
     })
     public ApiError handleBadRequest(RuntimeException ex) {
         return new ApiError(ex.getMessage());

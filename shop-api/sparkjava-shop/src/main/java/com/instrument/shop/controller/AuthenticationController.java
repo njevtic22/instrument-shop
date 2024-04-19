@@ -1,8 +1,8 @@
 package com.instrument.shop.controller;
 
 import com.instrument.shop.dto.auth.LoginRequestDto;
+import com.instrument.shop.dto.auth.RegisterUserDto;
 import com.instrument.shop.dto.auth.TokenResponse;
-import com.instrument.shop.dto.user.RegisterUserDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.security.AuthenticationService;

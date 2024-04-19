@@ -5,10 +5,12 @@ import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.user.AddUserDto;
+import com.instrument.shop.dto.user.PasswordChangeDto;
 import com.instrument.shop.dto.user.UpdateUserDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
+import com.instrument.shop.security.AuthenticationService;
 import com.instrument.shop.service.UserService;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
@@ -19,6 +21,7 @@ import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
+import com.sparkjava.context.annotation.RequestHeader;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
@@ -36,16 +39,19 @@ import java.util.Map;
 public class UserController {
     private final UserMapper mapper;
     private final UserService service;
+    private final AuthenticationService authService;
     private final PagingFilteringUtil pagingFilteringUtil;
 
     @Inject
     public UserController(
             UserMapper mapper,
             UserService service,
+            AuthenticationService authService,
             PagingFilteringUtil pagingFilteringUtil
     ) {
         this.mapper = mapper;
         this.service = service;
+        this.authService = authService;
         this.pagingFilteringUtil = pagingFilteringUtil;
     }
 
@@ -81,6 +87,19 @@ public class UserController {
                 allUsersDto,
                 allUsersPaginated.totalElements(),
                 allUsersPaginated.totalPages()
+        );
+    }
+
+    @PutMapping("/password")
+    @MethodOrder(70)
+    @ResponseStatus(204)
+    public void changePassword(@RequestHeader("Authorization") String authorization, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
+        User authenticated = authService.getUserFromToken(authorization.substring(7));
+        service.changePassword(
+                authenticated,
+                passwordBody.oldPassword(),
+                passwordBody.newPassword(),
+                passwordBody.repeatedPassword()
         );
     }
 
