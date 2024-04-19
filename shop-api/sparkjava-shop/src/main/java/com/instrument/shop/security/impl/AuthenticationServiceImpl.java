@@ -12,6 +12,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.io.IOException;
+
 @Singleton
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserService service;
@@ -39,6 +41,12 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
 
         return getTokenRolePair(found);
+    }
+
+    @Override
+    public Pair<String, String> registerUser(User toRegister, String repeatedPassword) throws IOException {
+        User registered = service.add(toRegister, repeatedPassword);
+        return getTokenRolePair(registered);
     }
 
     private Pair<String, String> getTokenRolePair(User user) {
