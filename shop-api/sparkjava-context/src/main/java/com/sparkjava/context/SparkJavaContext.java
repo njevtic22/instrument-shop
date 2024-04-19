@@ -171,9 +171,9 @@ public class SparkJavaContext {
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
             sparkMethod.invoke(null, methodPath, consumes, route);
-            logger.info("Created endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
+            logger.info("Created endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            logger.info("Could not create endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
+            logger.info("Could not create endpoint: {} {} on method {}.{}({})", String.format("%10S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
             throw new RuntimeException(e);
         }
     }
@@ -205,9 +205,9 @@ public class SparkJavaContext {
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
             sparkMethod.invoke(null, methodPath, filter);
-            logger.info("Created filter: {} {} on method {}.{}({})", String.format("%12S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
+            logger.info("Created filter: {} {} on method {}.{}({})", String.format("%12S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
         } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
-            logger.info("Could not create filter: {} {} on method {}.{}({})", String.format("%12S", sparkMethodName), String.format("%-15s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
+            logger.info("Could not create filter: {} {} on method {}.{}({})", String.format("%12S", sparkMethodName), String.format("%-30s", methodPath), controller.getClass().getSimpleName(), mappedMethod.getName(), String.join(", ", getParameterTypeNames(mappedMethod)));
             throw new RuntimeException(e);
         }
     }
