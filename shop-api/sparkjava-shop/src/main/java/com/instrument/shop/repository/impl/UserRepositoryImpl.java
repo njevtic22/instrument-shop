@@ -140,6 +140,28 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
+    public Optional<User> findByUsername(String username) {
+        for (User user : data.values()) {
+            if (user.getUsername().equals(username)) {
+                return Optional.of(user);
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<User> findByUsernameAndArchivedFalse(String username) {
+        Optional<User> foundOptional = findByUsername(username);
+
+        if (foundOptional.isPresent() && !foundOptional.get().isArchived()) {
+            return foundOptional;
+        }
+
+        return Optional.empty();
+    }
+
+    @Override
     public boolean existsByIdAndArchivedFalse(Long id) {
         return findByIdAndArchivedFalse(id).isPresent();
     }

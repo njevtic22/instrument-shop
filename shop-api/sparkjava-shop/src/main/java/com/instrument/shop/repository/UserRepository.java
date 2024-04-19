@@ -16,9 +16,9 @@ public interface UserRepository extends CrudRepository<Long, User> {
 
     Optional<User> findByIdAndArchivedFalse(Long id);
 
-//    Optional<User> findByUsername(String username);
-//
-//    Optional<User> findByUsernameAndArchivedFalse(String username);
+    Optional<User> findByUsername(String username);
+
+    Optional<User> findByUsernameAndArchivedFalse(String username);
 
     boolean existsByIdAndArchivedFalse(Long id);
 

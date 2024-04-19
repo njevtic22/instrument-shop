@@ -9,6 +9,7 @@ import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.service.UserService;
+import com.instrument.shop.util.Strings;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -50,6 +51,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public PaginatedResponse<User> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByArchivedFalse(filterData, sort, pageRequest);
+    }
+
+    @Override
+    public User getByUsername(String username) {
+        Strings.requireNonBlank(username, "Username must not be blank");
+
+        return repository.findByUsernameAndArchivedFalse(username)
+                .orElseThrow(() -> new EntityNotFoundException("User", "username", username));
     }
 
     @Override
