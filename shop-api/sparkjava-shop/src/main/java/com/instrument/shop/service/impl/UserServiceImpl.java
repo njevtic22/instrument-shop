@@ -79,20 +79,10 @@ public class UserServiceImpl implements UserService {
             validateUsername(changes.getUsername());
         }
 
-        if (!existing.getRole().equals(changes.getRole())) {
-            if (existing.isCustomer()) {
-                throw new IllegalArgumentException("Customer can not be promoted to " + changes.getRole().toString().toLowerCase());
-            }
-            if (changes.isCustomer()) {
-                throw new IllegalArgumentException("Manager or salesman can not be demoted to " + changes.getRole().toString().toLowerCase());
-            }
-        }
-
         existing.setName(changes.getName());
         existing.setSurname(changes.getSurname());
         existing.setEmail(changes.getEmail());
         existing.setUsername(changes.getUsername());
-        existing.setRole(changes.getRole());
 
         return repository.save(existing);
     }

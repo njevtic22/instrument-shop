@@ -7,10 +7,12 @@ import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.user.AddUserDto;
 import com.instrument.shop.dto.user.PasswordChangeDto;
 import com.instrument.shop.dto.user.UpdateUserDto;
+import com.instrument.shop.dto.user.UpdateUserResponseDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
 import com.instrument.shop.security.AuthenticationService;
+import com.instrument.shop.security.TokenUtils;
 import com.instrument.shop.service.UserService;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
@@ -41,18 +43,21 @@ public class UserController {
     private final UserService service;
     private final AuthenticationService authService;
     private final PagingFilteringUtil pagingFilteringUtil;
+    private final TokenUtils tokenUtils;
 
     @Inject
     public UserController(
             UserMapper mapper,
             UserService service,
             AuthenticationService authService,
-            PagingFilteringUtil pagingFilteringUtil
+            PagingFilteringUtil pagingFilteringUtil,
+            TokenUtils tokenUtils
     ) {
         this.mapper = mapper;
         this.service = service;
         this.authService = authService;
         this.pagingFilteringUtil = pagingFilteringUtil;
+        this.tokenUtils = tokenUtils;
     }
 
     @PostMapping
@@ -90,8 +95,29 @@ public class UserController {
         );
     }
 
+    @PutMapping
+    @MethodOrder(60)
+    public UpdateUserResponseDto update(
+            @Valid @RequestBody UpdateUserDto changesDto,
+            @RequestHeader("Authorization") String authorization
+    ) throws IOException {
+        User authenticated = authService.getUserFromToken(authorization.substring(7));
+        String originalUsername = authenticated.getUsername();
+
+        User changes = mapper.toModel(changesDto);
+        User updated = service.update(authenticated.getId(), changes);
+
+        String jwt = "";
+        if (!originalUsername.equals(updated.getUsername())) {
+            jwt = tokenUtils.generateToken(updated.getUsername());
+        }
+
+        UserViewDto updatedDto = mapper.toViewDto(updated);
+        return new UpdateUserResponseDto(updatedDto, jwt);
+    }
+
     @PutMapping("/password")
-    @MethodOrder(70)
+    @MethodOrder(50)
     @ResponseStatus(204)
     public void changePassword(@RequestHeader("Authorization") String authorization, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
         User authenticated = authService.getUserFromToken(authorization.substring(7));
@@ -104,18 +130,10 @@ public class UserController {
     }
 
     @GetMapping("/:id")
-    @MethodOrder(60)
+    @MethodOrder(40)
     public UserViewDto getById(@PathParam("id") Long id) {
         User found = service.getById(id);
         return mapper.toViewDto(found);
-    }
-
-    @PutMapping("/:id")
-    @MethodOrder(40)
-    public UserViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
-        User changes = mapper.toModel(changesDto);
-        User updated = service.update(id, changes);
-        return mapper.toViewDto(updated);
     }
 
     @DeleteMapping("/:id")

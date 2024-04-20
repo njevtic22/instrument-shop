@@ -30,7 +30,7 @@ public class UserMapper {
                 updateUserDto.getUsername(),
                 "",
                 false,
-                Role.valueOf(updateUserDto.getRole())
+                null
         );
     }
 
