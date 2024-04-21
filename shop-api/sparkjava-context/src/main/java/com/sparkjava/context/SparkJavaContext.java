@@ -11,6 +11,7 @@ import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
+import com.sparkjava.context.core.Authenticator;
 import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
@@ -60,6 +61,11 @@ public class SparkJavaContext {
     private final ResponseTransformer resTransformer;
     private final Validator validator;
 
+    private boolean endpointsCreated = false;
+
+    private Authenticator authenticator;
+
+
     public SparkJavaContext(int port) {
         this(port, "*/*", (body, modelClass) -> body, Object::toString);
     }
@@ -84,6 +90,8 @@ public class SparkJavaContext {
     }
 
     public void createEndpoints(Object... controllers) {
+        endpointsCreated = true;
+
         for (Object controller : controllers) {
             Class<?> controllerClass = controller.getClass();
 
@@ -166,7 +174,7 @@ public class SparkJavaContext {
                 .map(ResponseStatus::value)
                 .orElse(200);
 
-        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, resTransformer, validator);
+        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, resTransformer, validator, authenticator);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
@@ -200,7 +208,7 @@ public class SparkJavaContext {
             }
         }
 
-        Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer, validator);
+        Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer, validator, authenticator);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, Filter.class);
@@ -246,9 +254,16 @@ public class SparkJavaContext {
                     .map(ResponseStatus::value)
                     .orElse(500);
             Spark.exception(exceptionClass,
-                    new ContextExceptionHandler(status, produces, methodHandler, objectHandler, reqTransformer, resTransformer, validator));
+                    new ContextExceptionHandler(status, produces, methodHandler, objectHandler, reqTransformer, resTransformer, validator, authenticator));
         }
         logger.info("Registered exception handler:\n{}\n{}.{}({})", exceptionsToString(exceptionClasses), objectHandlerClass.getSimpleName(), methodHandler.getName(), String.join(", ", getParameterTypeNames(methodHandler)));
+    }
+
+    public void setAuthenticator(Authenticator auth) {
+        if (endpointsCreated) {
+            throw new RuntimeException("Authenticator can not be set because endpoints are already created");
+        }
+        this.authenticator = auth;
     }
 
     private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {

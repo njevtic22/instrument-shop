@@ -11,9 +11,9 @@ import com.instrument.shop.dto.user.UpdateUserResponseDto;
 import com.instrument.shop.dto.user.UserViewDto;
 import com.instrument.shop.mapper.UserMapper;
 import com.instrument.shop.model.User;
-import com.instrument.shop.security.AuthenticationService;
 import com.instrument.shop.security.TokenUtils;
 import com.instrument.shop.service.UserService;
+import com.sparkjava.context.annotation.Authenticated;
 import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
@@ -23,7 +23,6 @@ import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
-import com.sparkjava.context.annotation.RequestHeader;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
@@ -41,7 +40,6 @@ import java.util.Map;
 public class UserController {
     private final UserMapper mapper;
     private final UserService service;
-    private final AuthenticationService authService;
     private final PagingFilteringUtil pagingFilteringUtil;
     private final TokenUtils tokenUtils;
 
@@ -49,13 +47,11 @@ public class UserController {
     public UserController(
             UserMapper mapper,
             UserService service,
-            AuthenticationService authService,
             PagingFilteringUtil pagingFilteringUtil,
             TokenUtils tokenUtils
     ) {
         this.mapper = mapper;
         this.service = service;
-        this.authService = authService;
         this.pagingFilteringUtil = pagingFilteringUtil;
         this.tokenUtils = tokenUtils;
     }
@@ -97,11 +93,7 @@ public class UserController {
 
     @PutMapping
     @MethodOrder(60)
-    public UpdateUserResponseDto update(
-            @Valid @RequestBody UpdateUserDto changesDto,
-            @RequestHeader("Authorization") String authorization
-    ) throws IOException {
-        User authenticated = authService.getUserFromToken(authorization.substring(7));
+    public UpdateUserResponseDto update(@Authenticated User authenticated, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
         String originalUsername = authenticated.getUsername();
 
         User changes = mapper.toModel(changesDto);
@@ -119,8 +111,7 @@ public class UserController {
     @PutMapping("/password")
     @MethodOrder(50)
     @ResponseStatus(204)
-    public void changePassword(@RequestHeader("Authorization") String authorization, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
-        User authenticated = authService.getUserFromToken(authorization.substring(7));
+    public void changePassword(@Authenticated User authenticated, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
         service.changePassword(
                 authenticated,
                 passwordBody.oldPassword(),

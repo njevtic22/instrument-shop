@@ -20,6 +20,7 @@ import com.instrument.shop.guiceConfig.module.SecurityModule;
 import com.instrument.shop.guiceConfig.module.SorterModule;
 import com.instrument.shop.guiceConfig.module.ValidatorModule;
 import com.instrument.shop.repository.UserRepository;
+import com.instrument.shop.security.AuthenticationService;
 import com.sparkjava.context.SparkJavaContext;
 
 import java.io.IOException;
@@ -59,6 +60,13 @@ public class Main {
                 gson::toJson,
                 injector.getInstance(Validator.class)::validate
         );
+
+        AuthenticationService authService = injector.getInstance(AuthenticationService.class);
+        sparkCtx.setAuthenticator((request -> {
+            String jwt = request.headers("Authorization").substring(7);
+            return authService.getUserFromToken(jwt);
+        }));
+
         sparkCtx.createEndpoints(
                 injector.getInstance(AuthenticationController.class),
                 injector.getInstance(LoggingController.class),

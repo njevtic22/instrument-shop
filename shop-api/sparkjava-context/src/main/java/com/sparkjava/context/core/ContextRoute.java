@@ -27,9 +27,10 @@ public class ContextRoute extends ArgumentsParser implements Route {
             Object controller,
             RequestTransformer reqTransformer,
             ResponseTransformer renderer,
-            Validator validator
+            Validator validator,
+            Authenticator authenticator
     ) {
-        super(reqTransformer, validator);
+        super(reqTransformer, validator, authenticator);
 
         if (responseStatus < 100 || responseStatus > 599) {
             throw new IllegalArgumentException("Response status must be between 100 and 599");

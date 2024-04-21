@@ -1,5 +1,6 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.annotation.Authenticated;
 import com.sparkjava.context.annotation.Multipart;
 import com.sparkjava.context.annotation.MultipartText;
 import com.sparkjava.context.annotation.MultipartTextValues;
@@ -32,12 +33,14 @@ import java.util.stream.Collectors;
 public abstract class ArgumentsParser {
     private final RequestTransformer bodyTransformer;
     private final Validator validator;
+    private final Authenticator authenticator;
 
     private final StringParser parser = new StringParser();
 
-    public ArgumentsParser(RequestTransformer bodyTransformer, Validator validator) {
+    public ArgumentsParser(RequestTransformer bodyTransformer, Validator validator, Authenticator authenticator) {
         this.bodyTransformer = bodyTransformer;
         this.validator = validator;
+        this.authenticator = authenticator;
     }
 
     protected List<Object> parseArgs(Parameter[] parameters, Request request, Response response) throws Exception {
@@ -93,6 +96,12 @@ public abstract class ArgumentsParser {
             } else if (parameter.isAnnotationPresent(MultipartTextValues.class)) {
                 MultipartTextValues mptv = parameter.getAnnotation(MultipartTextValues.class);
                 params.add(parseMultipartTextValues(mptv, request));
+
+            } else if (parameter.isAnnotationPresent(Authenticated.class)) {
+                if (authenticator == null) {
+                    throw new InternalServerException(new NullPointerException("Authenticator is not set"));
+                }
+                params.add(authenticator.authenticate(request));
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + paramType));

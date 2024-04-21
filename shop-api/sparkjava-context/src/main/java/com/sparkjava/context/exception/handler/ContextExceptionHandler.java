@@ -2,6 +2,7 @@ package com.sparkjava.context.exception.handler;
 
 import com.sparkjava.context.annotation.ResponseBody;
 import com.sparkjava.context.core.ArgumentsParser;
+import com.sparkjava.context.core.Authenticator;
 import com.sparkjava.context.core.RequestTransformer;
 import com.sparkjava.context.core.Validator;
 import spark.ExceptionHandler;
@@ -28,9 +29,10 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
             Object objectHandler,
             RequestTransformer bodyTransformer,
             ResponseTransformer renderer,
-            Validator validator
+            Validator validator,
+            Authenticator authenticator
     ) {
-        super(bodyTransformer, validator);
+        super(bodyTransformer, validator, authenticator);
 
         if (responseStatus < 100 || responseStatus > 599) {
             throw new IllegalArgumentException("Response status must be between 100 and 599");
