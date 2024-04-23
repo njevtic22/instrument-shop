@@ -2,6 +2,7 @@ package com.instrument.shop.controller;
 
 import com.sparkjava.context.annotation.MultipartValues;
 import com.sparkjava.context.annotation.PostMapping;
+import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.RequestMapping;
 import jakarta.inject.Singleton;
 
@@ -18,6 +19,7 @@ import java.util.Collection;
 @RequestMapping("api/images")
 public class ImageController {
     @PostMapping(consumes = "multipart/form-data")
+    @PreAuthorize
     public String uploadImage(@MultipartValues({"images"}) Collection<Part> images) throws IOException {
         File tmpLocal = new File("tmp-local");
         tmpLocal.mkdir();

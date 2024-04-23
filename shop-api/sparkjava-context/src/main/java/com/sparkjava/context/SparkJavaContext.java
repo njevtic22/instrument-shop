@@ -12,16 +12,20 @@ import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
 import com.sparkjava.context.annotation.ResponseStatus;
 import com.sparkjava.context.core.Authenticator;
+import com.sparkjava.context.core.Authorizer;
 import com.sparkjava.context.core.ContextFilter;
 import com.sparkjava.context.core.ContextRoute;
 import com.sparkjava.context.core.MethodOrderComparator;
 import com.sparkjava.context.core.RequestTransformer;
+import com.sparkjava.context.core.RolesGetter;
 import com.sparkjava.context.core.Validator;
 import com.sparkjava.context.exception.BadRequestException;
+import com.sparkjava.context.exception.ForbiddenException;
 import com.sparkjava.context.exception.InternalServerException;
 import com.sparkjava.context.exception.MissingAnnotationException;
 import com.sparkjava.context.exception.handler.BadRequestExceptionHandler;
 import com.sparkjava.context.exception.handler.ContextExceptionHandler;
+import com.sparkjava.context.exception.handler.ForbiddenExceptionHandler;
 import com.sparkjava.context.exception.handler.InternalServerExceptionHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -64,6 +68,7 @@ public class SparkJavaContext {
     private boolean endpointsCreated = false;
 
     private Authenticator authenticator;
+    private Authorizer authorizer;
 
 
     public SparkJavaContext(int port) {
@@ -174,7 +179,7 @@ public class SparkJavaContext {
                 .map(ResponseStatus::value)
                 .orElse(200);
 
-        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, resTransformer, validator, authenticator);
+        Route route = new ContextRoute(status, produces, mappedMethod, controller, reqTransformer, resTransformer, validator, authenticator, authorizer);
 
         try {
             Method sparkMethod = Spark.class.getMethod(sparkMethodName, String.class, String.class, Route.class);
@@ -221,6 +226,10 @@ public class SparkJavaContext {
     }
 
     public void registerExceptionHandler(Object objectHandler) {
+        Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
+        Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler());
+        Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
+
         // TODO: fix .getSuperclass()
         Class<?> objectHandlerClass = objectHandler.getClass().getSuperclass();
         if (!objectHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
@@ -236,9 +245,6 @@ public class SparkJavaContext {
                 mapHandlerToMethod(objectHandlerClass, objectHandler, exceptionMapping, methodHandler, exceptions);
             }
         }
-
-        Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
-        Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
     }
 
     private void mapHandlerToMethod(Class<?> objectHandlerClass, Object objectHandler, ExceptionHandler exceptionMapping, Method methodHandler, Exceptions exceptions) {
@@ -264,6 +270,13 @@ public class SparkJavaContext {
             throw new RuntimeException("Authenticator can not be set because endpoints are already created");
         }
         this.authenticator = auth;
+    }
+
+    public void setAuthorizer(Set<String> allRoles, RolesGetter rolesGetter) {
+        if (endpointsCreated) {
+            throw new RuntimeException("Authorizer can not be set because endpoints are already created");
+        }
+        this.authorizer = new Authorizer(allRoles, rolesGetter);
     }
 
     private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {

@@ -22,10 +22,12 @@ import com.instrument.shop.guiceConfig.module.ValidatorModule;
 import com.instrument.shop.repository.UserRepository;
 import com.sparkjava.context.SparkJavaContext;
 import com.sparkjava.context.core.Authenticator;
+import com.sparkjava.context.core.RolesGetter;
 
 import java.io.IOException;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 
 public class Main {
     public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalAccessException {
@@ -62,6 +64,7 @@ public class Main {
         );
 
         sparkCtx.setAuthenticator(injector.getInstance(Authenticator.class));
+        sparkCtx.setAuthorizer(Set.of("MANAGER", "SALESMAN", "CUSTOMER"), injector.getInstance(RolesGetter.class));
 
         sparkCtx.createEndpoints(
                 injector.getInstance(AuthenticationController.class),

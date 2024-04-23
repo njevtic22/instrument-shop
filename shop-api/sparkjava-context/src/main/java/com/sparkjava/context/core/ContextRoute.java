@@ -1,6 +1,8 @@
 package com.sparkjava.context.core;
 
+import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.ResponseBody;
+import com.sparkjava.context.exception.InternalServerException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Request;
@@ -10,6 +12,7 @@ import spark.Route;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Set;
 
 public class ContextRoute extends ArgumentsParser implements Route {
     private final int responseStatus;
@@ -17,6 +20,7 @@ public class ContextRoute extends ArgumentsParser implements Route {
     private final Method mappedMethod;
     private final Object controller;
     private final ResponseTransformer renderer;
+    private final Authorizer authorizer;
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -28,7 +32,8 @@ public class ContextRoute extends ArgumentsParser implements Route {
             RequestTransformer reqTransformer,
             ResponseTransformer renderer,
             Validator validator,
-            Authenticator authenticator
+            Authenticator authenticator,
+            Authorizer authorizer
     ) {
         super(reqTransformer, validator, authenticator);
 
@@ -41,10 +46,13 @@ public class ContextRoute extends ArgumentsParser implements Route {
         this.mappedMethod = mappedMethod;
         this.controller = controller;
         this.renderer = renderer;
+        this.authorizer = authorizer;
     }
 
     @Override
     public Object handle(Request request, Response response) throws Exception {
+        validateAuthorization(request, mappedMethod);
+
         response.status(responseStatus);
         response.type(responseType);
 
@@ -73,5 +81,16 @@ public class ContextRoute extends ArgumentsParser implements Route {
             return rb.renderer().getConstructor().newInstance();
         }
         return renderer;
+    }
+
+    private void validateAuthorization(Request request, Method mappedMethod) throws Exception {
+        if (mappedMethod.isAnnotationPresent(PreAuthorize.class)) {
+            PreAuthorize pa = mappedMethod.getAnnotation(PreAuthorize.class);
+
+            if (authorizer == null) {
+                throw new InternalServerException(new NullPointerException("Authorizer is not set"));
+            }
+            authorizer.validateAuthorization(request, Set.of(pa.value()));
+        }
     }
 }

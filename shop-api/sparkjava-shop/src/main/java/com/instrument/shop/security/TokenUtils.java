@@ -41,7 +41,7 @@ public class TokenUtils {
 //        String secretString = Encoders.BASE64.encode(SECRET_KEY.getEncoded());
     }
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Date issuedAt = new Date();
         return Jwts.builder()
                 .setIssuer(APP_NAME)
@@ -49,6 +49,7 @@ public class TokenUtils {
                 .setAudience(generateAudience())
                 .setIssuedAt(issuedAt)
                 .setExpiration(generateExpirationDate(issuedAt))
+                .claim("role", role)
                 // .claim("key", value)     // moguce je postavljanje proizvoljnih podataka u telo JWT tokena
                 .signWith(SECRET_KEY)
                 .compact();
@@ -71,6 +72,7 @@ public class TokenUtils {
     private Date generateExpirationDate(Date issuedAt) {
         return new Date(issuedAt.getTime() + EXPIRES_IN);
     }
+
     public String refreshToken(String token) {
         Date issuedAt = new Date();
         final Claims claims = this.getAllClaimsFromToken(token);
@@ -101,6 +103,11 @@ public class TokenUtils {
     public String getUsernameFromToken(String token) {
         final Claims claims = this.getAllClaimsFromToken(token);
         return claims.getSubject();
+    }
+
+    public String getRoleFromToken(String token) {
+        final Claims claims = this.getAllClaimsFromToken(token);
+        return claims.get("role", String.class);
     }
 
     public Date getIssuedAtDateFromToken(String token) {

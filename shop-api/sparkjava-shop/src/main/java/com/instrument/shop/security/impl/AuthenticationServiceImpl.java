@@ -61,8 +61,13 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
     }
 
+    @Override
+    public String getRoleFromToken(String jwt) {
+        return tokenUtils.getRoleFromToken(jwt);
+    }
+
     private Pair<String, String> getTokenRolePair(User user) {
-        String token = tokenUtils.generateToken(user.getUsername());
+        String token = tokenUtils.generateToken(user.getUsername(), user.getRole().toString());
         return new Pair<>(token, user.getRole().toString());
     }
 }

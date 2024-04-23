@@ -19,6 +19,7 @@ import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
+import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
@@ -59,6 +60,7 @@ public class UserController {
     @PostMapping
     @MethodOrder(100)
     @ResponseStatus(201)
+    @PreAuthorize({"MANAGER"})
     public void add(Request request, Response response, @Valid @RequestBody AddUserDto toAddDto) throws IOException {
         User toAdd = mapper.toModel(toAddDto);
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
@@ -68,6 +70,7 @@ public class UserController {
 
     @GetMapping
     @MethodOrder(80)
+    @PreAuthorize({"MANAGER", "SALESMAN"})
     public PaginatedResponse<UserViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", defaultValue = {"unsorted"}) String[] sortStr,
@@ -93,6 +96,7 @@ public class UserController {
 
     @PutMapping
     @MethodOrder(60)
+    @PreAuthorize
     public UpdateUserResponseDto update(@Authenticated User authenticated, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
         String originalUsername = authenticated.getUsername();
 
@@ -101,7 +105,7 @@ public class UserController {
 
         String jwt = "";
         if (!originalUsername.equals(updated.getUsername())) {
-            jwt = tokenUtils.generateToken(updated.getUsername());
+            jwt = tokenUtils.generateToken(updated.getUsername(), updated.getRole().toString());
         }
 
         UserViewDto updatedDto = mapper.toViewDto(updated);
@@ -111,6 +115,7 @@ public class UserController {
     @PutMapping("/password")
     @MethodOrder(50)
     @ResponseStatus(204)
+    @PreAuthorize
     public void changePassword(@Authenticated User authenticated, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
         service.changePassword(
                 authenticated,
@@ -122,6 +127,7 @@ public class UserController {
 
     @GetMapping("/:id")
     @MethodOrder(40)
+    @PreAuthorize
     public UserViewDto getById(@PathParam("id") Long id) {
         User found = service.getById(id);
         return mapper.toViewDto(found);
@@ -130,6 +136,7 @@ public class UserController {
     @DeleteMapping("/:id")
     @MethodOrder(20)
     @ResponseStatus(204)
+    @PreAuthorize({"MANAGER"})
     public void deleteUser(@PathParam("id") Long id) throws IOException {
         service.delete(id);
     }
