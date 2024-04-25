@@ -1,5 +1,5 @@
 # sparkjava-context
-Sparkjava context is library for sparkjava web framework which allows creating endpoints with annotations instead of 
+Sparkjava-context is library for [sparkjava](http://sparkjava.com/) web framework which allows creating endpoints with annotations instead of 
 invoking sparkjava static methods. It makes it easier to obtain path parameters, query parameters and other 
 information from _Request_ object, as well as handling exceptions and protecting access to methods based on roles.
 
@@ -19,8 +19,8 @@ public class HelloController {
 }
 ```
 
-After that create an object of `SparkJavaContext` class and pass the port on which application will run. Then pass 
-array of controllers to `createEndpoints` method.
+After that create an object of `SparkJavaContext` class and pass the port on which application will run. This will start
+server. Then pass array of controllers to `createEndpoints` method.
 
 ```java
 import com.sparkjava.context.SparkJavaContext;
@@ -33,3 +33,143 @@ public static void main(String[] args) {
 
 Now the server is started and you can send GET request to `http://localhost:8080/hello/world` and receive response 
 `Hello World!`
+
+## Creating routes and filters
+[Routes](http://sparkjava.com/documentation#routes) and [filters](http://sparkjava.com/documentation#filters) 
+are created using method annotations inside of controller class that's annotated with `@RequestMapping`.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")    // 'blogs' is base path for all endpoints inside this controller
+public class BlogController {
+    @GetMapping
+    public Object getAll() {
+        // get all blogs
+    }
+
+    @GetMapping("/:id")     // full path is 'blogs/:id' where id is path parameter
+    public Object getById(@PathParam("id") Long id) {
+        // get blog with specific id
+    }
+
+    @PostMapping
+    public void addBlog(@RequestBody CustomObject blogToAdd) {
+        // add blog
+    }
+
+    @PutMapping("/:id")     // full path is 'blogs/:id' where id is path parameter
+    public Object updateBlog(@PathParam("id") Long id, @RequestBody CustomObject blogChanges) {
+        // update existing blog and return it updated
+    }
+
+    @DeleteMapping("/:id")  // full path is 'blogs/:id' where id is path parameter
+    public void deleteBlog(@PathParam("id") Long id) {
+        // delete blog
+    }
+
+    @BeforeMapping("/*")
+    // full pattern is 'blogs/*', which means following method will be executed before each request which path matches given pattern
+    public void beforeMethod() {
+        // do something before each request which path matches given pattern
+    }
+
+    @AfterMapping("/*")
+    // full pattern is 'blogs/*', which means following method will be executed after each request which path matches given pattern
+    public void afterMethod() {
+        // do something after each request which path matches given pattern
+    }
+
+    @AfterAfterMapping("/*")
+    // full pattern is 'blogs/*', which means following method will be executed after each after filter which path matches given pattern
+    public void afterAfterMethod() {
+        // do something after each after filter which path matches given pattern
+        // Sparkjava documentation describes after-after filter as "finally" block
+    }
+}
+```
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(8080);
+    ctx.createEndpoints(new BlogController());
+}
+```
+
+## Sorting endpoints
+As per sparkjava [documentation](http://sparkjava.com/documentation#routes), routes are matched in order they are 
+defined. The first route that matches the request is invoked. Which means in following plain sparkjava example, route 
+`blogs/example` will never be invoked because it is the last one that is matched.
+```java
+get("blogs/:id", (reqeust, response) -> {
+    // get blog with specific id
+})
+
+get("blogs/example", (reqeust, response) -> {
+    // this route will never be invoked because route above will be
+    // first matched and path parameter id will have value 'example'
+})
+```
+In plain sparkjava this is solved by simply changing the order of routes. So `get("blogs/example", ...)` must be written
+before `get("blogs/:id", ...)"`.
+
+Using sparkjava-context, this issue is solved using `@MethodOrder` annotation which specifies priority of method for 
+matching. If methods are not annotated with `@MethodOrder` annotation, then they are last ones to be matched in 
+undefined order.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @GetMapping
+    @MethodOrder(120)           // #1 for matching
+    public Object getAll() {
+        // get all blogs
+    }
+
+    @GetMapping("/:id")
+    @MethodOrder(90)            // #3 for matching
+    public Object getById(...) {
+        // This route will never be matched for path 'blogs/example' 
+        // because it has lower priority than the one 'getExample'
+    }
+
+    @GetMapping("/example")
+    @MethodOrder(110)           // #2 for matching
+    public Object getExample() {
+        // @MethodOrder annotation will make sure this route is matched before the 'getById'
+        // because this one has higher priority
+    }
+    
+    // These below are last 3 for matching in undefined order
+    @PostMapping
+    public void addBlog(...) {
+        // add blog
+    }
+
+    @PutMapping("/:id")
+    public Object updateBlog(...) {
+        // update existing blog and return it updated
+    }
+
+    @DeleteMapping("/:id")
+    public void deleteBlog(...) {
+        // delete blog
+    }
+}
+```
+
+When creating endpoints with `createEndpoints(new BlogController())` method, sparkjava-context will log all created endpoints in same
+order they are matched. For the above example log output is:
+
+```
+Created endpoint:        GET blogs                          on method BlogController.getAll()
+Created endpoint:        GET blogs/example                  on method BlogController.getExample()
+Created endpoint:        GET blogs/:id                      on method BlogController.getById(...)
+Created endpoint:     DELETE blogs/:id                      on method BlogController.deleteBlog(...)
+Created endpoint:        PUT blogs/:id                      on method BlogController.updateBlog(...)
+Created endpoint:       POST blogs                          on method BlogController.addBlog(...)
+```
