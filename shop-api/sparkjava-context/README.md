@@ -36,7 +36,7 @@ Now the server is started and you can send GET request to `http://localhost:8080
 
 ## Creating routes and filters
 [Routes](http://sparkjava.com/documentation#routes) and [filters](http://sparkjava.com/documentation#filters) 
-are created using method annotations inside of controller class that's annotated with `@RequestMapping`.
+are created using endpoint and filter annotations inside of controller class that's annotated with `@RequestMapping`.
 
 ```java
 import com.sparkjava.context.annotation.*;
@@ -98,9 +98,77 @@ public static void main(String[] args) {
 }
 ```
 
+## Method parameters
+Every method which is annotated with endpoint or filter annotation can have multiple (including zero) parameters.
+
+### @PathParam
+Used for retrieving parameter defined in path which can be parsed into different types. If parameter is required, but it
+is not present in request, then exception will be thrown. If parameter can not be converted into desired type, exception
+will be thrown.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@PostMapping("blogs/:title")
+public void getPathParam(@PathParam("title") String title) {
+    // param title is required by default
+}
+
+@GetMapping("blogs/:number/:subNumber")
+public void getPathParam(
+        @PathParam("number") int number, 
+        @PathParam(value = "subNumber", required = false) Long subNumber
+) {
+    // param number is required by default and converted into int
+    // param subNumber is not required and, if present, it is converted into Long
+    // if param subNumber is not present, it will have null value
+}
+```
+
+### @QueryParam
+Used for retrieving single parameter defined in query params which can be parsed into different types. If parameter is 
+required, but it is not present in request, then exception will be thrown. If parameter can not be converted into 
+desired type, exception will be thrown.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@GetMapping("blogs")
+public void getQueryParam(
+        @QueryParam("title") String title,
+        @QueryParam(value = "number", defaultValue = "5") int number,
+        @QueryParam(value = "subNumber", required = false) String subNumber
+) {
+    // query param title is required by default
+    // query param number has default value 5 and therefore it is implicitly not required and it is converted into int
+    // query param subNumber is not required and, if not present, it will have default value of empty string
+}
+```
+
+### @QueryParamValues
+Http protocol allows multiple query parameters with same key. So `@QueryParamValues` is used to retrieve all query 
+parameters with same key, as opposed to `@QueryParam` which will retrieve only one query param. If parameter is 
+required, but it is not present in request, then exception will be thrown. If parameter can not be converted into
+desired type, exception will be thrown.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@GetMapping("blogs")
+public void getQueryParamValues(
+    @QueryParamValues("title") String[] title,
+    @QueryParamValues(value = "number", defaultValue = {"5", "3"}) int number,
+    @QueryParamValues(value = "subNumber", required = false) Long[] subNumber
+) {
+    // query param title is required by default
+    // query param number has default value {5, 3} and therefore it is implicitly not required and it is converted into int[]
+    // query param subNumber is not required and, if not present, it will have default value of empty array
+}
+```
+
 ## Sorting endpoints
 As per sparkjava [documentation](http://sparkjava.com/documentation#routes), routes are matched in order they are 
-defined. The first route that matches the request is invoked. Which means in following plain sparkjava example, route 
+defined. The first route that matches the request is invoked. In following plain sparkjava example, route 
 `blogs/example` will never be invoked because it is the last one that is matched.
 ```java
 get("blogs/:id", (reqeust, response) -> {
@@ -162,7 +230,7 @@ public class BlogController {
 }
 ```
 
-When creating endpoints with `createEndpoints(new BlogController())` method, sparkjava-context will log all created endpoints in same
+When creating endpoints with `createEndpoints(...)` method, sparkjava-context will log all created endpoints in same
 order they are matched. For the above example log output is:
 
 ```
