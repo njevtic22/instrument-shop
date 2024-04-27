@@ -339,8 +339,8 @@ public void addBlog(@RequestBody String body) {
 When retrieving request body it can be parsed into desired type and have its fields validated.
 
 ### Default parser
-When starting server you can specify default content type for request and response and also default deserializer of 
-request body. Default deserializer must implement `RequestTransformer` functional interface.
+When starting server you can specify default content type for request and response and also default parser of request 
+body. Default parser must implement `RequestTransformer` functional interface.
 
 ```java
 import com.sparkjava.context.SparkJavaContext;
@@ -373,9 +373,9 @@ public class BlogController {
 ```
 
 ### Explicit parser
-Certain endpoints may require a different content type and parser for request body than default one. In those cased
+Certain endpoints may require a different content type and parser for request body than default one. In those cases
 parser needs to be set explicitly in `@RequestBody` annotation and it must also implement `RequestTransformer` 
-functional interface. It is also recommended to explicitly set content type for response through `consumes` attribute of
+functional interface. It is also recommended to explicitly set content type for request through `consumes` attribute of
 endpoint and exception annotations.
 
 ```java
@@ -449,7 +449,92 @@ public class BlogController {
 ```
 
 ## Response body
-TODO
+Methods annotated with endpoint and exceptions annotations can set response body as their return value. If method has
+void as return type, then empty string will be set as response body.
+
+### Default serializer
+When starting server you can specify default serializer for response body. Default serializer must implement 
+`ResponseTransformer` functional interface.
+
+```java
+import spark.ResponseTransformer;
+
+public class CustomSerializer implements ResponseTransformer {
+    public String render(Object model) throws Exception {
+        // return serialized model
+    }
+}
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(
+            8080, 
+            "application/json", 
+            new CustomTransformer(),
+            new CustomSerializer()
+    );
+    ctx.createEndpoints(...);
+}
+```
+
+Return value of every method in controller or exception handler will automatically be serialized into string and set as 
+response body.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+import java.util.List;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @GetMapping
+    public List<Blog> getBlogs() {
+
+    }
+}
+```
+
+### Explicit serializer
+Certain endpoints may require a different content type and serializer for response body than default one. In those cases
+serializer needs to be set explicitly in `@ResponseBody` annotation and it must also implement `ResponseTransformer` 
+functional interface. It is also recommended to explicitly set content type for response through `produces` attribute of
+endpoint and exception annotations.
+
+```java
+import com.sparkjava.context.annotation.*;
+import java.util.List;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @GetMapping(produces = "text/xml")
+    @ResponseBody(renderer = CustomSerializer.class)
+    public List<Blog> getBlogs() {
+
+    }
+}
+```
+
+In this case class `CustomSerializer` needs to have no args constructor. If it doesn't, then object representing 
+response body must be serialized inside method and returned as String in which case `@ResponseBody` is ignored.
+
+```java
+import com.sparkjava.context.annotation.*;
+import java.util.List;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @GetMapping(produces = "text/xml")
+    public String getBlogs() {
+        List<Object> body = ...;
+        CustomSerializer serializer = new CustomSerializer("some", "params");
+        return serializer.render(body);
+    }
+}
+```
+
+### No serializing
+If method has String as return type, it will be set as response body without any serialization. This means that default
+and explicit serializer and `@ResponseBody` will be ignored.
+
 
 ## Error handling
 TODO
@@ -473,7 +558,8 @@ before `get("blogs/:id", ...)"`.
 
 Using sparkjava-context, this issue is solved using `@MethodOrder` annotation which specifies priority of method for 
 matching. If methods are not annotated with `@MethodOrder` annotation, then they are last ones to be matched in 
-undefined order.
+undefined order. It is applicable to endpoint and filter annotations in controller, but not to methods for error 
+handling.
 
 ```java
 import com.sparkjava.context.annotation.*;
