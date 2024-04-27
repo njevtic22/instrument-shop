@@ -2,7 +2,7 @@
 Sparkjava-context is library for [sparkjava](http://sparkjava.com/) web framework which allows creating endpoints with annotations instead of 
 invoking sparkjava static methods. It makes it easier to obtain path parameters, query parameters and other 
 information from _Request_ object, as well as handling exceptions and protecting access to methods based on roles.
-
+---
 ## Starting server
 Create class annotated with `@RequestMapping` and add method annotated with `@GetMapping`.
 
@@ -156,15 +156,181 @@ import com.sparkjava.context.annotation.*;
 
 @GetMapping("blogs")
 public void getQueryParamValues(
-    @QueryParamValues("title") String[] title,
-    @QueryParamValues(value = "number", defaultValue = {"5", "3"}) int number,
-    @QueryParamValues(value = "subNumber", required = false) Long[] subNumber
+        @QueryParamValues("title") String[] title, 
+        @QueryParamValues(value = "number", defaultValue = {"5", "3"}) int number, 
+        @QueryParamValues(value = "subNumber", required = false) Long[] subNumber
 ) {
     // query param title is required by default
     // query param number has default value {5, 3} and therefore it is implicitly not required and it is converted into int[]
     // query param subNumber is not required and, if not present, it will have default value of empty array
 }
 ```
+
+### @RequestBody
+Used for retrieving request body. If body is required, but it is not present in request, then exception will be thrown.
+Request body can also be parsed into different types. More about that in [RequestBody](#request-body).
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@PutMapping("blogs/:id")
+public Object getRequestBody(
+        @PathParam("id") Long id,
+        @RequestBody String body    
+) {
+    // request body is required by default
+}
+
+@PutMapping("blogs/:id")
+public Object getRequestBody(
+        @PathParam("id") Long id,
+        @RequestBody(required = false) String body
+) {
+    // request body is not required and if not present, it will be empty string
+}
+```
+
+### @RequestHeader
+Used for retrieving value of header in request which can be parsed into different types. If header is required, but it
+is not present in request, then exception will be thrown. If parameter can not be converted into desired type, exception
+will be thrown.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@GetMapping("blogs")
+public void getHeader(
+        @RequestHeader("User-Agent") String userAgent,
+        @RequestHeader(value = "X-Total-Count", defaultValue = "5") int totalCount,
+        @RequestHeader(value = "someNumber", required = false) String someNumber
+) {
+    // header User-Agent is required by default
+    // header X-Total-Count has default value "5" and therefore it is implicitly not required and it is converted into int
+    // header someNumber is not required and, if not present, it will have default value of empty string
+}
+```
+
+### @Multipart
+Used for retrieving value of single multipart (text or file) if request content type is `multipart/form-data`. If multipart with desired key
+is required, but it is not present in request body, then exception will be thrown. **This applies to the standard
+configuration of SparkJava (embedded jetty).**
+
+```java
+import com.sparkjava.context.annotation.*;
+import javax.servlet.http.Part;
+
+@PostMapping(value = "files", consumes = "multipart/form-data")
+public void addFile(
+        @Multipart("key1") Part file1,
+        @Multipart(value = "key2", required = false) Part file2
+) {
+    // part file1 is required by default
+    // part file2 is not required and, if not present, it will have value of null
+}
+```
+
+### @MultipartValues
+Used for retrieving list of values of multiple multiparts (text and file) if request content type is `multipart/form-data`. If list of 
+multiparts is required to be non empty, but there are no multiparts with at least one desired key in request, then 
+exception will be thrown. **This applies to the standard configuration of SparkJava 
+(embedded jetty).**
+
+```java
+import com.sparkjava.context.annotation.*;
+import javax.servlet.http.Part;
+import java.util.ArrayList;
+
+@PostMapping(value = "files", consumes = "multipart/form-data")
+public void addFiles(
+        @MultipartValues ArrayList<Part> allParts, 
+        @MultipartValues({"key1", "key2", "key3"}) ArrayList<Part> ArrayList<Part> parts123, 
+        @MultipartValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<Part> ArrayList<Part> parts567
+) {
+    // part allParts is required non empty by default and it will load all multiparts (text and file)
+    // part parts123 is required non empty by default and it will load multiparts (text and file) with desired keys
+    // part parts567 is not required therefore if there are no multiparts (text or file) with desired keys, it will have value of empty collection
+}
+```
+
+### @MultipartText
+Used for retrieving value of single text (multipart whose type is text) if request content type is `multipart/form-data`.
+If this annotation is used for retrieving multipart file, that file will be read as string. If text with desired key is 
+required, but it is not present in request body, then exception will be thrown. **This applies to the standard 
+configuration of SparkJava (embedded jetty).**
+
+```java
+import com.sparkjava.context.annotation.*;
+import java.util.ArrayList;
+
+@PostMapping(value = "texts", consumes = "multipart/form-data")
+public void addText(
+        @MultipartText("key1") String text1,
+        @MultipartText(value = "key2", defaultValue = "some default") String text2,
+        @MultipartText(value = "key3", required = false) String text3
+) {
+    // part text1 is required by default
+    // part text2 has default value "some default" and therefore it is implicitly not required
+    // part text3 is not required and, if not present, it will have default value of empty string
+}
+```
+
+### @MultipartTextValues
+Used for retrieving list of values of multiple texts (multiparts whose type is text) if request content type is 
+`multipart/form-data`. If this annotation is used for retrieving multipart files, those files will be read as string.
+If list of texts is required to be non empty, but there are no multiparts with at least one desired key in request, then
+exception will be thrown. **This applies to the standard configuration of SparkJava (embedded jetty).**
+
+```java
+import com.sparkjava.context.annotation.*;
+import java.util.ArrayList;
+
+@PostMapping(value = "texts", consumes = "multipart/form-data")
+public void addTexts(
+        @MultipartTextValues ArrayList<String> allTexts,
+        @MultipartValues({"key1", "key2", "key3"}) ArrayList<Part> ArrayList<String> texts123,
+        @MultipartValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<Part> ArrayList<String> texts567
+) {
+    // part allTexts is required non empty by default and it will load all multiparts (text and file)
+    // part texts123 is required non empty by default and it will load multiparts (text and file) with desired keys
+    // part texts567 is not required therefore if there are no multiparts (text or file) with desired keys, it will have value of empty collection
+}
+```
+
+### Request and Response objects
+SparkJava's Request and Response objects can be retrieved alongside other parameters or standalone.
+
+```java
+import com.sparkjava.context.annotation.*;
+import spark.Request;
+import spark.Response;
+
+@GetMapping("blogs")
+public Object getObjects(Request request, Response response) {
+    //
+}
+
+@GetMapping("blogs/:id")
+public Object getObjects(@PathParam("id") Long id, Request request, Response response) {
+    //
+}
+
+@PutMapping("blogs/:id")
+public Object getObjects(Request request) {
+    //
+}
+```
+
+## @ResponseStatus
+TODO
+
+## Request body
+TODO
+
+## Response body
+TODO
+
+## ErrorHandling
+TODO
 
 ## Sorting endpoints
 As per sparkjava [documentation](http://sparkjava.com/documentation#routes), routes are matched in order they are 
@@ -241,3 +407,6 @@ Created endpoint:     DELETE blogs/:id                      on method BlogContro
 Created endpoint:        PUT blogs/:id                      on method BlogController.updateBlog(...)
 Created endpoint:       POST blogs                          on method BlogController.addBlog(...)
 ```
+
+## Security
+TODO
