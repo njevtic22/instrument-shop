@@ -99,7 +99,7 @@ public static void main(String[] args) {
 ```
 
 ## Method parameters
-Every method which is annotated with endpoint or filter annotation can have multiple (including zero) parameters.
+Every method which is annotated with endpoint, filter or exceptions annotation can have multiple (including zero) parameters.
 
 ### @PathParam
 Used for retrieving parameter defined in path which can be parsed into different types. If parameter is required, but it
@@ -321,15 +321,137 @@ public Object getObjects(Request request) {
 ```
 
 ## @ResponseStatus
-TODO
+This annotation is used for setting status code of http response. If there is no `@ResponseStatus` annotation, then code
+200 is used for successful response and 500 for error response. Can be used on methods annotated with endpoint or 
+exceptions annotations. It is ignored on methods annotated with filter annotations.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@PostMapping("blogs")
+@ResponseStatus(201)
+public void addBlog(@RequestBody String body) {
+    
+}
+```
 
 ## Request body
-TODO
+When retrieving request body it can be parsed into desired type and have its fields validated.
+
+### Default parser
+When starting server you can specify default content type for request and response and also default deserializer of 
+request body. Default deserializer must implement `RequestTransformer` functional interface.
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+import com.sparkjava.context.core.RequestTransformer;
+
+public class CustomTransformer implements RequestTransformer {
+    public Object parse(String body, Class<?> modelClass) throws Exception {
+        // return parsed object
+    }
+}
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(8080, "application/json", new CustomTransformer());
+    ctx.createEndpoints(...);
+}
+```
+
+Now in every controller, request body will be parsed into desired type automatically.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @PostMapping
+    public void addBlog(@RequestBody CustomClass body) {
+        
+    }
+}
+```
+
+### Explicit parser
+Certain endpoints may require a different content type and parser for request body than default one. In those cased
+parser needs to be set explicitly in `@RequestBody` annotation and it must also implement `RequestTransformer` 
+functional interface. It is also recommended to explicitly set content type for response through `consumes` attribute of
+endpoint and exception annotations.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @PostMapping(consumes = "text/xml")
+    public void addBlog(@RequestBody(parser = CustomTransformer.class) CustomClass body) {
+
+    }
+}
+```
+
+In this case class `CustomTransformer` needs to have no args constructor. If it doesn't, then request body should be 
+retrieved as String and parsed inside method body.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @PostMapping(consumes = "text/xml")
+    public void addBlog(@RequestBody String body) {
+        CustomTransformer parser = new CustomTransformer("some", "params");
+        CustomClass parsedBody = parser.parse(body, CustomTransformer.class);
+    }
+}
+```
+
+### Validation
+If request body is automatically parsed into desired type, it can have its fields validated using `@Valid` annotation.
+To achieve this, a validator needs to be specified when starting server. Validator class must implement `Validator` 
+functional interface.
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+import com.sparkjava.context.core.Validator;
+
+public class CustomValidator implements Validator {
+    public void validate(Object toValidate) {
+        // validate object
+    }
+}
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(
+            8080,
+            "application/json",
+            new CustomRequestTransformer(),
+            new CustomResponseTransformer(),
+            new CustomValidator()
+    );
+    ctx.createEndpoints(...);
+}
+```
+
+Now annotate every request body with `@Valid` annotation.
+
+```java
+import com.sparkjava.context.annotation.*;
+import jakarta.validation.Valid;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @PostMapping
+    public void addBlog(@Valid @RequestBody CustomClass body) {
+
+    }
+}
+```
 
 ## Response body
 TODO
 
-## ErrorHandling
+## Error handling
 TODO
 
 ## Sorting endpoints
