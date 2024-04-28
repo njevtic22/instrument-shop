@@ -537,7 +537,56 @@ and explicit serializer and `@ResponseBody` will be ignored.
 
 
 ## Error handling
-TODO
+Sparkjava-context offers a simple way of handling exceptions in one place. There needs to be one class annotated with
+`@ExceptionHandler` which contains methods annotated with `@Exceptions`. In `@Exceptions` annotation it must be listed
+which exceptions are handled by that method. Everything about [method parameters](#method-parameters), 
+[response body](#response-body) and [response status](#ResponseStatus) is also applicable in exception handlers.
+
+```java
+import com.sparkjava.context.annotation.*;
+import spark.Request;
+import spark.Response;
+
+@ExceptionHandler
+public class GlobalExceptionHandler {
+    @ResponseStatus(400)
+    @Exceptions({
+            IllegalArgumentException.class,
+            NullPointerException.class
+    })
+    public ErrorBody handleBadRequest(
+            RuntimeException ex,
+            @PathParam(value = "id", required = false) Long id
+    ) {
+        // return error body object
+    }
+
+    @ResponseStatus(404)
+    @ResponseBody(renderer = CustomSerializer.class)
+    @Exceptions(value = BlogNotFountException.class, produces = "text/xml")
+    public ErrorBody handleNotFound(RuntimeException ex) {
+        // return error body object
+    }
+
+    @ResponseBody(500)
+    @Exceptions(Exception.class)
+    public ErrorBody handleInternalServer(Exception exception, Request request, Response response) {
+        // return error body object
+    }
+}
+```
+
+Instance of `GlobalExceptionHandler` needs to be passed to `SparkJavaContext` instance with `registerExceptionHandler`
+method.
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(8080);
+    ctx.registerExceptionHandler(new GlobalExceptionHandler());
+}
+```
 
 ## Sorting endpoints
 As per sparkjava [documentation](http://sparkjava.com/documentation#routes), routes are matched in order they are 
