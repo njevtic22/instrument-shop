@@ -666,4 +666,126 @@ Created endpoint:       POST blogs                          on method BlogContro
 ```
 
 ## Security
-TODO
+Sparkjava-context also offers a way of retrieving authenticated user as well as protecting access to methods based on 
+roles.
+
+### @Authenticated
+Used for retrieving authenticated user from request. First, it needs to be specified how to retrieve user from request.
+This is done by implementing `Authenticator` functional interface. Then, it needs to be passed it to `SparkJavaContext` 
+instance **before** creating endpoints with `setAuthenticator` method.
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+import com.sparkjava.context.core.Authenticator;
+
+public class CustomAuthenticator implements Authenticator {
+    public Object authenticate(Request request) throws Exception {
+        // return object representing user
+    }
+}
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(8080);
+    
+    // this method MUST be called before createEndpoints method
+    ctx.setAuthenticator(new CustomAuthenticator());
+    
+    ctx.createEndpoints(...);
+}
+```
+
+Now in every controller and in exception handler, simply use `@Authenticated` annotation.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("users")
+public class UserController {
+    @PutMapping
+    public Object updateUser(@Authenticated User user) {
+        // update data of authenticated user and return updates
+    }
+}
+
+@ExceptionHandler
+public class GlobalExceptionHandler {
+    @Exceptions(Exception.class)
+    public Object handle(Exception exception, @Authenticated User user) {
+        //
+    }
+}
+```
+
+### @PreAuthorize
+Used for restricting access to controller methods. Using this annotation, specify array of roles. Authenticated user 
+needs to have at least one of the specified roles in order for annotated method to be invoked. To enable this, it needs 
+to be specified how to retrieve users roles from request. This is done by implementing `RolesGetter` functional 
+interface.
+
+```java
+import com.sparkjava.context.core.RolesGetter;
+
+public class CustomRolesGetter implements RolesGetter {
+    public Set<String> get(Request request) throws Exception {
+        // return set of roles which authenticated user have
+    }
+}
+```
+
+Then, it needs to be passed it to `SparkJavaContext` instance **before** creating endpoints alongside with all possible role
+which user can have in system. This is done by calling `setAuthorizer` method.
+
+```java
+import com.sparkjava.context.SparkJavaContext;
+
+import java.util.Set;
+
+public static void main(String[] args) {
+    SparkJavaContext ctx = new SparkJavaContext(8080);
+
+    // this method MUST be called before createEndpoints method
+    ctx.setAuthorizer(Set.of("ADMIN", "MANAGER", "USER"), new CustomRolesGetter());
+
+    ctx.createEndpoints(...);
+
+}
+```
+
+Now in every controller, simply use `@PreAuthorize` annotation above method. If no roles are specified in 
+`@PreAuthorize` annotation, then all possible roles are used, which essential means any authenticated user can invoke 
+method. If there is no `@PreAuthorize` annotation above certain method, that means anyone can invoke it.
+
+```java
+import com.sparkjava.context.annotation.*;
+
+@RequestMapping("blogs")
+public class BlogController {
+    @PostMapping
+    @PreAuthorize({"ADMIN"})
+    public void addBlog(@RequestBody CustomObject newBlog) {
+        // only admin can access this method
+    }
+    
+    @GetMapping
+    public Object getBlogs() {
+        // anyone can access this method
+    }
+
+    @GetMapping("/:id")
+    public Object getBlog(@PathParam("id") Long id) {
+        // anyone can access this method
+    }
+    
+    @PutMapping("/:id")
+    @PreAuthorize({"MANAGER"})
+    public Object updateBlog(@PathParam("id") Long id) {
+        // only manager can access this method
+    }
+    
+    @DeleteMapping("/:id")
+    @PreAuthorize
+    public void deleteBlog(@PathParam("id") Long id) {
+        // any authenticated user can access this method
+    }
+}
+```
