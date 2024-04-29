@@ -226,6 +226,8 @@ public class SparkJavaContext {
     }
 
     public void registerExceptionHandler(Object objectHandler) {
+        endpointsCreated = true;
+
         Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
         Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler());
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
@@ -267,14 +269,14 @@ public class SparkJavaContext {
 
     public void setAuthenticator(Authenticator auth) {
         if (endpointsCreated) {
-            throw new RuntimeException("Authenticator can not be set because endpoints are already created");
+            throw new RuntimeException("Authenticator can not be set because endpoints or exception handlers are already created");
         }
         this.authenticator = auth;
     }
 
     public void setAuthorizer(Set<String> allRoles, RolesGetter rolesGetter) {
         if (endpointsCreated) {
-            throw new RuntimeException("Authorizer can not be set because endpoints are already created");
+            throw new RuntimeException("Authorizer can not be set because endpoints or exception handlers are already created");
         }
         this.authorizer = new Authorizer(allRoles, rolesGetter);
     }
