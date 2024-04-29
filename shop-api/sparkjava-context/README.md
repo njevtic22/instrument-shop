@@ -3,6 +3,10 @@ Sparkjava-context is library for [sparkjava](http://sparkjava.com/) web framewor
 invoking sparkjava static methods. It makes it easier to obtain path parameters, query parameters and other 
 information from _Request_ object, as well as handling exceptions and protecting access to methods based on roles.
 ---
+
+# How to use
+Build and install with maven and add it as dependency to your project.
+
 ## Starting server
 Create class annotated with `@RequestMapping` and add method annotated with `@GetMapping`.
 
