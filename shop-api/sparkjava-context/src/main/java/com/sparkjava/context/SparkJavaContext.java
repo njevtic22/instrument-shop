@@ -228,7 +228,7 @@ public class SparkJavaContext {
     public void registerExceptionHandler(Object objectHandler) {
         endpointsCreated = true;
 
-        Spark.exception(BadRequestException.class, new BadRequestExceptionHandler());
+        Spark.exception(BadRequestException.class, new BadRequestExceptionHandler(contentType, resTransformer));
         Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler());
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
 
