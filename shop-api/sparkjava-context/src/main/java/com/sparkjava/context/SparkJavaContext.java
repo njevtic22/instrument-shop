@@ -229,7 +229,7 @@ public class SparkJavaContext {
         endpointsCreated = true;
 
         Spark.exception(BadRequestException.class, new BadRequestExceptionHandler(contentType, resTransformer));
-        Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler());
+        Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler(contentType, resTransformer));
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler(contentType, resTransformer));
 
         // TODO: fix .getSuperclass()
