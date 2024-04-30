@@ -14,13 +14,14 @@ import java.util.HashMap;
 public class BadRequestExceptionHandler implements ExceptionHandler<BadRequestException> {
     private final String produces;
     private final ResponseTransformer renderer;
+    private final InternalServerExceptionHandler defaultHandler;
 
-    private final InternalServerExceptionHandler defaultHandler = new InternalServerExceptionHandler();
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     public BadRequestExceptionHandler(String produces, ResponseTransformer renderer) {
         this.produces = produces;
         this.renderer = renderer;
+        this.defaultHandler = new InternalServerExceptionHandler(produces, renderer);
     }
 
     @Override
@@ -35,8 +36,7 @@ public class BadRequestExceptionHandler implements ExceptionHandler<BadRequestEx
         errorBody.put("message", exception.getMessage());
 
         try {
-            String rendered = renderer.render(errorBody);
-            response.body(rendered);
+            response.body(renderer.render(errorBody));
         } catch (Exception e) {
             defaultHandler.handle(e, request, response);
         }

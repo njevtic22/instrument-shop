@@ -19,8 +19,7 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
     private final Method methodHandler;
     private final Object objectHandler;
     private final ResponseTransformer renderer;
-
-    private final ExceptionHandler<Exception> defaultHandler = new InternalServerExceptionHandler();
+    private final ExceptionHandler<Exception> defaultHandler;
 
     public ContextExceptionHandler(
             int responseStatus,
@@ -43,6 +42,7 @@ public class ContextExceptionHandler extends ArgumentsParser implements Exceptio
         this.methodHandler = methodHandler;
         this.objectHandler = objectHandler;
         this.renderer = renderer;
+        this.defaultHandler = new InternalServerExceptionHandler(responseType, renderer);
     }
 
     @Override

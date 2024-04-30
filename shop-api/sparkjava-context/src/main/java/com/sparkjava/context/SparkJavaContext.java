@@ -230,7 +230,7 @@ public class SparkJavaContext {
 
         Spark.exception(BadRequestException.class, new BadRequestExceptionHandler(contentType, resTransformer));
         Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler());
-        Spark.exception(InternalServerException.class, new InternalServerExceptionHandler());
+        Spark.exception(InternalServerException.class, new InternalServerExceptionHandler(contentType, resTransformer));
 
         // TODO: fix .getSuperclass()
         Class<?> objectHandlerClass = objectHandler.getClass().getSuperclass();
