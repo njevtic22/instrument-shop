@@ -27,6 +27,7 @@ import com.sparkjava.context.exception.handler.BadRequestExceptionHandler;
 import com.sparkjava.context.exception.handler.ContextExceptionHandler;
 import com.sparkjava.context.exception.handler.ForbiddenExceptionHandler;
 import com.sparkjava.context.exception.handler.InternalServerExceptionHandler;
+import com.sparkjava.context.util.AnnotationFinder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import spark.Filter;
@@ -59,6 +60,8 @@ public class SparkJavaContext {
             AfterAfterMapping.class,
             BeforeMapping.class
     );
+
+    private final AnnotationFinder annotationFinder = new AnnotationFinder();
 
     private final String contentType;
     private final RequestTransformer reqTransformer;
@@ -100,23 +103,24 @@ public class SparkJavaContext {
         for (Object controller : controllers) {
             Class<?> controllerClass = controller.getClass();
 
-            if (!controllerClass.isAnnotationPresent(RequestMapping.class)) {
+            Optional<RequestMapping> controllerMapping = annotationFinder.findOnClass(controllerClass, RequestMapping.class);
+            if (controllerMapping.isEmpty()) {
                 throw new MissingAnnotationException(RequestMapping.class.getSimpleName(), controllerClass.getSimpleName());
             }
 
-            RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
-
-            Method[] methods = controllerClass.getDeclaredMethods();
-            Arrays.sort(methods, new MethodOrderComparator());
+            Method[] methods = controllerClass.getMethods();
+            Arrays.sort(methods, new MethodOrderComparator(annotationFinder));
             for (Method method : methods) {
                 List<Annotation> filterMappings = getMappings(method, this.filterMappings);
                 for (Annotation filterMapping : filterMappings) {
-                    mapFilterToMethod(controller, controllerMapping, method, filterMapping);
+                    Optional<Method> annotatedMethod = annotationFinder.findAnnotatedMethod(method, filterMapping.annotationType());
+                    mapFilterToMethod(controller, controllerMapping.get(), annotatedMethod.get(), filterMapping);
                 }
 
                 List<Annotation> endpointMappings = getMappings(method, this.endpointMappings);
                 for (Annotation endpointMapping : endpointMappings) {
-                    mapRouteToMethod(controller, controllerMapping, method, endpointMapping);
+                    Optional<Method> annotatedMethod = annotationFinder.findAnnotatedMethod(method, endpointMapping.annotationType());
+                    mapRouteToMethod(controller, controllerMapping.get(), annotatedMethod.get(), endpointMapping);
                 }
             }
         }
@@ -232,19 +236,18 @@ public class SparkJavaContext {
         Spark.exception(ForbiddenException.class, new ForbiddenExceptionHandler(contentType, resTransformer));
         Spark.exception(InternalServerException.class, new InternalServerExceptionHandler(contentType, resTransformer));
 
-        // TODO: fix .getSuperclass()
-        Class<?> objectHandlerClass = objectHandler.getClass().getSuperclass();
-        if (!objectHandlerClass.isAnnotationPresent(ExceptionHandler.class)) {
-            throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), objectHandlerClass.getSimpleName());
+        Class<?> handlerClass = objectHandler.getClass();
+        Optional<ExceptionHandler> exceptionMapping = annotationFinder.findOnClass(handlerClass, ExceptionHandler.class);
+        if (exceptionMapping.isEmpty()) {
+            throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), handlerClass.getSimpleName());
         }
 
-        ExceptionHandler exceptionMapping = objectHandlerClass.getAnnotation(ExceptionHandler.class);
-
-        Method[] methodHandlers = objectHandlerClass.getDeclaredMethods();
+        Method[] methodHandlers = handlerClass.getMethods();
         for (Method methodHandler : methodHandlers) {
-            if (methodHandler.isAnnotationPresent(Exceptions.class)) {
-                Exceptions exceptions = methodHandler.getAnnotation(Exceptions.class);
-                mapHandlerToMethod(objectHandlerClass, objectHandler, exceptionMapping, methodHandler, exceptions);
+            Optional<Method> annotatedMethod = annotationFinder.findAnnotatedMethod(methodHandler, Exceptions.class);
+            if (annotatedMethod.isPresent()) {
+                Exceptions exceptions = annotatedMethod.get().getAnnotation(Exceptions.class);
+                mapHandlerToMethod(handlerClass, objectHandler, exceptionMapping.get(), annotatedMethod.get(), exceptions);
             }
         }
     }
@@ -281,13 +284,24 @@ public class SparkJavaContext {
         this.authorizer = new Authorizer(allRoles, rolesGetter);
     }
 
+//    private List<Annotation> getMappings2(Method method, Set<Class<? extends Annotation>> mappings) {
+//        ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
+//
+//        for (Annotation annotation : method.getAnnotations()) {
+//            if (mappings.contains(annotation.annotationType())) {
+//                endpointAnnotations.add(annotation);
+//            }
+//        }
+//
+//        return endpointAnnotations;
+//    }
+
     private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {
         ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
 
-        for (Annotation annotation : method.getAnnotations()) {
-            if (mappings.contains(annotation.annotationType())) {
-                endpointAnnotations.add(annotation);
-            }
+        for (Class<? extends Annotation> mapping : mappings) {
+            Optional<? extends Annotation> endpointAnnotation = annotationFinder.findOnMethod(method, mapping);
+            endpointAnnotation.ifPresent(endpointAnnotations::add);
         }
 
         return endpointAnnotations;
