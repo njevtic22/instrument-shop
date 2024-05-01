@@ -793,3 +793,6 @@ public class BlogController {
     }
 }
 ```
+
+# Restrictions
+Annotated methods in controllers and exception handler must have `public` visibility.
