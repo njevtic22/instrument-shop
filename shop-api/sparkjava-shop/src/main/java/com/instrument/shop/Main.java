@@ -14,6 +14,7 @@ import com.instrument.shop.guiceConfig.module.FileSerializerModule;
 import com.instrument.shop.guiceConfig.module.FilterModule;
 import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.LoggingModule;
+import com.instrument.shop.guiceConfig.module.PersistenceModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
 import com.instrument.shop.guiceConfig.module.RepositoryModule;
 import com.instrument.shop.guiceConfig.module.SecurityModule;
@@ -32,6 +33,7 @@ import java.util.Set;
 public class Main {
     public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalAccessException {
         Injector injector = Guice.createInjector(
+                new PersistenceModule(),
                 new GsonModule(),
                 new SecurityModule(),
                 new ValidatorModule(),

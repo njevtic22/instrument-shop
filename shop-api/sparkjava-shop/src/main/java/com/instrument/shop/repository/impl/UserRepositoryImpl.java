@@ -13,6 +13,12 @@ import com.instrument.shop.sorter.Sorter;
 import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -21,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.stream.Collectors;
 
 @Singleton
 public class UserRepositoryImpl implements UserRepository {
@@ -32,6 +37,10 @@ public class UserRepositoryImpl implements UserRepository {
     private final Sorter<User> sorter;
     private final Paginator paginator;
 
+    private final EntityManagerFactory emf;
+
+    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
+
     @Inject
     public UserRepositoryImpl(
             Map<Long, User> data,
@@ -39,7 +48,8 @@ public class UserRepositoryImpl implements UserRepository {
             FileSerializer<Long, User> serializer,
             Filter<User> filter,
             Sorter<User> sorter,
-            Paginator paginator
+            Paginator paginator,
+            EntityManagerFactory emf
     ) {
         this.data = new TreeMap<>(data);
         this.userId = userId;
@@ -47,6 +57,7 @@ public class UserRepositoryImpl implements UserRepository {
         this.filter = filter;
         this.sorter = sorter;
         this.paginator = paginator;
+        this.emf = emf;
     }
 
     @Override
@@ -118,10 +129,23 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        List<User> allUsers = new ArrayList<>(data.values())
-                .stream()
-                .filter(user -> !user.isArchived())
-                .collect(Collectors.toList());
+        List<User> allUsers = new ArrayList<>();
+
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query selectAll = em.createQuery("select u from User u where u.archived = false");
+            allUsers = (List<User>) selectAll.getResultList();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            logger.error("Failed to get all users", ex);
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
 
         filter.filter(allUsers, filterData);
         sorter.sort(allUsers, sort);
