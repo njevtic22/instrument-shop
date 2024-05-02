@@ -16,6 +16,7 @@ import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -181,25 +182,29 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public Optional<User> findByUsername(String username) {
-        for (User user : data.values()) {
-            if (user.getUsername().equals(username)) {
-                return Optional.of(user);
+    public Optional<User> findByUsernameAndArchivedFalse(String username) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        Optional<User> user = Optional.empty();
+
+        try {
+            tr.begin();
+            Query selectById = em.createQuery("select u from User u where u.username = ?1 and u.archived = false");
+            selectById.setParameter(1, username);
+            user = Optional.of((User) selectById.getSingleResult());
+            tr.commit();
+
+        } catch (NoResultException ex) {
+            user = Optional.empty();
+        } catch (RuntimeException ex) {
+            logger.error("Failed to get user by username", ex);
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
             }
         }
 
-        return Optional.empty();
-    }
-
-    @Override
-    public Optional<User> findByUsernameAndArchivedFalse(String username) {
-        Optional<User> foundOptional = findByUsername(username);
-
-        if (foundOptional.isPresent() && !foundOptional.get().isArchived()) {
-            return foundOptional;
-        }
-
-        return Optional.empty();
+        return user;
     }
 
     @Override
