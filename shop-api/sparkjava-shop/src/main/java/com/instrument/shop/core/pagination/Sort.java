@@ -10,4 +10,24 @@ public record Sort(String property, Order order, Sort sortNext) {
     public Sort(String property, Order order) {
         this(property, order, null);
     }
+
+    public boolean hasNext() {
+        return sortNext != null;
+    }
+
+    public boolean isUnsorted() {
+        return property.equals("UNSORTED");
+    }
+
+    @Override
+    public String toString() {
+        String orderBy = property + " " + order.toString();
+        String orderByNext = "";
+
+        if (sortNext != null) {
+            orderByNext = ", " + sortNext;
+        }
+
+        return orderBy + orderByNext;
+    }
 }
