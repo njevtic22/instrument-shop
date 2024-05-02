@@ -95,7 +95,24 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        ArrayList<User> allUsers = new ArrayList<>(data.values());
+        List<User> allUsers = new ArrayList<>();
+
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query selectAll = em.createQuery("select u from User u");
+            allUsers = (List<User>) selectAll.getResultList();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            logger.error("Failed to get all users", ex);
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+
         filter.filter(allUsers, filterData);
         sorter.sort(allUsers, sort);
         return paginator.paginate(allUsers, pageRequest);
