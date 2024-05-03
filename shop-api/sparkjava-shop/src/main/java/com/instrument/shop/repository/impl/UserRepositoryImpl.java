@@ -101,26 +101,35 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         List<User> allUsers = new ArrayList<>();
+        long allUsersNum = 0;
+
+        String filterPart = getValidFilter(filterData);
+        if (!filterPart.isEmpty()) {
+            filterPart = "where " + filterPart.substring(5);
+        }
+        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
+        String jpql = "select u from User u " + filterPart + orderBy;
+        String countQuery = "select count(*) from User u " + filterPart;
 
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
-            String filterPart = getValidFilter(filterData);
-            if (!filterPart.isEmpty()) {
-                filterPart = "where " + filterPart.substring(5);
-            }
-
             tr.begin();
-            String jpql = "select u from User u " + filterPart + jpqlUtil.getValidOrderBy(sort.toString());
             Query selectAll = em.createQuery(jpql);
+            selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
+            selectAll.setMaxResults(pageRequest.getSize());
+
+            Query count = em.createQuery(countQuery);
 
             if (!filterPart.isEmpty()) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
                     selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
+                    count.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
                 }
             }
 
             allUsers = (List<User>) selectAll.getResultList();
+            allUsersNum = (long) count.getSingleResult();
             tr.commit();
 
         } catch (RuntimeException ex) {
@@ -131,7 +140,11 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        return paginator.paginate(allUsers, pageRequest);
+        return new PaginatedResponse<>(
+                allUsers,
+                allUsersNum,
+                Math.ceilDiv(allUsersNum, pageRequest.getSize())
+        );
     }
 
     @Override
@@ -163,22 +176,32 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         List<User> allUsers = new ArrayList<>();
+        long allUsersNum = 0;
+
+        String filterPart = getValidFilter(filterData);
+        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
+        String jpql = "select u from User u where u.archived = false" + filterPart + orderBy;
+        String countQuery = "select count(*) from User u where u.archived = false" + filterPart;
 
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
-            String filterPart = getValidFilter(filterData);
             tr.begin();
-            String jpql = "select u from User u where u.archived = false" + filterPart + jpqlUtil.getValidOrderBy(sort.toString());
             Query selectAll = em.createQuery(jpql);
+            selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
+            selectAll.setMaxResults(pageRequest.getSize());
+
+            Query count = em.createQuery(countQuery);
 
             if (!filterPart.isEmpty()) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
                     selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
+                    count.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
                 }
             }
 
             allUsers = (List<User>) selectAll.getResultList();
+            allUsersNum = (long) count.getSingleResult();
             tr.commit();
 
         } catch (RuntimeException ex) {
@@ -189,7 +212,11 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        return paginator.paginate(allUsers, pageRequest);
+        return new PaginatedResponse<>(
+                allUsers,
+                allUsersNum,
+                Math.ceilDiv(allUsersNum, pageRequest.getSize())
+        );
     }
 
     @Override
@@ -291,16 +318,14 @@ public class UserRepositoryImpl implements UserRepository {
             if (key.equals("role")) {
                 filterPart.append(" and lower(cast(u.")
                         .append(key)
-                        .append(" as string)) like lower(:")
-                        .append(entry.getKey())
-                        .append(")");
+                        .append(" as string)");
             } else {
                 filterPart.append(" and lower(u.")
-                        .append(key)
-                        .append(") like lower(:")
-                        .append(entry.getKey())
-                        .append(")");
+                        .append(key);
             }
+            filterPart.append(") like lower(:")
+                    .append(entry.getKey())
+                    .append(")");
         }
         return jpqlUtil.getValidJpqlPart(filterPart.toString());
     }
