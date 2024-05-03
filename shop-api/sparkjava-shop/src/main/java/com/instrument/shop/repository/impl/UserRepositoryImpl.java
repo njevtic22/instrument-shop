@@ -10,6 +10,7 @@ import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.serializers.fileSerializers.FileSerializer;
 import com.instrument.shop.sorter.Sorter;
+import com.instrument.shop.util.JpqlUtil;
 import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
@@ -37,9 +38,9 @@ public class UserRepositoryImpl implements UserRepository {
     private final Filter<User> filter;
     private final Sorter<User> sorter;
     private final Paginator paginator;
+    private final JpqlUtil jpqlUtil;
 
     private final EntityManagerFactory emf;
-    private final List<String> keywords = List.of("SELECT", "CREATE", "DROP", "UPDATE", "DELETE", "ALTER", "FROM", "UNSORTED");
 
     private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
@@ -51,6 +52,7 @@ public class UserRepositoryImpl implements UserRepository {
             Filter<User> filter,
             Sorter<User> sorter,
             Paginator paginator,
+            JpqlUtil jpqlUtil,
             EntityManagerFactory emf
     ) {
         this.data = new TreeMap<>(data);
@@ -59,6 +61,7 @@ public class UserRepositoryImpl implements UserRepository {
         this.filter = filter;
         this.sorter = sorter;
         this.paginator = paginator;
+        this.jpqlUtil = jpqlUtil;
         this.emf = emf;
     }
 
@@ -103,7 +106,7 @@ public class UserRepositoryImpl implements UserRepository {
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query selectAll = em.createQuery("select u from User u " + getValidOrderBy(sort.toString()));
+            Query selectAll = em.createQuery("select u from User u " + jpqlUtil.getValidOrderBy(sort.toString()));
             allUsers = (List<User>) selectAll.getResultList();
             tr.commit();
 
@@ -116,7 +119,6 @@ public class UserRepositoryImpl implements UserRepository {
         }
 
         filter.filter(allUsers, filterData);
-        sorter.sort(allUsers, sort);
         return paginator.paginate(allUsers, pageRequest);
     }
 
@@ -154,7 +156,7 @@ public class UserRepositoryImpl implements UserRepository {
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query selectAll = em.createQuery("select u from User u where u.archived = false" + getValidOrderBy(sort.toString()));
+            Query selectAll = em.createQuery("select u from User u where u.archived = false" + jpqlUtil.getValidOrderBy(sort.toString()));
             allUsers = (List<User>) selectAll.getResultList();
             tr.commit();
 
@@ -260,15 +262,5 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    private String getValidOrderBy(String orderBy) {
-        for (String keyword : keywords) {
-            if (orderBy.toUpperCase().contains(keyword)) {
-                return "";
-            }
-        }
-
-        return " order by " + orderBy;
     }
 }
