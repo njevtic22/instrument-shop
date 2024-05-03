@@ -105,8 +105,21 @@ public class UserRepositoryImpl implements UserRepository {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
+            String filterPart = getValidFilter(filterData);
+            if (!filterPart.isEmpty()) {
+                filterPart = "where " + filterPart.substring(5);
+            }
+
             tr.begin();
-            Query selectAll = em.createQuery("select u from User u " + jpqlUtil.getValidOrderBy(sort.toString()));
+            String jpql = "select u from User u " + filterPart + jpqlUtil.getValidOrderBy(sort.toString());
+            Query selectAll = em.createQuery(jpql);
+
+            if (!filterPart.isEmpty()) {
+                for (Map.Entry<String, String> entry : filterData.entrySet()) {
+                    selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
+                }
+            }
+
             allUsers = (List<User>) selectAll.getResultList();
             tr.commit();
 
@@ -118,7 +131,6 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        filter.filter(allUsers, filterData);
         return paginator.paginate(allUsers, pageRequest);
     }
 
@@ -155,8 +167,17 @@ public class UserRepositoryImpl implements UserRepository {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
+            String filterPart = getValidFilter(filterData);
             tr.begin();
-            Query selectAll = em.createQuery("select u from User u where u.archived = false" + jpqlUtil.getValidOrderBy(sort.toString()));
+            String jpql = "select u from User u where u.archived = false" + filterPart + jpqlUtil.getValidOrderBy(sort.toString());
+            Query selectAll = em.createQuery(jpql);
+
+            if (!filterPart.isEmpty()) {
+                for (Map.Entry<String, String> entry : filterData.entrySet()) {
+                    selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
+                }
+            }
+
             allUsers = (List<User>) selectAll.getResultList();
             tr.commit();
 
@@ -168,7 +189,6 @@ public class UserRepositoryImpl implements UserRepository {
             }
         }
 
-        filter.filter(allUsers, filterData);
         return paginator.paginate(allUsers, pageRequest);
     }
 
@@ -262,5 +282,26 @@ public class UserRepositoryImpl implements UserRepository {
         } catch (NoSuchFieldException | IllegalAccessException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getValidFilter(Map<String, String> filterData) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+            if (key.equals("role")) {
+                filterPart.append(" and lower(cast(u.")
+                        .append(key)
+                        .append(" as string)) like lower(:")
+                        .append(entry.getKey())
+                        .append(")");
+            } else {
+                filterPart.append(" and lower(u.")
+                        .append(key)
+                        .append(") like lower(:")
+                        .append(entry.getKey())
+                        .append(")");
+            }
+        }
+        return jpqlUtil.getValidJpqlPart(filterPart.toString());
     }
 }
