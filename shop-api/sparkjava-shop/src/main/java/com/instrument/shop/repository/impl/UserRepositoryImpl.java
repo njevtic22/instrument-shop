@@ -150,7 +150,26 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public Optional<User> findById(Long id) {
-        return Optional.ofNullable(data.get(id));
+        Optional<User> user = Optional.empty();
+
+        String jpql = "select u from User u where u.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<User> selectById = em.createQuery(jpql, User.class);
+            selectById.setParameter(1, id);
+            user = Optional.of(selectById.getSingleResult());
+            tr.commit();
+
+        } catch (NoResultException ex) {
+            user = Optional.empty();
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return user;
     }
 
     @Override
@@ -256,9 +275,9 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
             tr.begin();
-            Query selectById = em.createQuery("select u from User u where u.username = ?1 and u.archived = false");
-            selectById.setParameter(1, username);
-            user = Optional.of((User) selectById.getSingleResult());
+            Query selectByUsername = em.createQuery("select u from User u where u.username = ?1 and u.archived = false");
+            selectByUsername.setParameter(1, username);
+            user = Optional.of((User) selectByUsername.getSingleResult());
             tr.commit();
 
         } catch (NoResultException ex) {
