@@ -19,6 +19,7 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -154,7 +155,24 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsById(Long id) {
-        return findById(id).isPresent();
+        boolean exists = false;
+
+        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsById = em.createQuery(jpql, Boolean.class);
+            existsById.setParameter(1, id);
+            exists = existsById.getSingleResult();
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return exists;
     }
 
     @Override
@@ -258,7 +276,24 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByIdAndArchivedFalse(Long id) {
-        return findByIdAndArchivedFalse(id).isPresent();
+        boolean exists = false;
+
+        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.archived = false and u.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsById = em.createQuery(jpql, Boolean.class);
+            existsById.setParameter(1, id);
+            exists = existsById.getSingleResult();
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return exists;
     }
 
     @Override
