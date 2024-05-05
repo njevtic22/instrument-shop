@@ -332,24 +332,46 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public boolean existsByUsername(String username) {
-        for (User user : data.values()) {
-            if (user.getUsername().equals(username)) {
-                return true;
+        boolean exists = false;
+
+        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.username = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsByUsername = em.createQuery(jpql, Boolean.class);
+            existsByUsername.setParameter(1, username);
+            exists = existsByUsername.getSingleResult();
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
             }
         }
-
-        return false;
+        return exists;
     }
 
     @Override
     public boolean existsByEmail(String email) {
-        for (User user : data.values()) {
-            if (user.getEmail().equals(email)) {
-                return true;
+        boolean exists = false;
+
+        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.email = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsByEmail = em.createQuery(jpql, Boolean.class);
+            existsByEmail.setParameter(1, email);
+            exists = existsByEmail.getSingleResult();
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
             }
         }
-
-        return false;
+        return exists;
     }
 
 //    @Override
