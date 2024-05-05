@@ -18,7 +18,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
-import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -132,11 +131,11 @@ public class UserRepositoryImpl implements UserRepository {
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query selectAll = em.createQuery(jpql);
+            TypedQuery<User> selectAll = em.createQuery(jpql, User.class);
             selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
             selectAll.setMaxResults(pageRequest.getSize());
 
-            Query count = em.createQuery(countQuery);
+            TypedQuery<Long> count = em.createQuery(countQuery, Long.class);
 
             if (!filterPart.isEmpty()) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
@@ -145,8 +144,8 @@ public class UserRepositoryImpl implements UserRepository {
                 }
             }
 
-            allUsers = (List<User>) selectAll.getResultList();
-            allUsersNum = (long) count.getSingleResult();
+            allUsers = selectAll.getResultList();
+            allUsersNum = count.getSingleResult();
             tr.commit();
 
         } catch (RuntimeException ex) {
@@ -240,11 +239,11 @@ public class UserRepositoryImpl implements UserRepository {
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query selectAll = em.createQuery(jpql);
+            TypedQuery<User> selectAll = em.createQuery(jpql, User.class);
             selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
             selectAll.setMaxResults(pageRequest.getSize());
 
-            Query count = em.createQuery(countQuery);
+            TypedQuery<Long> count = em.createQuery(countQuery, Long.class);
 
             if (!filterPart.isEmpty()) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
@@ -253,8 +252,8 @@ public class UserRepositoryImpl implements UserRepository {
                 }
             }
 
-            allUsers = (List<User>) selectAll.getResultList();
-            allUsersNum = (long) count.getSingleResult();
+            allUsers = selectAll.getResultList();
+            allUsersNum = count.getSingleResult();
             tr.commit();
 
         } catch (RuntimeException ex) {
@@ -291,9 +290,9 @@ public class UserRepositoryImpl implements UserRepository {
 
         try {
             tr.begin();
-            Query selectByUsername = em.createQuery("select u from User u where u.username = ?1 and u.archived = false");
+            TypedQuery<User> selectByUsername = em.createQuery("select u from User u where u.username = ?1 and u.archived = false", User.class);
             selectByUsername.setParameter(1, username);
-            user = Optional.of((User) selectByUsername.getSingleResult());
+            user = Optional.of(selectByUsername.getSingleResult());
             tr.commit();
 
         } catch (NoResultException ex) {
