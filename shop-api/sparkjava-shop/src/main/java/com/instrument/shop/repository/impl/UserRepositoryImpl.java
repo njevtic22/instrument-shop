@@ -68,7 +68,23 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public long count() {
-        return data.size();
+        long counted = 0;
+
+        String jpql = "select count(*) from User u";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Long> count = em.createQuery(jpql, Long.class);
+            counted = count.getSingleResult();
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return counted;
     }
 
     @Override
