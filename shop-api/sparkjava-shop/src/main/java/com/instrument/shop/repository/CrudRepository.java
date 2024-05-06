@@ -22,7 +22,7 @@ public interface CrudRepository<ID, T> {
 
     boolean existsById(ID id);
 
-    void delete(T entity) throws IOException;
+    int delete(T entity) throws IOException;
 
-    void deleteById(ID id) throws IOException;
+    int deleteById(ID id) throws IOException;
 }

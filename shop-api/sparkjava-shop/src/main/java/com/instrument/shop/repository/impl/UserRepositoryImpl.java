@@ -1,6 +1,7 @@
 package com.instrument.shop.repository.impl;
 
 import com.instrument.shop.core.error.exception.EntityNotFoundException;
+import com.instrument.shop.core.error.exception.MultipleDeletedRowsException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Paginator;
@@ -18,6 +19,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,19 +241,35 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public void delete(User user) throws IOException {
-        data.remove(user.getId(), user);
-        serializer.serialize(data);
+    public int delete(User user) throws IOException {
+        return deleteById(user.getId());
     }
 
     @Override
-    public void deleteById(Long id) throws IOException {
-        if (!existsById(id)) {
-            throw new EntityNotFoundException("User", id);
-        }
+    public int deleteById(Long id) throws IOException {
+        int rowsAffected = 0;
 
-        data.remove(id);
-        serializer.serialize(data);
+        String jpql = "delete from User u where u.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query deleteById = em.createQuery(jpql);
+            deleteById.setParameter(1, id);
+            rowsAffected = deleteById.executeUpdate();
+
+            if (rowsAffected != 1) {
+                throw new MultipleDeletedRowsException("Users");
+            }
+
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return rowsAffected;
     }
 
     @Override
