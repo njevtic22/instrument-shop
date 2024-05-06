@@ -66,12 +66,12 @@ public class UserRepositoryImpl implements UserRepository {
     public long count() {
         long counted = 0;
 
-        String jpql = "select count(*) from User u";
+        String jpq = "select count(*) from User u";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<Long> count = em.createQuery(jpql, Long.class);
+            TypedQuery<Long> count = em.createQuery(jpq, Long.class);
             counted = count.getSingleResult();
             tr.commit();
 
@@ -95,11 +95,7 @@ public class UserRepositoryImpl implements UserRepository {
             } else {
                 user = em.merge(user);
             }
-
-
-            throw new RuntimeException("Custom RuntimeException");
-
-//            tr.commit();
+            tr.commit();
 
         } catch (RuntimeException ex) {
             if (tr.isActive()) {
@@ -107,7 +103,7 @@ public class UserRepositoryImpl implements UserRepository {
             }
             throw ex;
         }
-//        return user;
+        return user;
     }
 
     @Override
@@ -157,14 +153,14 @@ public class UserRepositoryImpl implements UserRepository {
             filterPart = "where " + filterPart.substring(5);
         }
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
-        String jpql = "select u from User u " + filterPart + orderBy;
+        String jpq = "select u from User u " + filterPart + orderBy;
         String countQuery = "select count(*) from User u " + filterPart;
 
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<User> selectAll = em.createQuery(jpql, User.class);
+            TypedQuery<User> selectAll = em.createQuery(jpq, User.class);
             selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
             selectAll.setMaxResults(pageRequest.getSize());
 
@@ -199,12 +195,12 @@ public class UserRepositoryImpl implements UserRepository {
     public Optional<User> findById(Long id) {
         Optional<User> user = Optional.empty();
 
-        String jpql = "select u from User u where u.id = ?1";
+        String jpq = "select u from User u where u.id = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<User> selectById = em.createQuery(jpql, User.class);
+            TypedQuery<User> selectById = em.createQuery(jpq, User.class);
             selectById.setParameter(1, id);
             user = Optional.of(selectById.getSingleResult());
             tr.commit();
@@ -223,12 +219,12 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsById(Long id) {
         boolean exists = false;
 
-        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.id = ?1";
+        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.id = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<Boolean> existsById = em.createQuery(jpql, Boolean.class);
+            TypedQuery<Boolean> existsById = em.createQuery(jpq, Boolean.class);
             existsById.setParameter(1, id);
             exists = existsById.getSingleResult();
             tr.commit();
@@ -251,12 +247,12 @@ public class UserRepositoryImpl implements UserRepository {
     public int deleteById(Long id) throws IOException {
         int rowsAffected = 0;
 
-        String jpql = "delete from User u where u.id = ?1";
+        String jpq = "delete from User u where u.id = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query deleteById = em.createQuery(jpql);
+            Query deleteById = em.createQuery(jpq);
             deleteById.setParameter(1, id);
             rowsAffected = deleteById.executeUpdate();
 
@@ -282,14 +278,14 @@ public class UserRepositoryImpl implements UserRepository {
 
         String filterPart = getValidFilter(filterData);
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
-        String jpql = "select u from User u where u.archived = false" + filterPart + orderBy;
+        String jpq = "select u from User u where u.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from User u where u.archived = false" + filterPart;
 
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<User> selectAll = em.createQuery(jpql, User.class);
+            TypedQuery<User> selectAll = em.createQuery(jpq, User.class);
             selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
             selectAll.setMaxResults(pageRequest.getSize());
 
@@ -359,12 +355,12 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByIdAndArchivedFalse(Long id) {
         boolean exists = false;
 
-        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.archived = false and u.id = ?1";
+        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.archived = false and u.id = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<Boolean> existsById = em.createQuery(jpql, Boolean.class);
+            TypedQuery<Boolean> existsById = em.createQuery(jpq, Boolean.class);
             existsById.setParameter(1, id);
             exists = existsById.getSingleResult();
             tr.commit();
@@ -382,12 +378,12 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByUsername(String username) {
         boolean exists = false;
 
-        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.username = ?1";
+        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.username = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<Boolean> existsByUsername = em.createQuery(jpql, Boolean.class);
+            TypedQuery<Boolean> existsByUsername = em.createQuery(jpq, Boolean.class);
             existsByUsername.setParameter(1, username);
             exists = existsByUsername.getSingleResult();
             tr.commit();
@@ -405,12 +401,12 @@ public class UserRepositoryImpl implements UserRepository {
     public boolean existsByEmail(String email) {
         boolean exists = false;
 
-        String jpql = "select case when (count(*) = 1) then true else false end from User u where u.email = ?1";
+        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.email = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            TypedQuery<Boolean> existsByEmail = em.createQuery(jpql, Boolean.class);
+            TypedQuery<Boolean> existsByEmail = em.createQuery(jpq, Boolean.class);
             existsByEmail.setParameter(1, email);
             exists = existsByEmail.getSingleResult();
             tr.commit();
@@ -433,12 +429,12 @@ public class UserRepositoryImpl implements UserRepository {
     public int archiveById(Long id) {
         int rowsAffected = 0;
 
-        String jpql = "update User u set u.archived = true where u.id = ?1";
+        String jpq = "update User u set u.archived = true where u.id = ?1";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query archiveById = em.createQuery(jpql);
+            Query archiveById = em.createQuery(jpq);
             archiveById.setParameter(1, id);
             rowsAffected = archiveById.executeUpdate();
 
@@ -461,12 +457,12 @@ public class UserRepositoryImpl implements UserRepository {
     public int updatePasswordById(Long id, String newPassword) {
         int rowsAffected = 0;
 
-        String jpql = "update User u set u.password = ?1 where u.id = ?2";
+        String jpq = "update User u set u.password = ?1 where u.id = ?2";
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            Query updatePassword = em.createQuery(jpql);
+            Query updatePassword = em.createQuery(jpq);
             updatePassword.setParameter(1, newPassword);
             updatePassword.setParameter(2, id);
             rowsAffected = updatePassword.executeUpdate();
