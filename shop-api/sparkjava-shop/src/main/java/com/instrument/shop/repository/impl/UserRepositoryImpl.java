@@ -88,12 +88,18 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public User save(User user) throws IOException {
-        if (user.getId() == null) {
-            setId(user, userId.next());
-        }
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            em.persist(user);
+            tr.commit();
 
-        data.put(user.getId(), user);
-        serializer.serialize(data);
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
         return user;
     }
 

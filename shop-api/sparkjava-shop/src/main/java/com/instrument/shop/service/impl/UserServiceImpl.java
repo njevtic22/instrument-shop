@@ -42,10 +42,17 @@ public class UserServiceImpl implements UserService {
         validateEmail(newUser.getEmail());
         validateUsername(newUser.getUsername());
 
-        newUser.setPassword(encoder.encode(newUser.getPassword()));
-        newUser.setArchived(false);
+        User toAdd = new User(
+                newUser.getName(),
+                newUser.getSurname(),
+                newUser.getEmail(),
+                newUser.getUsername(),
+                encoder.encode(newUser.getPassword()),
+                false,
+                newUser.getRole()
+        );
 
-        return repository.save(newUser);
+        return repository.save(toAdd);
     }
 
     @Override
