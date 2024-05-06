@@ -27,4 +27,6 @@ public interface UserRepository extends CrudRepository<Long, User> {
     int archive(User user);
 
     int archiveById(Long id);
+
+    int updatePasswordById(Long id, String newPassword);
 }

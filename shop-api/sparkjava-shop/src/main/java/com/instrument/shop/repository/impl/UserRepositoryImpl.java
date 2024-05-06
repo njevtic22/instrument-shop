@@ -1,6 +1,5 @@
 package com.instrument.shop.repository.impl;
 
-import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.MultipleDeletedRowsException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
@@ -438,6 +437,34 @@ public class UserRepositoryImpl implements UserRepository {
             Query archiveById = em.createQuery(jpql);
             archiveById.setParameter(1, id);
             rowsAffected = archiveById.executeUpdate();
+
+            if (rowsAffected != 1) {
+                throw new MultipleDeletedRowsException("Users");
+            }
+
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return rowsAffected;
+    }
+
+    @Override
+    public int updatePasswordById(Long id, String newPassword) {
+        int rowsAffected = 0;
+
+        String jpql = "update User u set u.password = ?1 where u.id = ?2";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query updatePassword = em.createQuery(jpql);
+            updatePassword.setParameter(1, newPassword);
+            updatePassword.setParameter(2, id);
+            rowsAffected = updatePassword.executeUpdate();
 
             if (rowsAffected != 1) {
                 throw new MultipleDeletedRowsException("Users");

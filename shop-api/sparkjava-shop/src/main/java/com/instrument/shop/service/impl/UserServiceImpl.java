@@ -131,8 +131,7 @@ public class UserServiceImpl implements UserService {
     public void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword) throws IOException {
         validatePasswordMatch(authenticated, oldPassword, newPassword, repeatedPassword);
 
-        authenticated.setPassword(encoder.encode(newPassword));
-        repository.save(authenticated);
+        repository.updatePasswordById(authenticated.getId(), encoder.encode(newPassword));
     }
 
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
