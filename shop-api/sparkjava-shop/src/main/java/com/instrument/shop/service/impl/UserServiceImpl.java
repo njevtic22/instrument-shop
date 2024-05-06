@@ -77,6 +77,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public User update(Long id, User changes) throws IOException {
+        Objects.requireNonNull(changes, "User changes must not be null.");
+
         User existing = getById(id);
 
         if (!existing.getEmail().equals(changes.getEmail())) {
@@ -86,12 +88,18 @@ public class UserServiceImpl implements UserService {
             validateUsername(changes.getUsername());
         }
 
-        existing.setName(changes.getName());
-        existing.setSurname(changes.getSurname());
-        existing.setEmail(changes.getEmail());
-        existing.setUsername(changes.getUsername());
+        User updated = new User(
+                existing.getId(),
+                changes.getName(),
+                changes.getSurname(),
+                changes.getEmail(),
+                changes.getUsername(),
+                existing.getPassword(),
+                existing.isArchived(),
+                existing.getRole()
+        );
 
-        return repository.save(existing);
+        return repository.save(updated);
     }
 
     @Override

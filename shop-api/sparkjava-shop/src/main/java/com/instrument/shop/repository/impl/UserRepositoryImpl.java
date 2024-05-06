@@ -92,7 +92,11 @@ public class UserRepositoryImpl implements UserRepository {
         EntityTransaction tr = em.getTransaction();
         try {
             tr.begin();
-            em.persist(user);
+            if (user.getId() == null) {
+                em.persist(user);
+            } else {
+                user = em.merge(user);
+            }
             tr.commit();
 
         } finally {
@@ -113,8 +117,12 @@ public class UserRepositoryImpl implements UserRepository {
             tr.begin();
             int i = 1;
             for (User user : users) {
-                em.persist(user);
-                savedUsers.add(user);
+                if (user.getId() == null) {
+                    em.persist(user);
+                    savedUsers.add(user);
+                } else {
+                    savedUsers.add(em.merge(user));
+                }
 
                 if (i % 10 == 0) {
                     em.flush();
