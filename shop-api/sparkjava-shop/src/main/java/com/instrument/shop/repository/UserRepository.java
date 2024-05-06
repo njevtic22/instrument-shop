@@ -24,7 +24,7 @@ public interface UserRepository extends CrudRepository<Long, User> {
 
     boolean existsByEmail(String email);
 
-//    void archive(User user);
-//
-//    void archiveById(Long id);
+    int archive(User user);
+
+    int archiveById(Long id);
 }

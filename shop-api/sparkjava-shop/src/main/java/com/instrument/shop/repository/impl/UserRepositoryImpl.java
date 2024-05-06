@@ -421,21 +421,37 @@ public class UserRepositoryImpl implements UserRepository {
         return exists;
     }
 
-//    @Override
-//    public void archive(User user) {
-//        setArchived(user, true);
-//
-//        data.put(user.getId(), user);
-//        serializer.serialize(data);
-//    }
-//
-//    @Override
-//    public void archiveById(Long id) {
-//        User user = findByIdAndArchivedFalse(id)
-//                .orElseThrow(() -> new EntityNotFoundException("User", id));
-//
-//        archive(user);
-//    }
+    @Override
+    public int archive(User user) {
+        return archiveById(user.getId());
+    }
+
+    @Override
+    public int archiveById(Long id) {
+        int rowsAffected = 0;
+
+        String jpql = "update User u set u.archived = true where u.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query archiveById = em.createQuery(jpql);
+            archiveById.setParameter(1, id);
+            rowsAffected = archiveById.executeUpdate();
+
+            if (rowsAffected != 1) {
+                throw new MultipleDeletedRowsException("Users");
+            }
+
+            tr.commit();
+
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+        }
+        return rowsAffected;
+    }
 
     private void setId(User user, Long id) {
         Class<? extends User> userClass = user.getClass();

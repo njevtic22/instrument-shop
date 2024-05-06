@@ -110,7 +110,7 @@ public class UserServiceImpl implements UserService {
             throw new EntityNotFoundException("User", id);
         }
 
-        repository.deleteById(id);
+        repository.archiveById(id);
     }
 
     @Override
