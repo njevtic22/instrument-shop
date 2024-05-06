@@ -20,8 +20,6 @@ import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -42,8 +40,6 @@ public class UserRepositoryImpl implements UserRepository {
     private final JpqlUtil jpqlUtil;
 
     private final EntityManagerFactory emf;
-
-    private final Logger logger = LoggerFactory.getLogger(this.getClass().getName());
 
     @Inject
     public UserRepositoryImpl(
@@ -79,10 +75,11 @@ public class UserRepositoryImpl implements UserRepository {
             counted = count.getSingleResult();
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return counted;
     }
@@ -98,14 +95,19 @@ public class UserRepositoryImpl implements UserRepository {
             } else {
                 user = em.merge(user);
             }
-            tr.commit();
 
-        } finally {
+
+            throw new RuntimeException("Custom RuntimeException");
+
+//            tr.commit();
+
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
-        return user;
+//        return user;
     }
 
     @Override
@@ -135,10 +137,11 @@ public class UserRepositoryImpl implements UserRepository {
             em.flush();
             em.clear();
             tr.commit();
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
 
         return savedUsers;
@@ -179,11 +182,10 @@ public class UserRepositoryImpl implements UserRepository {
             tr.commit();
 
         } catch (RuntimeException ex) {
-            logger.error("Failed to get all users", ex);
-        } finally {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
 
         return new PaginatedResponse<>(
@@ -231,10 +233,11 @@ public class UserRepositoryImpl implements UserRepository {
             exists = existsById.getSingleResult();
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return exists;
     }
@@ -263,10 +266,11 @@ public class UserRepositoryImpl implements UserRepository {
 
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return rowsAffected;
     }
@@ -303,11 +307,10 @@ public class UserRepositoryImpl implements UserRepository {
             tr.commit();
 
         } catch (RuntimeException ex) {
-            logger.error("Failed to get all users", ex);
-        } finally {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
 
         return new PaginatedResponse<>(
@@ -343,8 +346,6 @@ public class UserRepositoryImpl implements UserRepository {
 
         } catch (NoResultException ex) {
             user = Optional.empty();
-        } catch (RuntimeException ex) {
-            logger.error("Failed to get user by username", ex);
         } finally {
             if (tr.isActive()) {
                 tr.rollback();
@@ -368,10 +369,11 @@ public class UserRepositoryImpl implements UserRepository {
             exists = existsById.getSingleResult();
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return exists;
     }
@@ -390,10 +392,11 @@ public class UserRepositoryImpl implements UserRepository {
             exists = existsByUsername.getSingleResult();
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return exists;
     }
@@ -412,10 +415,11 @@ public class UserRepositoryImpl implements UserRepository {
             exists = existsByEmail.getSingleResult();
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return exists;
     }
@@ -444,10 +448,11 @@ public class UserRepositoryImpl implements UserRepository {
 
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return rowsAffected;
     }
@@ -472,10 +477,11 @@ public class UserRepositoryImpl implements UserRepository {
 
             tr.commit();
 
-        } finally {
+        } catch (RuntimeException ex) {
             if (tr.isActive()) {
                 tr.rollback();
             }
+            throw ex;
         }
         return rowsAffected;
     }
