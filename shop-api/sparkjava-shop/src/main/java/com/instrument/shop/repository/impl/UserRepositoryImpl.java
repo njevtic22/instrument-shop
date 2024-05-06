@@ -107,16 +107,31 @@ public class UserRepositoryImpl implements UserRepository {
     public List<User> saveAll(Iterable<User> users) throws IOException {
         ArrayList<User> savedUsers = new ArrayList<>(10);
 
-        for (User user : users) {
-            if (user.getId() == null) {
-                setId(user, userId.next());
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            int i = 1;
+            for (User user : users) {
+                em.persist(user);
+                savedUsers.add(user);
+
+                if (i % 10 == 0) {
+                    em.flush();
+                    em.clear();
+                }
+                i++;
             }
 
-            data.put(user.getId(), user);
-            savedUsers.add(user);
+            em.flush();
+            em.clear();
+            tr.commit();
+        } finally {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
         }
 
-        serializer.serialize(data);
         return savedUsers;
     }
 
