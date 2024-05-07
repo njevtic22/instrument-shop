@@ -119,7 +119,7 @@ public class UserRepositoryImpl implements UserRepository {
         List<User> allUsers = new ArrayList<>();
         long allUsersNum = 0;
 
-        String filterPart = getValidFilter(filterData);
+        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
         if (!filterPart.isEmpty()) {
             filterPart = "where " + filterPart.substring(5);
         }
@@ -247,7 +247,7 @@ public class UserRepositoryImpl implements UserRepository {
         List<User> allUsers = new ArrayList<>();
         long allUsersNum = 0;
 
-        String filterPart = getValidFilter(filterData);
+        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select u from User u where u.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from User u where u.archived = false" + filterPart;
@@ -451,36 +451,5 @@ public class UserRepositoryImpl implements UserRepository {
             throw ex;
         }
         return rowsAffected;
-    }
-
-    private void setId(User user, Long id) {
-        Class<? extends User> userClass = user.getClass();
-
-        try {
-            Field idField = userClass.getDeclaredField("id");
-            idField.setAccessible(true);
-            idField.set(user, id);
-        } catch (NoSuchFieldException | IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    private String getValidFilter(Map<String, String> filterData) {
-        StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
-            String key = entry.getKey();
-            if (key.equals("role")) {
-                filterPart.append(" and lower(cast(u.")
-                        .append(key)
-                        .append(" as string)");
-            } else {
-                filterPart.append(" and lower(u.")
-                        .append(key);
-            }
-            filterPart.append(") like lower(:")
-                    .append(entry.getKey())
-                    .append(")");
-        }
-        return jpqlUtil.getValidJpqlPart(filterPart.toString());
     }
 }
