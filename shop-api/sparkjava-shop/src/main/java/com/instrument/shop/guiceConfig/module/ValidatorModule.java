@@ -10,7 +10,6 @@ import org.passay.PasswordValidator;
 public class ValidatorModule extends AbstractModule {
     @Override
     protected void configure() {
-//        https://github.com/google/guice/issues/736#issuecomment-423792939
         bind(Validator.class).toProvider(ValidatorProvider.class).in(Scopes.SINGLETON);
         bind(PasswordValidator.class).toProvider(PassayProvider.class).in(Scopes.SINGLETON);
     }

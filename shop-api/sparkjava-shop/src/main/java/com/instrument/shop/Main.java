@@ -9,53 +9,32 @@ import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
 import com.instrument.shop.core.validation.validator.Validator;
-import com.instrument.shop.dbContext.JsonDbContext;
-import com.instrument.shop.guiceConfig.module.FileSerializerModule;
-import com.instrument.shop.guiceConfig.module.FilterModule;
 import com.instrument.shop.guiceConfig.module.GsonModule;
 import com.instrument.shop.guiceConfig.module.LoggingModule;
 import com.instrument.shop.guiceConfig.module.PersistenceModule;
 import com.instrument.shop.guiceConfig.module.PropertiesModule;
-import com.instrument.shop.guiceConfig.module.RepositoryModule;
 import com.instrument.shop.guiceConfig.module.SecurityModule;
-import com.instrument.shop.guiceConfig.module.SorterModule;
 import com.instrument.shop.guiceConfig.module.ValidatorModule;
-import com.instrument.shop.repository.UserRepository;
 import com.sparkjava.context.SparkJavaContext;
 import com.sparkjava.context.core.Authenticator;
 import com.sparkjava.context.core.RolesGetter;
 
-import java.io.IOException;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 
 public class Main {
-    public static void main(String[] args) throws IOException, NoSuchFieldException, IllegalAccessException {
+    public static void main(String[] args) {
         Injector injector = Guice.createInjector(
                 new PersistenceModule(),
                 new GsonModule(),
                 new SecurityModule(),
                 new ValidatorModule(),
-                new SorterModule(),
-                new FilterModule(),
-                new RepositoryModule(),
-                new FileSerializerModule(),
                 new PropertiesModule(),
                 new LoggingModule()
         );
 
         Properties properties = injector.getInstance(Properties.class);
-
         Gson gson = injector.getInstance(Gson.class);
-        JsonDbContext dbContext = new JsonDbContext(
-                gson,
-                Map.of(
-                        "userPath", properties.getProperty("database.json.user-file-path")
-                ),
-                injector.getInstance(UserRepository.class)
-        );
-        dbContext.loadData();
 
         SparkJavaContext sparkCtx = new SparkJavaContext(
                 Integer.parseInt(properties.getProperty("server.port")),

@@ -3,15 +3,10 @@ package com.instrument.shop.repository.impl;
 import com.instrument.shop.core.error.exception.MultipleDeletedRowsException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
-import com.instrument.shop.core.pagination.Paginator;
 import com.instrument.shop.core.pagination.Sort;
-import com.instrument.shop.filter.Filter;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
-import com.instrument.shop.serializers.fileSerializers.FileSerializer;
-import com.instrument.shop.sorter.Sorter;
 import com.instrument.shop.util.JpqlUtil;
-import com.instrument.shop.util.NumberGenerator;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
@@ -21,45 +16,21 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
-import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 @Singleton
 public class UserRepositoryImpl implements UserRepository {
-    private final TreeMap<Long, User> data;
-    private final NumberGenerator<Long> userId;
-    private final FileSerializer<Long, User> serializer;
-    private final Filter<User> filter;
-    private final Sorter<User> sorter;
-    private final Paginator paginator;
+    private final EntityManagerFactory emf;
     private final JpqlUtil jpqlUtil;
 
-    private final EntityManagerFactory emf;
-
     @Inject
-    public UserRepositoryImpl(
-            Map<Long, User> data,
-            NumberGenerator<Long> userId,
-            FileSerializer<Long, User> serializer,
-            Filter<User> filter,
-            Sorter<User> sorter,
-            Paginator paginator,
-            JpqlUtil jpqlUtil,
-            EntityManagerFactory emf
-    ) {
-        this.data = new TreeMap<>(data);
-        this.userId = userId;
-        this.serializer = serializer;
-        this.filter = filter;
-        this.sorter = sorter;
-        this.paginator = paginator;
-        this.jpqlUtil = jpqlUtil;
+    public UserRepositoryImpl(EntityManagerFactory emf, JpqlUtil jpqlUtil) {
         this.emf = emf;
+        this.jpqlUtil = jpqlUtil;
     }
 
     @Override
@@ -85,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public User save(User user) throws IOException {
+    public User save(User user) {
         EntityManager em = emf.createEntityManager();
         EntityTransaction tr = em.getTransaction();
         try {
@@ -107,7 +78,7 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public List<User> saveAll(Iterable<User> users) throws IOException {
+    public List<User> saveAll(Iterable<User> users) {
         ArrayList<User> savedUsers = new ArrayList<>(10);
 
         EntityManager em = emf.createEntityManager();
@@ -239,12 +210,12 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public int delete(User user) throws IOException {
+    public int delete(User user) {
         return deleteById(user.getId());
     }
 
     @Override
-    public int deleteById(Long id) throws IOException {
+    public int deleteById(Long id) {
         int rowsAffected = 0;
 
         String jpq = "delete from User u where u.id = ?1";
