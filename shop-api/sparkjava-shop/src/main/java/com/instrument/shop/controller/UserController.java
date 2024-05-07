@@ -39,20 +39,20 @@ import java.util.Map;
 @Singleton
 @RequestMapping("api/users")
 public class UserController {
-    private final UserMapper mapper;
     private final UserService service;
+    private final UserMapper mapper;
     private final PagingFilteringUtil pagingFilteringUtil;
     private final TokenUtils tokenUtils;
 
     @Inject
     public UserController(
-            UserMapper mapper,
             UserService service,
+            UserMapper mapper,
             PagingFilteringUtil pagingFilteringUtil,
             TokenUtils tokenUtils
     ) {
-        this.mapper = mapper;
         this.service = service;
+        this.mapper = mapper;
         this.pagingFilteringUtil = pagingFilteringUtil;
         this.tokenUtils = tokenUtils;
     }
@@ -73,7 +73,7 @@ public class UserController {
     @PreAuthorize({"MANAGER", "SALESMAN"})
     public PaginatedResponse<UserViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
-            @QueryParamValues(value = "sort", defaultValue = {"unsorted"}) String[] sortStr,
+            @QueryParamValues(value = "sort", required = false) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {

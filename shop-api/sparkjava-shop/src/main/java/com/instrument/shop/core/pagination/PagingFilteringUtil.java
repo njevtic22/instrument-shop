@@ -1,7 +1,6 @@
 package com.instrument.shop.core.pagination;
 
 import jakarta.inject.Singleton;
-import spark.Request;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -17,40 +16,6 @@ public class PagingFilteringUtil {
         }
 
         return filterData;
-    }
-
-    public Map<String, String> buildFilterData(Request request, String... filterKeys) {
-        HashMap<String, String> filterData = new HashMap<>(filterKeys.length);
-
-        for (String filterKey : filterKeys) {
-            String filterValue = request.queryParams(filterKey);
-            if (filterValue != null) {
-                filterData.put(filterKey, filterValue);
-            }
-        }
-
-        return filterData;
-    }
-
-    public Sort buildSort(Request request) {
-        return buildSort(request.queryParams("sort"));
-    }
-
-    public Sort buildSort(String sort) {
-        if (sort == null || sort.isBlank() || sort.equalsIgnoreCase("unsorted")) {
-            return Sort.UNSORTED;
-        }
-
-        if (!sort.contains(",")) {
-            throw new IllegalArgumentException("Sort query param value must be formed as: <property>,<asc/desc>");
-        }
-
-        String[] sortSplit = sort.split(",");
-        return new Sort(sortSplit[0], Order.fromString(sortSplit[1]));
-    }
-
-    public Sort buildSortValues(Request request) {
-        return buildSort(request.queryParamsValues("sort"));
     }
 
     public Sort buildSort(String[] sortArr) {
@@ -71,11 +36,5 @@ public class PagingFilteringUtil {
         }
 
         return next;
-    }
-
-    public PageRequest buildPageRequest(Request request) {
-        String page = request.queryParams("page") != null ? request.queryParams("page") : "0";
-        String size = request.queryParams("size") != null ? request.queryParams("size") : "20";
-        return new PageRequest(page, size);
     }
 }
