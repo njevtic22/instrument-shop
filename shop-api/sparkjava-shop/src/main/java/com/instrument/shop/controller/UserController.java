@@ -32,7 +32,6 @@ import jakarta.validation.Valid;
 import spark.Request;
 import spark.Response;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -61,7 +60,7 @@ public class UserController {
     @MethodOrder(100)
     @ResponseStatus(201)
     @PreAuthorize({"MANAGER"})
-    public void add(Request request, Response response, @Valid @RequestBody AddUserDto toAddDto) throws IOException {
+    public void add(Request request, Response response, @Valid @RequestBody AddUserDto toAddDto) {
         User toAdd = mapper.toModel(toAddDto);
         User added = service.add(toAdd, toAddDto.getRepeatedPassword());
 
@@ -97,7 +96,7 @@ public class UserController {
     @PutMapping
     @MethodOrder(60)
     @PreAuthorize
-    public UpdateUserResponseDto update(@Authenticated User authenticated, @Valid @RequestBody UpdateUserDto changesDto) throws IOException {
+    public UpdateUserResponseDto update(@Authenticated User authenticated, @Valid @RequestBody UpdateUserDto changesDto) {
         String originalUsername = authenticated.getUsername();
 
         User changes = mapper.toModel(changesDto);
@@ -116,7 +115,7 @@ public class UserController {
     @MethodOrder(50)
     @ResponseStatus(204)
     @PreAuthorize
-    public void changePassword(@Authenticated User authenticated, @Valid @RequestBody PasswordChangeDto passwordBody) throws IOException {
+    public void changePassword(@Authenticated User authenticated, @Valid @RequestBody PasswordChangeDto passwordBody) {
         service.changePassword(
                 authenticated,
                 passwordBody.oldPassword(),
@@ -137,7 +136,7 @@ public class UserController {
     @MethodOrder(20)
     @ResponseStatus(204)
     @PreAuthorize({"MANAGER"})
-    public void deleteUser(@PathParam("id") Long id) throws IOException {
+    public void deleteUser(@PathParam("id") Long id) {
         service.delete(id);
     }
 }

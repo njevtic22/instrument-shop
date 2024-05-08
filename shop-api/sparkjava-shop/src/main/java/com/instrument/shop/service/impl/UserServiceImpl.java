@@ -14,7 +14,6 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
 
@@ -30,7 +29,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User add(User newUser, String repeatedPassword) throws IOException {
+    public User add(User newUser, String repeatedPassword) {
         if (!newUser.getPassword().equals(repeatedPassword)) {     // passwords are not encoded
             throw new InvalidPasswordException("New password and repeated password do not match.");
         }
@@ -38,7 +37,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User add(User newUser) throws IOException {
+    public User add(User newUser) {
         validateEmail(newUser.getEmail());
         validateUsername(newUser.getUsername());
 
@@ -76,7 +75,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User update(Long id, User changes) throws IOException {
+    public User update(Long id, User changes) {
         Objects.requireNonNull(changes, "User changes must not be null.");
 
         User existing = getById(id);
@@ -103,7 +102,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void delete(Long id) throws IOException {
+    public void delete(Long id) {
         Objects.requireNonNull(id, "Id must not be null");
 
         if (!repository.existsByIdAndArchivedFalse(id)) {
@@ -128,7 +127,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword) throws IOException {
+    public void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword) {
         validatePasswordMatch(authenticated, oldPassword, newPassword, repeatedPassword);
 
         repository.updatePasswordById(authenticated.getId(), encoder.encode(newPassword));

@@ -13,8 +13,6 @@ import com.sparkjava.context.annotation.RequestMapping;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 
-import java.io.IOException;
-
 @RequestMapping("api/auth")
 public class AuthenticationController {
     private final AuthenticationService service;
@@ -33,7 +31,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/register")
-    public TokenResponse register(@Valid @RequestBody RegisterUserDto registerBody) throws IOException {
+    public TokenResponse register(@Valid @RequestBody RegisterUserDto registerBody) {
         User toRegister = mapper.toModel(registerBody);
         Pair<String, String> registerData = service.registerUser(toRegister, registerBody.getRepeatedPassword());
         return new TokenResponse(registerData.first(), registerData.second());
