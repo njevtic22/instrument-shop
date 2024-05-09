@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
@@ -43,13 +44,16 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @OneToOne
+    private Image image;
+
     public User() { }
 
-    public User(String name, String surname, String email, String username, String password, boolean archived, Role role) {
-        this(null, name, surname, email, username, password, archived, role);
+    public User(String name, String surname, String email, String username, String password, boolean archived, Role role, Image image) {
+        this(null, name, surname, email, username, password, archived, role, image);
     }
 
-    public User(Long id, String name, String surname, String email, String username, String password, boolean archived, Role role) {
+    public User(Long id, String name, String surname, String email, String username, String password, boolean archived, Role role, Image image) {
         this.id = id;
         this.name = Strings.requireNonBlank(name, "Name must not be blank");
         this.surname = Strings.requireNonBlank(surname, "Surname must not be blank");
@@ -58,6 +62,7 @@ public class User {
         this.password = Strings.requireNonBlank(password, "Password must not be blank");
         this.archived = archived;
         this.role = role;
+        this.image = image;
     }
 
     @Override
@@ -92,55 +97,31 @@ public class User {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getSurname() {
         return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
     }
 
     public String getEmail() {
         return email;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
     public String getUsername() {
         return username;
-    }
-
-    public void setUsername(String username) {
-        this.username = username;
     }
 
     public String getPassword() {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
     public boolean isArchived() {
         return archived;
-    }
-
-    public void setArchived(boolean archived) {
-        this.archived = archived;
     }
 
     public Role getRole() {
         return role;
     }
 
-    public void setRole(Role role) {
-        this.role = role;
+    public Image getImage() {
+        return image;
     }
 }

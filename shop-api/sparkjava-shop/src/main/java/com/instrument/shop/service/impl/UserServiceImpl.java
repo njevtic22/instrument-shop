@@ -48,7 +48,8 @@ public class UserServiceImpl implements UserService {
                 newUser.getUsername(),
                 encoder.encode(newUser.getPassword()),
                 false,
-                newUser.getRole()
+                newUser.getRole(),
+                null
         );
 
         return repository.save(toAdd);
@@ -95,7 +96,8 @@ public class UserServiceImpl implements UserService {
                 changes.getUsername(),
                 existing.getPassword(),
                 existing.isArchived(),
-                existing.getRole()
+                existing.getRole(),
+                existing.getImage()
         );
 
         return repository.save(updated);
