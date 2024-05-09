@@ -95,7 +95,6 @@ public class UserController {
 
     @PutMapping
     @MethodOrder(60)
-    @PreAuthorize
     public UpdateUserResponseDto update(@Authenticated User authenticated, @Valid @RequestBody UpdateUserDto changesDto) {
         String originalUsername = authenticated.getUsername();
 
@@ -114,7 +113,6 @@ public class UserController {
     @PutMapping("/password")
     @MethodOrder(50)
     @ResponseStatus(204)
-    @PreAuthorize
     public void changePassword(@Authenticated User authenticated, @Valid @RequestBody PasswordChangeDto passwordBody) {
         service.changePassword(
                 authenticated,
@@ -127,7 +125,6 @@ public class UserController {
     @PutMapping("/image")
     @MethodOrder(45)
     @ResponseStatus(204)
-    @PreAuthorize
     public void changeImage(@Authenticated User authenticated, @QueryParam(value = "imageId", defaultValue = "-1") Long imageId) {
         service.changeImage(authenticated, imageId);
     }
