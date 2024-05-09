@@ -44,7 +44,7 @@ public class ImageUploaderImpl implements ImageUploader {
         Map result = cloudinary.uploader().upload(
                 image,
                 Map.of(
-                        "folder", "musical instruments"
+                        "folder", "musical-instruments"
                 )
         );
         return (String) result.get("secure_url");

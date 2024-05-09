@@ -135,6 +135,11 @@ public class UserServiceImpl implements UserService {
         repository.updatePasswordById(authenticated.getId(), encoder.encode(newPassword));
     }
 
+    @Override
+    public void addImage(User authenticated, Long imageId) {
+        repository.updateUserImage(authenticated.getId(), imageId);
+    }
+
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
         if (!newPassword.equals(repeatedPassword)) {
             throw new InvalidPasswordException("New password and repeated password do not match");

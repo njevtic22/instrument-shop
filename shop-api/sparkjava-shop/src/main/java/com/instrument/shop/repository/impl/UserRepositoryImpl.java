@@ -16,7 +16,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -442,6 +441,34 @@ public class UserRepositoryImpl implements UserRepository {
                 throw new MultipleDeletedRowsException("Users");
             }
 
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return rowsAffected;
+    }
+
+    @Override
+    public int updateUserImage(Long userId, Long imageId) {
+        int rowsAffected = 0;
+
+        String jpq = "update User u set u.image = (select i from Image i where i.id = ?1) where u.id = ?2";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            Query updateImage = em.createQuery(jpq);
+            updateImage.setParameter(1, imageId);
+            updateImage.setParameter(2, userId);
+            rowsAffected = updateImage.executeUpdate();
+
+            if (rowsAffected != 1) {
+                throw new MultipleDeletedRowsException("Users");
+            }
             tr.commit();
 
         } catch (RuntimeException ex) {
