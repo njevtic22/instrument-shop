@@ -17,6 +17,10 @@ public class PropertiesModule extends AbstractModule {
         bind(String.class).annotatedWith(Names.named("passwordBlacklist")).toInstance(properties.getProperty("password.blacklist"));
 
         bind(String.class).annotatedWith(Names.named("secretKey")).toInstance(properties.getProperty("secret.key"));
+
+        bind(String.class).annotatedWith(Names.named("cloudName")).toInstance(properties.getProperty("cloudinary.cloud.name"));
+        bind(String.class).annotatedWith(Names.named("cloudApiKey")).toInstance(properties.getProperty("cloudinary.api.key"));
+        bind(String.class).annotatedWith(Names.named("cloudApiSecret")).toInstance(properties.getProperty("cloudinary.api.secret"));
     }
 
     private Properties getProperties(String propertiesPath) {
