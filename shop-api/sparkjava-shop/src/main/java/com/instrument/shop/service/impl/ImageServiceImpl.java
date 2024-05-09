@@ -1,6 +1,7 @@
 package com.instrument.shop.service.impl;
 
 import com.instrument.shop.model.Image;
+import com.instrument.shop.repository.ImageRepository;
 import com.instrument.shop.service.ImageService;
 import com.instrument.shop.service.ImageUploader;
 import jakarta.inject.Inject;
@@ -13,10 +14,12 @@ import java.util.stream.Collectors;
 @Singleton
 public class ImageServiceImpl implements ImageService {
     private final ImageUploader uploader;
+    private final ImageRepository repository;
 
     @Inject
-    public ImageServiceImpl(ImageUploader uploader) {
+    public ImageServiceImpl(ImageUploader uploader, ImageRepository repository) {
         this.uploader = uploader;
+        this.repository = repository;
     }
 
     @Override
@@ -28,6 +31,6 @@ public class ImageServiceImpl implements ImageService {
                 .map(Image::new)
                 .collect(Collectors.toList());
 
-        return uploaded;
+        return repository.saveAll(uploaded);
     }
 }

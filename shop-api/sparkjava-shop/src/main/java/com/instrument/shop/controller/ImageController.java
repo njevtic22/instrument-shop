@@ -1,5 +1,7 @@
 package com.instrument.shop.controller;
 
+import com.instrument.shop.dto.image.ImageViewDto;
+import com.instrument.shop.mapper.ImageMapper;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.service.ImageService;
 import com.sparkjava.context.annotation.MultipartValues;
@@ -19,15 +21,17 @@ import java.util.List;
 @RequestMapping("api/images")
 public class ImageController {
     private final ImageService service;
+    private final ImageMapper mapper;
 
     @Inject
-    public ImageController(ImageService service) {
+    public ImageController(ImageService service, ImageMapper mapper) {
         this.service = service;
+        this.mapper = mapper;
     }
 
     @PostMapping(consumes = "multipart/form-data")
     @PreAuthorize
-    public List<Image> uploadImage(@MultipartValues({"images"}) Collection<Part> images) throws IOException {
+    public List<ImageViewDto> uploadImage(@MultipartValues({"images"}) Collection<Part> images) throws IOException {
         ArrayList<byte[]> imagesBytes = new ArrayList<>(images.size());
         for (Part image : images) {
             validateImageType(image.getContentType());
@@ -35,8 +39,10 @@ public class ImageController {
         }
 
         List<Image> uploaded = service.uploadImages(imagesBytes);
-
-        return uploaded;
+        return uploaded
+                .stream()
+                .map(mapper::toViewDto)
+                .toList();
     }
 
     private void validateImageType(String imageType) {
