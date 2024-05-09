@@ -10,4 +10,6 @@ import java.util.List;
 @ImplementedBy(ImageServiceImpl.class)
 public interface ImageService {
     List<Image> uploadImages(List<byte[]> images) throws IOException;
+
+    void delete(Long id);
 }

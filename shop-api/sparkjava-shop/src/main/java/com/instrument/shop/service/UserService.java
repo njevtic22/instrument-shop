@@ -16,5 +16,5 @@ public interface UserService extends CrudService<Long, User> {
 
     void changePassword(User authenticated, String oldPassword, String newPassword, String repeatedPassword);
 
-    void addImage(User authenticated, Long imageId);
+    void changeImage(User authenticated, Long imageId);
 }

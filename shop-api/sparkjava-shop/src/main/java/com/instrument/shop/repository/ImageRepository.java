@@ -9,4 +9,10 @@ import java.util.List;
 @ImplementedBy(ImageRepositoryImpl.class)
 public interface ImageRepository {
     List<Image> saveAll(Iterable<Image> images);
+
+    boolean existsByIdAndArchivedFalse(Long id);
+
+    int archive(Image image);
+
+    int archiveById(Long id);
 }

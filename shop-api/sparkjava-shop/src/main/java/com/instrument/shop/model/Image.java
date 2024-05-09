@@ -22,15 +22,19 @@ public class Image {
     @Column(nullable = false)
     private String url;
 
+    @Column(nullable = false)
+    private boolean archived;
+
     public Image() { }
 
     public Image(String url) {
-        this(null, url);
+        this(null, url, false);
     }
 
-    public Image(Long id, String url) {
+    public Image(Long id, String url, boolean archived) {
         this.id = id;
         this.url = Strings.requireNonBlank(url, "Url must not be blank");
+        this.archived = archived;
     }
 
     @Override
@@ -51,5 +55,9 @@ public class Image {
 
     public String getUrl() {
         return url;
+    }
+
+    public boolean isArchived() {
+        return archived;
     }
 }

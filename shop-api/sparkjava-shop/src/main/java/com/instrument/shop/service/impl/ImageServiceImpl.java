@@ -1,5 +1,6 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.repository.ImageRepository;
 import com.instrument.shop.service.ImageService;
@@ -9,6 +10,7 @@ import jakarta.inject.Singleton;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Singleton
@@ -32,5 +34,16 @@ public class ImageServiceImpl implements ImageService {
                 .collect(Collectors.toList());
 
         return repository.saveAll(uploaded);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
+
+        if (!repository.existsByIdAndArchivedFalse(id)) {
+            throw new EntityNotFoundException("Image", id);
+        }
+
+        repository.archiveById(id);
     }
 }

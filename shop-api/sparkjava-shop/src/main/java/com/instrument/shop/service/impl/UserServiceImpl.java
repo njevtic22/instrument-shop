@@ -6,8 +6,10 @@ import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
+import com.instrument.shop.model.Image;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.UserRepository;
+import com.instrument.shop.service.ImageService;
 import com.instrument.shop.service.UserService;
 import com.instrument.shop.util.Strings;
 import jakarta.inject.Inject;
@@ -20,11 +22,13 @@ import java.util.Objects;
 @Singleton
 public class UserServiceImpl implements UserService {
     private final UserRepository repository;
+    private final ImageService imageService;
     private final PasswordEncoder encoder;
 
     @Inject
-    public UserServiceImpl(UserRepository repository, PasswordEncoder encoder) {
+    public UserServiceImpl(UserRepository repository, ImageService imageService, PasswordEncoder encoder) {
         this.repository = repository;
+        this.imageService = imageService;
         this.encoder = encoder;
     }
 
@@ -136,7 +140,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void addImage(User authenticated, Long imageId) {
+    public void changeImage(User authenticated, Long imageId) {
+        Image existingImage = authenticated.getImage();
+        if (existingImage != null) {
+            imageService.delete(existingImage.getId());
+        }
+
         repository.updateUserImage(authenticated.getId(), imageId);
     }
 

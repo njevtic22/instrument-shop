@@ -124,12 +124,12 @@ public class UserController {
         );
     }
 
-    @PostMapping("/image")
+    @PutMapping("/image")
     @MethodOrder(45)
     @ResponseStatus(204)
     @PreAuthorize
-    public void addImage(@Authenticated User authenticated, @QueryParam("imageId") Long imageId) {
-        service.addImage(authenticated, imageId);
+    public void changeImage(@Authenticated User authenticated, @QueryParam(value = "imageId", defaultValue = "-1") Long imageId) {
+        service.changeImage(authenticated, imageId);
     }
 
     @GetMapping("/:id")
