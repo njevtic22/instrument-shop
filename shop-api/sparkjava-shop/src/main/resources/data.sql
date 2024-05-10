@@ -50,6 +50,21 @@ alter sequence image_id_seq restart with 31;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+insert into instrument_types (id, name, archived) values (1, 'Plucked', false);
+insert into instrument_types (id, name, archived) values (2, 'Bowed', false);
+insert into instrument_types (id, name, archived) values (3, 'Woodwinds', false);
+insert into instrument_types (id, name, archived) values (4, 'Brass', false);
+insert into instrument_types (id, name, archived) values (5, 'Percussion', false);
+insert into instrument_types (id, name, archived) values (6, 'Electronic', false);
+insert into instrument_types (id, name, archived) values (7, 'Keyboard', false);
+insert into instrument_types (id, name, archived) values (8, 'Idiophones', false);
+insert into instrument_types (id, name, archived) values (9, 'Membranophones', false);
+insert into instrument_types (id, name, archived) values (10, 'Chordophones', false);
+insert into instrument_types (id, name, archived) values (11, 'Aerophones', false);
+insert into instrument_types (id, name, archived) values (12, 'Electrophones', false);
+
+alter sequence instrument_type_id_seq restart with 13;
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------- Inserting users --------------------------------------------------------------------------------------------
 insert into users (id, name, surname, email, username, password, archived, role, image_id) values (1, 'Saran', 'Gibson', 'manager1@gmail.com', 'manager1', '$2a$10$JCYrt8QGHg4suBXWiRgjKu93h5DCq3yFDXMDsTY/Itkgeu3h3pCE6', false, 'MANAGER', 1);
