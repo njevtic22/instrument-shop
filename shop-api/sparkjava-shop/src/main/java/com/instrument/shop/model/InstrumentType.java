@@ -19,7 +19,7 @@ public class InstrumentType {
     @SequenceGenerator(name = "instrument_type_generator", sequenceName = "instrument_type_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String name;
 
     @Column(nullable = false)

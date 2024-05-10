@@ -120,6 +120,11 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
+    public boolean existsByName(String name) {
+        return false;
+    }
+
+    @Override
     public int archive(InstrumentType type) {
         return 0;
     }

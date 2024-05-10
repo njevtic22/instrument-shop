@@ -50,11 +50,20 @@ alter sequence image_id_seq restart with 31;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
-insert into instrument_types (id, name, archived) values (1, 'Stringed', false);
-insert into instrument_types (id, name, archived) values (2, 'Wind', false);
-insert into instrument_types (id, name, archived) values (3, 'Electronic', false);
+insert into instrument_types (id, name, archived) values (1, 'Plucked', false);
+insert into instrument_types (id, name, archived) values (2, 'Bowed', false);
+insert into instrument_types (id, name, archived) values (3, 'Woodwinds', false);
+insert into instrument_types (id, name, archived) values (4, 'Brass', false);
+insert into instrument_types (id, name, archived) values (5, 'Percussion', false);
+insert into instrument_types (id, name, archived) values (6, 'Electronic', false);
+insert into instrument_types (id, name, archived) values (7, 'Keyboard', false);
+insert into instrument_types (id, name, archived) values (8, 'Idiophones', false);
+insert into instrument_types (id, name, archived) values (9, 'Membranophones', false);
+insert into instrument_types (id, name, archived) values (10, 'Chordophones', false);
+insert into instrument_types (id, name, archived) values (11, 'Aerophones', false);
+insert into instrument_types (id, name, archived) values (12, 'Electrophones', false);
 
-alter sequence instrument_type_id_seq restart with 4;
+alter sequence instrument_type_id_seq restart with 13;
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------- Inserting users --------------------------------------------------------------------------------------------
