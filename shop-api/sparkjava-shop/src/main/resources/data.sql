@@ -50,6 +50,12 @@ alter sequence image_id_seq restart with 31;
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
+insert into instrument_types (id, name, archived) values (1, 'Stringed', false);
+insert into instrument_types (id, name, archived) values (2, 'Wind', false);
+insert into instrument_types (id, name, archived) values (3, 'Electronic', false);
+
+alter sequence instrument_type_id_seq restart with 4;
+
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------- Inserting users --------------------------------------------------------------------------------------------
 insert into users (id, name, surname, email, username, password, archived, role, image_id) values (1, 'Saran', 'Gibson', 'manager1@gmail.com', 'manager1', '$2a$10$JCYrt8QGHg4suBXWiRgjKu93h5DCq3yFDXMDsTY/Itkgeu3h3pCE6', false, 'MANAGER', 1);
