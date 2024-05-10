@@ -1,6 +1,7 @@
 package com.instrument.shop.faker;
 
 import com.instrument.shop.model.Image;
+import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.model.User;
 
 public class SqlUtil {
@@ -23,6 +24,13 @@ public class SqlUtil {
                 image.getId() + ", '" +
                 image.getUrl() + "', " +
                 image.isArchived() + ");";
+    }
+
+    public static String toSqlInsert(InstrumentType type) {
+        return "insert into instrument_types (id, name, archived) values (" +
+                type.getId() + ", '" +
+                type.getName() + "', " +
+                type.isArchived() + ");";
     }
 
     public static String toSqlAlterSequenceRestart(String sequenceName, long restartWith) {

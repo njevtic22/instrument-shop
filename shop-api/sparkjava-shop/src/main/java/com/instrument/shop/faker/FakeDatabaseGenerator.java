@@ -2,9 +2,10 @@ package com.instrument.shop.faker;
 
 import com.github.javafaker.Faker;
 import com.instrument.shop.model.Image;
+import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.model.Role;
 import com.instrument.shop.model.User;
-import com.instrument.shop.util.ImageUrlIterator;
+import com.instrument.shop.util.CycleIterator;
 import com.instrument.shop.util.LongGenerator;
 
 import java.io.BufferedReader;
@@ -12,7 +13,9 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 import static com.instrument.shop.faker.SqlUtil.toSqlAlterSequenceRestart;
@@ -27,17 +30,22 @@ public class FakeDatabaseGenerator {
     private final Role[] roles = {Role.MANAGER, Role.SALESMAN, Role.CUSTOMER};
     private final int USERS_PER_ROLE = 10;
     private final int IMAGES = roles.length * USERS_PER_ROLE;
+    private final int INSTRUMENT_TYPES = 12;
 
     private final String encodedPassword = "$2a$10$JCYrt8QGHg4suBXWiRgjKu93h5DCq3yFDXMDsTY/Itkgeu3h3pCE6";
 
     private final PrintWriter out = new PrintWriter(new FileWriter("./src/main/resources/data-generated.sql"));
-    private final ImageUrlIterator url;
+    private final CycleIterator imageUrl = getImageUrlIterator();
+    private final Iterator<String> instrumentType = getInstrumentTypeIterator();
 
     public FakeDatabaseGenerator() throws IOException {
-        BufferedReader urlIn = new BufferedReader(new FileReader("./src/main/resources/images.txt"));
+    }
+
+    private CycleIterator getImageUrlIterator() throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/images.txt"));
         String[] urlsTemp = new String[50];
         for (int i = 0; i < 50; i++) {
-            String line = urlIn.readLine();
+            String line = in.readLine();
             if (line.startsWith("404")) {
                 break;
             }
@@ -45,8 +53,20 @@ public class FakeDatabaseGenerator {
             urlsTemp[i] = line;
         }
 
-        this.url = new ImageUrlIterator(urlsTemp);
-        urlIn.close();
+        in.close();
+        return new CycleIterator(urlsTemp);
+    }
+
+    private Iterator<String> getInstrumentTypeIterator() throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/instrument types.txt"));
+        ArrayList<String> typesTemp = new ArrayList<>(12);
+        for (int i = 0; i < 12; i++) {
+            String line = in.readLine();
+            typesTemp.add(line);
+        }
+
+        in.close();
+        return typesTemp.iterator();
     }
 
     private void generateHeader() {
@@ -61,6 +81,7 @@ public class FakeDatabaseGenerator {
         out.println("--\t\t- " + USERS_PER_ROLE + " managers");
         out.println("--\t\t- " + USERS_PER_ROLE + " salesmen");
         out.println("--\t\t- " + USERS_PER_ROLE + " customers");
+        out.println("--\t- "   + INSTRUMENT_TYPES + " instrument types");
         out.println("--");
 
         out.flush();
@@ -72,15 +93,18 @@ public class FakeDatabaseGenerator {
         // inserting images
         LongGenerator imageId = new LongGenerator();
         Map<Long, Image> images = generateImages(imageId);
-
         // altering image_id_seq
         printSequenceRestart(IMAGES, imageId, "image_id_seq");
 
+        // inserting instrument types
+        LongGenerator typeId = new LongGenerator();
+        Map<Long, InstrumentType> types = generateInstrumentTypes(typeId);
+        // altering instrument_type_id_seq
+        printSequenceRestart(INSTRUMENT_TYPES, typeId, "instrument_type_id_seq");
 
         // inserting users
         LongGenerator userId = new LongGenerator();
         Map<Long, User> users = generateUsers(userId, images);
-
         // altering user_id_seq
         printSequenceRestart((long) roles.length * USERS_PER_ROLE, userId, "user_id_seq");
 
@@ -94,7 +118,7 @@ public class FakeDatabaseGenerator {
         for (int i = 0; i < IMAGES; i++) {
             Image image = new Image(
                     imageId.next(),
-                    url.next(),
+                    imageUrl.next(),
                     false
             );
             images.put(imageId.current(), image);
@@ -103,6 +127,24 @@ public class FakeDatabaseGenerator {
 
         printEndLines();
         return images;
+    }
+
+    private Map<Long, InstrumentType> generateInstrumentTypes(LongGenerator typeId) {
+        printStartLines("Inserting instrument types");
+
+        HashMap<Long, InstrumentType> types = new HashMap<>(INSTRUMENT_TYPES);
+        for (int i = 0; i < INSTRUMENT_TYPES; i++) {
+            InstrumentType type = new InstrumentType(
+                    typeId.next(),
+                    instrumentType.next(),
+                    false
+            );
+            types.put(typeId.current(), type);
+            out.println(toSqlInsert(type));
+        }
+
+        printEndLines();
+        return types;
     }
 
     private Map<Long, User> generateUsers(LongGenerator userId, Map<Long, Image> images) {

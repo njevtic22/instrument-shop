@@ -1,0 +1,12 @@
+Plucked
+Bowed
+Woodwinds
+Brass
+Percussion
+Electronic
+Keyboard
+Idiophones
+Membranophones
+Chordophones
+Aerophones
+Electrophones
