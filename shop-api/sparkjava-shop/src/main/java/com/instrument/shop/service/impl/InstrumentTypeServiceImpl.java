@@ -1,5 +1,6 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
@@ -21,8 +22,15 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
     }
 
     @Override
-    public InstrumentType add(InstrumentType entity) {
-        return null;
+    public InstrumentType add(InstrumentType newType) {
+        validateName(newType.getName());
+
+        InstrumentType toAdd = new InstrumentType(
+                newType.getName(),
+                false
+        );
+
+        return repository.save(toAdd);
     }
 
     @Override
@@ -47,6 +55,8 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
 
     @Override
     public void validateName(String name) {
-
+        if (repository.existsByName(name)) {
+            throw new UniquePropertyException("Name", name);
+        }
     }
 }

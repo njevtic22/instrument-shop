@@ -121,14 +121,14 @@ public class UserServiceImpl implements UserService {
     @Override
     public void validateEmail(String email) {
         if (repository.existsByEmail(email)) {
-            throw new UniquePropertyException("Email '" + email + "' is already taken.");
+            throw new UniquePropertyException("Email", email);
         }
     }
 
     @Override
     public void validateUsername(String username) {
         if (repository.existsByUsername(username)) {
-            throw new UniquePropertyException("Username '" + username + "' is already taken.");
+            throw new UniquePropertyException("Username", username);
         }
     }
 

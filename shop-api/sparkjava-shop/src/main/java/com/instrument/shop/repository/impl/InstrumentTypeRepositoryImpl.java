@@ -35,8 +35,25 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
-    public InstrumentType save(InstrumentType entity) {
-        return null;
+    public InstrumentType save(InstrumentType type) {
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            if (type.getId() == null) {
+                em.persist(type);
+            } else {
+                type = em.merge(type);
+            }
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return type;
     }
 
     @Override
@@ -121,7 +138,25 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
 
     @Override
     public boolean existsByName(String name) {
-        return false;
+        boolean exists = false;
+
+        String jpq = "select case when(count(*) = 1) then true else false end from InstrumentType it where it.name = ?1";
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsByName = em.createQuery(jpq, Boolean.class);
+            existsByName.setParameter(1, name);
+            exists = existsByName.getSingleResult();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return exists;
     }
 
     @Override
