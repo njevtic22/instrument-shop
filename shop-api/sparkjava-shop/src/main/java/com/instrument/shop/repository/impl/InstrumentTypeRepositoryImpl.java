@@ -5,15 +5,13 @@ import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.repository.InstrumentTypeRepository;
+import com.instrument.shop.repository.RepositoryUtil;
 import com.instrument.shop.util.JpqlUtil;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -21,39 +19,31 @@ import java.util.Optional;
 @Singleton
 public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     private final EntityManagerFactory emf;
+    private final RepositoryUtil repoUtil;
     private final JpqlUtil jpqlUtil;
 
     @Inject
-    public InstrumentTypeRepositoryImpl(EntityManagerFactory emf, JpqlUtil jpqlUtil) {
+    public InstrumentTypeRepositoryImpl(EntityManagerFactory emf, RepositoryUtil repoUtil, JpqlUtil jpqlUtil) {
         this.emf = emf;
+        this.repoUtil = repoUtil;
         this.jpqlUtil = jpqlUtil;
     }
 
     @Override
     public long count() {
-        return 0;
+        String jpq = "select count(*) from InstrumentType it";
+        EntityManager em = emf.createEntityManager();
+        long counted = repoUtil.count(em, jpq);
+        em.close();
+        return counted;
     }
 
     @Override
     public InstrumentType save(InstrumentType type) {
         EntityManager em = emf.createEntityManager();
-        EntityTransaction tr = em.getTransaction();
-        try {
-            tr.begin();
-            if (type.getId() == null) {
-                em.persist(type);
-            } else {
-                type = em.merge(type);
-            }
-            tr.commit();
-
-        } catch (RuntimeException ex) {
-            if (tr.isActive()) {
-                tr.rollback();
-            }
-            throw ex;
-        }
-        return type;
+        InstrumentType saved = repoUtil.save(em, type);
+        em.close();
+        return saved;
     }
 
     @Override
@@ -88,47 +78,23 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
 
     @Override
     public PaginatedResponse<InstrumentType> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        List<InstrumentType> allTypes = new ArrayList<>();
-        long allTypesNum = 0;
-
         String filterPart = jpqlUtil.getValidFilter(filterData, "it");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select it from InstrumentType it where it.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from InstrumentType it where it.archived = false" + filterPart;
 
         EntityManager em = emf.createEntityManager();
-        EntityTransaction tr = em.getTransaction();
-        try {
-            tr.begin();
-            TypedQuery<InstrumentType> selectAll = em.createQuery(jpq, InstrumentType.class);
-            selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
-            selectAll.setMaxResults(pageRequest.getSize());
-
-            TypedQuery<Long> count = em.createQuery(countQuery, Long.class);
-
-            if (!filterPart.isEmpty()) {
-                for (Map.Entry<String, String> entry : filterData.entrySet()) {
-                    selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
-                    count.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
-                }
-            }
-
-            allTypes = selectAll.getResultList();
-            allTypesNum = count.getSingleResult();
-            tr.commit();
-
-        } catch (RuntimeException ex) {
-            if (tr.isActive()) {
-                tr.rollback();
-            }
-            throw ex;
-        }
-
-        return new PaginatedResponse<>(
-                allTypes,
-                allTypesNum,
-                Math.ceilDiv(allTypesNum, pageRequest.getSize())
+        PaginatedResponse<InstrumentType> allTypes = repoUtil.findAll(
+                em,
+                jpq,
+                countQuery,
+                InstrumentType.class,
+                !filterPart.isEmpty(),
+                filterData,
+                pageRequest
         );
+        em.close();
+        return allTypes;
     }
 
     @Override
@@ -138,24 +104,10 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
 
     @Override
     public boolean existsByName(String name) {
-        boolean exists = false;
-
         String jpq = "select case when(count(*) = 1) then true else false end from InstrumentType it where it.name = ?1";
         EntityManager em = emf.createEntityManager();
-        EntityTransaction tr = em.getTransaction();
-        try {
-            tr.begin();
-            TypedQuery<Boolean> existsByName = em.createQuery(jpq, Boolean.class);
-            existsByName.setParameter(1, name);
-            exists = existsByName.getSingleResult();
-            tr.commit();
-
-        } catch (RuntimeException ex) {
-            if (tr.isActive()) {
-                tr.rollback();
-            }
-            throw ex;
-        }
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, name);
+        em.close();
         return exists;
     }
 
