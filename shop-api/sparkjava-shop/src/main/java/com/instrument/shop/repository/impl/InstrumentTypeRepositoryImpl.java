@@ -62,8 +62,12 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
-    public boolean existsById(Long aLong) {
-        return false;
+    public boolean existsById(Long id) {
+        String jpq = "select case when (count(*) = 1) then true else false end from InstrumentType it where it.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
+        em.close();
+        return exists;
     }
 
     @Override
@@ -107,6 +111,15 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
+    public boolean existsByIdAndArchivedFalse(Long id) {
+        String jpq = "select case when (count(*) = 1) then true else false end from InstrumentType it where it.archived = false and it.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
+        em.close();
+        return exists;
+    }
+
+    @Override
     public boolean existsByName(String name) {
         String jpq = "select case when(count(*) = 1) then true else false end from InstrumentType it where it.name = ?1";
         EntityManager em = emf.createEntityManager();
@@ -122,6 +135,10 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
 
     @Override
     public int archiveById(Long id) {
-        return 0;
+        String jpq = "update InstrumentType it set it.archived = true where it.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "instrument types", "archive by id");
+        em.close();
+        return rowsAffected;
     }
 }

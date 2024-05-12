@@ -10,6 +10,7 @@ import com.instrument.shop.dto.instrumentType.UpdateInstrumentTypeDto;
 import com.instrument.shop.mapper.InstrumentTypeMapper;
 import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.service.InstrumentTypeService;
+import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
@@ -100,5 +101,13 @@ public class InstrumentTypeController {
         InstrumentType toUpdate = mapper.toModel(toUpdateDto);
         InstrumentType updated = service.update(id, toUpdate);
         return mapper.toViewDto(updated);
+    }
+
+    @DeleteMapping("/:id")
+    @MethodOrder(20)
+    @ResponseStatus(204)
+    @PreAuthorize("SALESMAN")
+    public void delete(@PathParam("id") Long id) {
+        service.delete(id);
     }
 }

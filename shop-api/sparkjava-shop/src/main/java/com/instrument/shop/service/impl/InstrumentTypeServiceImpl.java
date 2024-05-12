@@ -65,8 +65,14 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
     }
 
     @Override
-    public void delete(Long aLong) {
+    public void delete(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
 
+        if (!repository.existsByIdAndArchivedFalse(id)) {
+            throw new EntityNotFoundException("Instrument type", id);
+        }
+
+        repository.archiveById(id);
     }
 
     @Override
