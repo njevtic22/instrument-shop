@@ -62,7 +62,6 @@ public class InstrumentTypeController {
 
     @GetMapping
     @MethodOrder(80)
-    @PreAuthorize
     public PaginatedResponse<InstrumentTypeViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", required = false) String[] sortStr,
@@ -88,7 +87,6 @@ public class InstrumentTypeController {
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    @PreAuthorize
     public InstrumentTypeViewDto getById(@PathParam("id") Long id) {
         InstrumentType found = service.getById(id);
         return mapper.toViewDto(found);
