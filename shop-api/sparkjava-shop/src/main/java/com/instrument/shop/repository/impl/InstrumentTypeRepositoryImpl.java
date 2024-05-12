@@ -99,7 +99,11 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
 
     @Override
     public Optional<InstrumentType> findByIdAndArchivedFalse(Long id) {
-        return Optional.empty();
+        String jpq = "select it from InstrumentType it where it.archived = false and it.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        Optional<InstrumentType> found = repoUtil.findByUniqueProperty(em, jpq, InstrumentType.class, id);
+        em.close();
+        return found;
     }
 
     @Override

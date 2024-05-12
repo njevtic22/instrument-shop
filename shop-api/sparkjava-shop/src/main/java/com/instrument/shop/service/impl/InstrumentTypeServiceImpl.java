@@ -1,5 +1,6 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
@@ -11,6 +12,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.Map;
+import java.util.Objects;
 
 @Singleton
 public class InstrumentTypeServiceImpl implements InstrumentTypeService {
@@ -39,8 +41,10 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
     }
 
     @Override
-    public InstrumentType getById(Long aLong) {
-        return null;
+    public InstrumentType getById(Long id) {
+        Objects.requireNonNull(id, "Instrument type must not be null");
+        return repository.findByIdAndArchivedFalse(id)
+                .orElseThrow(() -> new EntityNotFoundException("Instrument type", id));
     }
 
     @Override

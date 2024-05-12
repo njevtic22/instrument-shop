@@ -11,6 +11,7 @@ import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.service.InstrumentTypeService;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.QueryParam;
@@ -80,5 +81,13 @@ public class InstrumentTypeController {
                 allTypes.totalElements(),
                 allTypes.totalPages()
         );
+    }
+
+    @GetMapping("/:id")
+    @MethodOrder(60)
+    @PreAuthorize
+    public InstrumentTypeViewDto getById(@PathParam("id") Long id) {
+        InstrumentType found = service.getById(id);
+        return mapper.toViewDto(found);
     }
 }
