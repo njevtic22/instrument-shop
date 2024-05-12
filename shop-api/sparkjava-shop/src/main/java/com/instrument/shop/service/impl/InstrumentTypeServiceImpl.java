@@ -48,8 +48,20 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
     }
 
     @Override
-    public InstrumentType update(Long aLong, InstrumentType changes) {
-        return null;
+    public InstrumentType update(Long id, InstrumentType changes) {
+        Objects.requireNonNull(changes, "Instrument type changes must not be null");
+
+        InstrumentType existing = getById(id);
+        if (!existing.getName().equals(changes.getName())) {
+            validateName(changes.getName());
+        }
+
+        InstrumentType updated = new InstrumentType(
+                existing.getId(),
+                changes.getName(),
+                false
+        );
+        return repository.save(updated);
     }
 
     @Override

@@ -6,6 +6,7 @@ import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.instrumentType.AddInstrumentTypeDto;
 import com.instrument.shop.dto.instrumentType.InstrumentTypeViewDto;
+import com.instrument.shop.dto.instrumentType.UpdateInstrumentTypeDto;
 import com.instrument.shop.mapper.InstrumentTypeMapper;
 import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.service.InstrumentTypeService;
@@ -14,6 +15,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PreAuthorize;
+import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
@@ -89,5 +91,14 @@ public class InstrumentTypeController {
     public InstrumentTypeViewDto getById(@PathParam("id") Long id) {
         InstrumentType found = service.getById(id);
         return mapper.toViewDto(found);
+    }
+
+    @PutMapping("/:id")
+    @MethodOrder(40)
+    @PreAuthorize("SALESMAN")
+    public InstrumentTypeViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateInstrumentTypeDto toUpdateDto) {
+        InstrumentType toUpdate = mapper.toModel(toUpdateDto);
+        InstrumentType updated = service.update(id, toUpdate);
+        return mapper.toViewDto(updated);
     }
 }
