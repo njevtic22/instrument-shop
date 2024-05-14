@@ -10,6 +10,7 @@ import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.service.AvailableInstrumentService;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -56,5 +57,12 @@ public class AvailableInstrumentController {
                 allInstruments.totalElements(),
                 allInstruments.totalPages()
         );
+    }
+
+    @GetMapping("/:id")
+    @MethodOrder(60)
+    public InstrumentViewDto getById(@PathParam("id") Long id) {
+        AvailableInstrument found = service.getById(id);
+        return mapper.toViewDto(found);
     }
 }

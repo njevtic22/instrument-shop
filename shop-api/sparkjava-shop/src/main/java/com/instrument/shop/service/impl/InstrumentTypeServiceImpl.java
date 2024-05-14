@@ -42,7 +42,7 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
 
     @Override
     public InstrumentType getById(Long id) {
-        Objects.requireNonNull(id, "Instrument type must not be null");
+        Objects.requireNonNull(id, "Id must not be null");
         return repository.findByIdAndArchivedFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException("Instrument type", id));
     }

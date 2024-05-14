@@ -92,7 +92,11 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
 
     @Override
     public Optional<AvailableInstrument> findByIdAndArchivedFalse(Long id) {
-        return Optional.empty();
+        String jpq = "select i from AvailableInstrument i where i.archived = false and i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        Optional<AvailableInstrument> found = repoUtil.findByUniqueProperty(em, jpq, AvailableInstrument.class, id);
+//        em.close();
+        return found;
     }
 
     @Override
