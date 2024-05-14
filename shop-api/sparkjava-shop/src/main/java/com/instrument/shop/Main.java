@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.instrument.shop.controller.AuthenticationController;
+import com.instrument.shop.controller.AvailableInstrumentController;
 import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.InstrumentTypeController;
 import com.instrument.shop.controller.LoggingController;
@@ -53,7 +54,8 @@ public class Main {
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class),
                 injector.getInstance(ImageController.class),
-                injector.getInstance(InstrumentTypeController.class)
+                injector.getInstance(InstrumentTypeController.class),
+                injector.getInstance(AvailableInstrumentController.class)
         );
         sparkCtx.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }
