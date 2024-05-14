@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "images")
-public class Image {
+public class Image implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "image_generator")
     @SequenceGenerator(name = "image_generator", sequenceName = "image_id_seq", allocationSize = 1)
@@ -49,6 +49,7 @@ public class Image {
         return Objects.hash(id);
     }
 
+    @Override
     public Long getId() {
         return id;
     }

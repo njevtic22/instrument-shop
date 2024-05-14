@@ -13,7 +13,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "instrument_types")
-public class InstrumentType {
+public class InstrumentType implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "instrument_type_generator")
     @SequenceGenerator(name = "instrument_type_generator", sequenceName = "instrument_type_id_seq", allocationSize = 1)
@@ -48,6 +48,7 @@ public class InstrumentType {
         return Objects.hash(id, name);
     }
 
+    @Override
     public Long getId() {
         return id;
     }

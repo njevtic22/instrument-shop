@@ -16,6 +16,8 @@ public interface InstrumentTypeRepository extends CrudRepository<Long, Instrumen
 
     Optional<InstrumentType> findByIdAndArchivedFalse(Long id);
 
+    boolean existsByIdAndArchivedFalse(Long id);
+
     boolean existsByName(String name);
 
     int archive(InstrumentType type);

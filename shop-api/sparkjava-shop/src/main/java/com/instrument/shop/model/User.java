@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_generator")
     @SequenceGenerator(name = "user_generator", sequenceName = "user_id_seq", allocationSize = 1)
@@ -89,6 +89,7 @@ public class User {
         return role.equals(Role.CUSTOMER);
     }
 
+    @Override
     public Long getId() {
         return id;
     }
