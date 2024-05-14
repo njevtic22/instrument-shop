@@ -169,6 +169,7 @@ public class FakeDatabaseGenerator {
                         (float) faker.number().numberBetween(100, 1000) + 0.99f,
                         Arrays.asList(instrumentImages),
                         10,
+                        false,
                         type
                 );
                 availableInstruments.put(instrument.getId(), instrument);

@@ -36,7 +36,7 @@ public class SqlUtil {
     }
 
     public static String toSqlInsert(AvailableInstrument instrument) {
-        return "insert into available_instruments (id, code, name, mark, description, price, quantity, type_id) values (" +
+        return "insert into available_instruments (id, code, name, mark, description, price, quantity, archived, type_id) values (" +
                 instrument.getId() + ", '" +
                 instrument.getCode() + "', '" +
                 instrument.getName() + "', '" +
@@ -44,6 +44,7 @@ public class SqlUtil {
                 instrument.getDescription() + "', " +
                 instrument.getPrice() + ", " +
                 instrument.getQuantity() + ", " +
+                instrument.isArchived() + ", " +
                 instrument.getType().getId() + ");";
     }
 
