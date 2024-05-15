@@ -3,6 +3,7 @@ package com.instrument.shop.mapper;
 import com.instrument.shop.dto.image.ImageViewDto;
 import com.instrument.shop.dto.instrument.AddInstrumentDto;
 import com.instrument.shop.dto.instrument.InstrumentViewDto;
+import com.instrument.shop.dto.instrument.UpdateInstrumentDto;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.model.InstrumentType;
@@ -32,6 +33,20 @@ public class InstrumentMapper {
                 addDto.getQuantity(),
                 false,
                 new InstrumentType(addDto.getTypeId(), "", false)
+        );
+    }
+
+    public AvailableInstrument toModel(UpdateInstrumentDto updateDto) {
+        return new AvailableInstrument(
+                updateDto.getCode(),
+                updateDto.getName(),
+                updateDto.getMark(),
+                updateDto.getDescription(),
+                updateDto.getPrice(),
+                null,
+                updateDto.getQuantity(),
+                false,
+                new InstrumentType(updateDto.getTypeId(), "", false)
         );
     }
 

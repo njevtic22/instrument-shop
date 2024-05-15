@@ -38,7 +38,7 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     public AvailableInstrument save(AvailableInstrument instrument) {
         EntityManager em = emf.createEntityManager();
         AvailableInstrument saved = repoUtil.save(em, instrument);
-        em.close();
+//        em.close();
         return saved;
     }
 

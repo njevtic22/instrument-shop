@@ -72,8 +72,32 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     }
 
     @Override
-    public AvailableInstrument update(Long aLong, AvailableInstrument changes) {
-        return null;
+    public AvailableInstrument update(Long id, AvailableInstrument changes) {
+        Objects.requireNonNull(changes, "Instrument changes must not be null");
+
+        AvailableInstrument existing = getById(id);
+        if (!existing.getCode().equals(changes.getCode())) {
+            validateCode(changes.getCode());
+        }
+        if (!existing.getDescription().equals(changes.getDescription())) {
+            validateDescription(changes.getDescription());
+        }
+
+        InstrumentType type = typeService.getById(changes.getType().getId());
+        AvailableInstrument updated = new AvailableInstrument(
+                existing.getId(),
+                changes.getCode(),
+                changes.getName(),
+                changes.getMark(),
+                changes.getDescription(),
+                changes.getPrice(),
+                existing.getImages(),
+                changes.getQuantity(),
+                existing.isArchived(),
+                type
+        );
+
+        return repository.save(updated);
     }
 
     @Override

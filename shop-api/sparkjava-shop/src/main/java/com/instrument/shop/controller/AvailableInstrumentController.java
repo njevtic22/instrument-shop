@@ -6,6 +6,7 @@ import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.instrument.AddInstrumentDto;
 import com.instrument.shop.dto.instrument.InstrumentViewDto;
+import com.instrument.shop.dto.instrument.UpdateInstrumentDto;
 import com.instrument.shop.mapper.InstrumentMapper;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.service.AvailableInstrumentService;
@@ -87,8 +88,18 @@ public class AvailableInstrumentController {
         return mapper.toViewDto(found);
     }
 
+    @PutMapping("/:id")
+    @MethodOrder(40)
+    @PreAuthorize("SALESMAN")
+    public InstrumentViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateInstrumentDto changesDto) {
+        AvailableInstrument changes = mapper.toModel(changesDto);
+        AvailableInstrument updated = service.update(id, changes);
+        return mapper.toViewDto(updated);
+    }
+
     @PutMapping("/:id/images")
     @MethodOrder(10)
+    @PreAuthorize("SALESMAN")
     public InstrumentViewDto addImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
         AvailableInstrument updated = service.addImages(id, imageIds);
         return mapper.toViewDto(updated);
@@ -97,6 +108,7 @@ public class AvailableInstrumentController {
     @DeleteMapping("/:id/images")
     @MethodOrder(5)
     @ResponseStatus(204)
+    @PreAuthorize("SALESMAN")
     public void deleteImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
         service.deleteImages(id, imageIds);
     }
