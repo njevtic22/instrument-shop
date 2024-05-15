@@ -37,6 +37,11 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    public List<Image> getAllById(Iterable<Long> ids) {
+        return repository.findAllByIdAndArchivedFalse(ids);
+    }
+
+    @Override
     public void delete(Long id) {
         Objects.requireNonNull(id, "Id must not be null");
 

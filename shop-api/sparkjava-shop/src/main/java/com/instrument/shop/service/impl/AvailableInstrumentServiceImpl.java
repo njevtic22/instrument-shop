@@ -7,14 +7,18 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.AvailableInstrument;
+import com.instrument.shop.model.Image;
 import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.repository.AvailableInstrumentRepository;
 import com.instrument.shop.service.AvailableInstrumentService;
+import com.instrument.shop.service.ImageService;
 import com.instrument.shop.service.InstrumentTypeService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -22,11 +26,13 @@ import java.util.Objects;
 public class AvailableInstrumentServiceImpl implements AvailableInstrumentService {
     private final AvailableInstrumentRepository repository;
     private final InstrumentTypeService typeService;
+    private final ImageService imageService;
 
     @Inject
-    public AvailableInstrumentServiceImpl(AvailableInstrumentRepository repository, InstrumentTypeService typeService) {
+    public AvailableInstrumentServiceImpl(AvailableInstrumentRepository repository, InstrumentTypeService typeService, ImageService imageService) {
         this.repository = repository;
         this.typeService = typeService;
+        this.imageService = imageService;
     }
 
     @Override
@@ -86,5 +92,14 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
         if (description.length() > 1000) {
             throw new PropertyLengthException("Description", 1000);
         }
+    }
+
+    @Override
+    public AvailableInstrument addImages(Long instrumentId, Long[] imageIds) {
+        AvailableInstrument found = getById(instrumentId);
+        List<Image> foundImages = imageService.getAllById(Arrays.asList(imageIds));
+
+        found.getImages().addAll(foundImages);
+        return repository.save(found);
     }
 }

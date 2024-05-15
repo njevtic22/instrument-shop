@@ -14,6 +14,7 @@ import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PreAuthorize;
+import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
@@ -83,5 +84,12 @@ public class AvailableInstrumentController {
     public InstrumentViewDto getById(@PathParam("id") Long id) {
         AvailableInstrument found = service.getById(id);
         return mapper.toViewDto(found);
+    }
+
+    @PutMapping("/:id/images")
+    @MethodOrder(10)
+    public InstrumentViewDto addImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
+        AvailableInstrument updated = service.addImages(id, imageIds);
+        return mapper.toViewDto(updated);
     }
 }
