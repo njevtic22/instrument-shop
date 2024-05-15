@@ -124,8 +124,11 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
         AvailableInstrument found = getById(instrumentId);
         List<Image> foundImages = imageService.getAllById(Arrays.asList(imageIds));
 
-        found.getImages().addAll(foundImages);
-        return repository.save(found);
+        if (!foundImages.isEmpty()) {
+            found.getImages().addAll(foundImages);
+            return repository.save(found);
+        }
+        return found;
     }
 
     @Override
@@ -140,8 +143,10 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
 
         for (Long imageId : imageIds) {
             Integer index = indexes.get(imageId);
-            images.remove(index.intValue());
-            imageService.delete(imageId);
+            if (index != null) {
+                images.remove(index.intValue());
+                imageService.delete(imageId);
+            }
         }
 
         repository.save(found);
