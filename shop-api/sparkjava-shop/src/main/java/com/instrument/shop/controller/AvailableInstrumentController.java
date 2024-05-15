@@ -9,6 +9,7 @@ import com.instrument.shop.dto.instrument.InstrumentViewDto;
 import com.instrument.shop.mapper.InstrumentMapper;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.service.AvailableInstrumentService;
+import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
@@ -91,5 +92,12 @@ public class AvailableInstrumentController {
     public InstrumentViewDto addImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
         AvailableInstrument updated = service.addImages(id, imageIds);
         return mapper.toViewDto(updated);
+    }
+
+    @DeleteMapping("/:id/images")
+    @MethodOrder(5)
+    @ResponseStatus(204)
+    public void deleteImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
+        service.deleteImages(id, imageIds);
     }
 }

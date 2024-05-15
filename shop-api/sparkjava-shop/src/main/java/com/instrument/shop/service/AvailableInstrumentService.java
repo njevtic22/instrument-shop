@@ -11,4 +11,6 @@ public interface AvailableInstrumentService extends CrudService<Long, AvailableI
     void validateDescription(String description);
 
     AvailableInstrument addImages(Long instrumentId, Long[] imageIds);
+
+    void deleteImages(Long instrumentId, Long[] imageIds);
 }

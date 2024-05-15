@@ -18,6 +18,7 @@ import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -101,5 +102,24 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
 
         found.getImages().addAll(foundImages);
         return repository.save(found);
+    }
+
+    @Override
+    public void deleteImages(Long instrumentId, Long[] imageIds) {
+        AvailableInstrument found = getById(instrumentId);
+        List<Image> images = found.getImages();
+        HashMap<Long, Integer> indexes = new HashMap<>();
+        for (int i = 0; i < images.size(); i++) {
+            Image image = images.get(i);
+            indexes.put(image.getId(), i);
+        }
+
+        for (Long imageId : imageIds) {
+            Integer index = indexes.get(imageId);
+            images.remove(index.intValue());
+            imageService.delete(imageId);
+        }
+
+        repository.save(found);
     }
 }
