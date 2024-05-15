@@ -56,7 +56,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
+        String filterPart = jpqlUtil.getValidUserFilter(filterData, "u");
         if (!filterPart.isEmpty()) {
             filterPart = "where " + filterPart.substring(5);
         }
@@ -112,7 +112,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
+        String filterPart = jpqlUtil.getValidUserFilter(filterData, "u");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select u from User u where u.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from User u where u.archived = false" + filterPart;

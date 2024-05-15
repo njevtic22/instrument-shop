@@ -74,8 +74,8 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
 
     @Override
     public PaginatedResponse<AvailableInstrument> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "i");
-        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
+        String filterPart = jpqlUtil.getValidAInstrumentFilter(filterData, "i");
+        String orderBy = getValidOrderBy(sort);
         String jpq = "select i from AvailableInstrument i where i.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from AvailableInstrument i where i.archived = false" + filterPart;
 
@@ -132,5 +132,13 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
         int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "available instruments", "archive by id");
         em.close();
         return rowsAffected;
+    }
+
+    private String getValidOrderBy(Sort sort) {
+        String sortStr = sort.toString();
+        if (sortStr.contains("type")) {
+            sortStr = sortStr.replaceAll("type", "type.name");
+        }
+        return jpqlUtil.getValidOrderBy(sortStr);
     }
 }
