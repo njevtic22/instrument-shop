@@ -35,8 +35,11 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
-    public AvailableInstrument save(AvailableInstrument entity) {
-        return null;
+    public AvailableInstrument save(AvailableInstrument instrument) {
+        EntityManager em = emf.createEntityManager();
+        AvailableInstrument saved = repoUtil.save(em, instrument);
+        em.close();
+        return saved;
     }
 
     @Override
@@ -101,6 +104,10 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
 
     @Override
     public boolean existsByCode(String code) {
-        return false;
+        String jpq = "select case when (count(*) = 1) then true else false end from AvailableInstrument i where i.code = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, code);
+        em.close();
+        return exists;
     }
 }

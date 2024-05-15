@@ -4,6 +4,7 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
+import com.instrument.shop.dto.instrument.AddInstrumentDto;
 import com.instrument.shop.dto.instrument.InstrumentViewDto;
 import com.instrument.shop.mapper.InstrumentMapper;
 import com.instrument.shop.model.AvailableInstrument;
@@ -11,11 +12,18 @@ import com.instrument.shop.service.AvailableInstrumentService;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
+import com.sparkjava.context.annotation.PostMapping;
+import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
+import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
+import spark.Request;
+import spark.Response;
 
 import java.util.List;
 import java.util.Map;
@@ -32,6 +40,17 @@ public class AvailableInstrumentController {
         this.service = service;
         this.mapper = mapper;
         this.pagingFilteringUtil = pagingFilteringUtil;
+    }
+
+    @PostMapping
+    @MethodOrder(100)
+    @ResponseStatus(201)
+    @PreAuthorize("SALESMAN")
+    public void add(Request request, Response response, @Valid @RequestBody AddInstrumentDto toAddDto) {
+        AvailableInstrument toAdd = mapper.toModel(toAddDto);
+        AvailableInstrument added = service.add(toAdd);
+
+        response.header("location", request.url() + "/" + added.getId());
     }
 
     @GetMapping

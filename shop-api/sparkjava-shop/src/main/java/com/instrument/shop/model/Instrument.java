@@ -1,5 +1,6 @@
 package com.instrument.shop.model;
 
+import com.instrument.shop.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -47,10 +48,10 @@ public abstract class Instrument implements DatabaseEntity {
 
     public Instrument(Long id, String code, String name, String mark, String description, float price, List<Image> images) {
         this.id = id;
-        this.code = code;
-        this.name = name;
-        this.mark = mark;
-        this.description = description;
+        this.code = Strings.requireNonBlank(code, "Code must not be blank");
+        this.name = Strings.requireNonBlank(name, "Name must not be blank");
+        this.mark = Strings.requireNonBlank(mark, "Mark must not be blank");
+        this.description = Strings.requireNonBlank(description, "Description must not be blank");
         this.price = price;
         this.images = images;
     }

@@ -1,9 +1,11 @@
 package com.instrument.shop.mapper;
 
 import com.instrument.shop.dto.image.ImageViewDto;
+import com.instrument.shop.dto.instrument.AddInstrumentDto;
 import com.instrument.shop.dto.instrument.InstrumentViewDto;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.model.Image;
+import com.instrument.shop.model.InstrumentType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -17,6 +19,20 @@ public class InstrumentMapper {
     @Inject
     public InstrumentMapper(ImageMapper imageMapper) {
         this.imageMapper = imageMapper;
+    }
+
+    public AvailableInstrument toModel(AddInstrumentDto addDto) {
+        return new AvailableInstrument(
+                addDto.getCode(),
+                addDto.getName(),
+                addDto.getMark(),
+                addDto.getDescription(),
+                addDto.getPrice(),
+                null,
+                addDto.getQuantity(),
+                false,
+                new InstrumentType(addDto.getTypeId(), "", false)
+        );
     }
 
     public InstrumentViewDto toViewDto(AvailableInstrument instrument) {
