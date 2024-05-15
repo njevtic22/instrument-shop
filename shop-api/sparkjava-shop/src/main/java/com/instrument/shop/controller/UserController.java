@@ -124,9 +124,9 @@ public class UserController {
 
     @PutMapping("/image")
     @MethodOrder(45)
-    @ResponseStatus(204)
-    public void changeImage(@Authenticated User authenticated, @QueryParam(value = "imageId", defaultValue = "-1") Long imageId) {
-        service.changeImage(authenticated, imageId);
+    public UserViewDto updateImage(@Authenticated User authenticated, @QueryParam(value = "imageId", defaultValue = "-1") Long imageId) {
+        User updated = service.updateImage(authenticated, imageId);
+        return mapper.toViewDto(updated);
     }
 
     @GetMapping("/:id")

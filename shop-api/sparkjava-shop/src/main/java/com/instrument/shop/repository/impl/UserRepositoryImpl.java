@@ -208,7 +208,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public int updateUserImage(Long userId, Long imageId) {
-        String jpq = "update User u set u.image = (select i from Image i where i.id = ?1) where u.id = ?2";
+        String jpq = "update User u set u.image = (select i from Image i where i.archived = false and i.id = ?1) where u.id = ?2";
         EntityManager em = emf.createEntityManager();
         int rowsAffected = repoUtil.update(em, jpq, Map.of(1, imageId, 2, userId), 1, "users", "update image");
         em.close();

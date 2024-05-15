@@ -140,13 +140,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeImage(User authenticated, Long imageId) {
+    public User updateImage(User authenticated, Long imageId) {
         Image existingImage = authenticated.getImage();
         if (existingImage != null) {
             imageService.delete(existingImage.getId());
         }
 
         repository.updateUserImage(authenticated.getId(), imageId);
+        return repository.findByIdAndArchivedFalse(authenticated.getId()).get();
     }
 
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
