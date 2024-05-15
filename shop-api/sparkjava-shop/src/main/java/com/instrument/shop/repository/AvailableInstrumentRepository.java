@@ -16,5 +16,11 @@ public interface AvailableInstrumentRepository extends CrudRepository<Long, Avai
 
     Optional<AvailableInstrument> findByIdAndArchivedFalse(Long id);
 
+    boolean existsByIdAndArchivedFalse(Long id);
+
     boolean existsByCode(String code);
+
+    int archive(AvailableInstrument instrument);
+
+    int archiveById(Long id);
 }

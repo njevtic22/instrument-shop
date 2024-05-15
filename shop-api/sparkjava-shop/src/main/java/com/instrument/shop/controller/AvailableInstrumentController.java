@@ -97,6 +97,14 @@ public class AvailableInstrumentController {
         return mapper.toViewDto(updated);
     }
 
+    @DeleteMapping("/:id")
+    @MethodOrder(20)
+    @ResponseStatus(204)
+    @PreAuthorize("SALESMAN")
+    public void delete(@PathParam("id") Long id) {
+        service.delete(id);
+    }
+
     @PutMapping("/:id/images")
     @MethodOrder(10)
     @PreAuthorize("SALESMAN")

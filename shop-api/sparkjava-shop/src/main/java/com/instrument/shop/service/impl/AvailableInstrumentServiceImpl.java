@@ -68,7 +68,7 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     public AvailableInstrument getById(Long id) {
         Objects.requireNonNull(id, "Id must not be null");
         return repository.findByIdAndArchivedFalse(id)
-                .orElseThrow(() -> new EntityNotFoundException("Available instrument", id));
+                .orElseThrow(() -> new EntityNotFoundException("Instrument", id));
     }
 
     @Override
@@ -101,8 +101,14 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     }
 
     @Override
-    public void delete(Long aLong) {
+    public void delete(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
 
+        if (!repository.existsByIdAndArchivedFalse(id)) {
+            throw new EntityNotFoundException("Instrument", id);
+        }
+
+        repository.archiveById(id);
     }
 
     @Override

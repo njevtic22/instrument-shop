@@ -103,11 +103,34 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
+    public boolean existsByIdAndArchivedFalse(Long id) {
+        String jpq = "select case when(count(*) = 1) then true else false end from AvailableInstrument i where i.archived = false and i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
+        em.close();
+        return exists;
+    }
+
+    @Override
     public boolean existsByCode(String code) {
         String jpq = "select case when (count(*) = 1) then true else false end from AvailableInstrument i where i.code = ?1";
         EntityManager em = emf.createEntityManager();
         boolean exists = repoUtil.existsByUniqueProperty(em, jpq, code);
         em.close();
         return exists;
+    }
+
+    @Override
+    public int archive(AvailableInstrument instrument) {
+        return archiveById(instrument.getId());
+    }
+
+    @Override
+    public int archiveById(Long id) {
+        String jpq = "update AvailableInstrument i set i.archived = true where i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "available instruments", "archive by id");
+        em.close();
+        return rowsAffected;
     }
 }
