@@ -8,10 +8,12 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -47,13 +49,19 @@ public class User implements DatabaseEntity {
     @OneToOne
     private Image image;
 
+    @OneToMany
+    private List<BoughtInstrument> bought;
+
+    @OneToMany
+    private List<AvailableInstrument> cart;
+
     public User() { }
 
-    public User(String name, String surname, String email, String username, String password, boolean archived, Role role, Image image) {
-        this(null, name, surname, email, username, password, archived, role, image);
+    public User(String name, String surname, String email, String username, String password, boolean archived, Role role, Image image, List<BoughtInstrument> bought, List<AvailableInstrument> cart) {
+        this(null, name, surname, email, username, password, archived, role, image, bought, cart);
     }
 
-    public User(Long id, String name, String surname, String email, String username, String password, boolean archived, Role role, Image image) {
+    public User(Long id, String name, String surname, String email, String username, String password, boolean archived, Role role, Image image, List<BoughtInstrument> bought, List<AvailableInstrument> cart) {
         this.id = id;
         this.name = Strings.requireNonBlank(name, "Name must not be blank");
         this.surname = Strings.requireNonBlank(surname, "Surname must not be blank");
@@ -63,6 +71,8 @@ public class User implements DatabaseEntity {
         this.archived = archived;
         this.role = role;
         this.image = image;
+        this.bought = bought;
+        this.cart = cart;
     }
 
     @Override
@@ -124,5 +134,13 @@ public class User implements DatabaseEntity {
 
     public Image getImage() {
         return image;
+    }
+
+    public List<BoughtInstrument> getBought() {
+        return bought;
+    }
+
+    public List<AvailableInstrument> getCart() {
+        return cart;
     }
 }

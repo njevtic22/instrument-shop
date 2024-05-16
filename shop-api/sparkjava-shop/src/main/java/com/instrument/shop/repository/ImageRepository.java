@@ -10,6 +10,8 @@ import java.util.List;
 public interface ImageRepository {
     List<Image> saveAll(Iterable<Image> images);
 
+    List<Image> findAllByIdAndArchivedFalse(Iterable<Long> ids);
+
     boolean existsByIdAndArchivedFalse(Long id);
 
     int archive(Image image);

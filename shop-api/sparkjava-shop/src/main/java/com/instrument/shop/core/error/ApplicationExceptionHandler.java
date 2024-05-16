@@ -3,6 +3,7 @@ package com.instrument.shop.core.error;
 import com.instrument.shop.core.error.exception.BlankStringException;
 import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.InvalidUsernameException;
+import com.instrument.shop.core.error.exception.PropertyLengthException;
 import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
@@ -40,6 +41,7 @@ public class ApplicationExceptionHandler {
             UniquePropertyException.class,
             BlankStringException.class,
             InvalidUsernameException.class,
+            PropertyLengthException.class,
             JwtException.class
     })
     public ApiError handleBadRequest(RuntimeException ex) {

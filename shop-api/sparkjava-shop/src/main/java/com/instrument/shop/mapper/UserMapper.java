@@ -27,6 +27,8 @@ public class UserMapper {
                 addUserDto.getPassword(),
                 false,
                 Role.valueOf(addUserDto.getRole()),
+                null,
+                null,
                 null
         );
     }
@@ -39,6 +41,8 @@ public class UserMapper {
                 updateUserDto.getUsername(),
                 "",
                 false,
+                null,
+                null,
                 null,
                 null
         );
@@ -53,6 +57,8 @@ public class UserMapper {
                 registerUserDto.getPassword(),
                 false,
                 Role.CUSTOMER,
+                null,
+                null,
                 null
         );
     }

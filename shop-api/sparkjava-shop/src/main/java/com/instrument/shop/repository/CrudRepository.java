@@ -9,19 +9,17 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface CrudRepository<ID, T> {
-    long count();
-
     T save(T entity);
 
     List<T> saveAll(Iterable<T> entities);
 
-    PaginatedResponse<T> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<T> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 
-    Optional<T> findById(ID id);
+    Optional<T> findByIdAndArchivedFalse(ID id);
 
-    boolean existsById(ID id);
+    boolean existsByIdAndArchivedFalse(ID id);
 
-    int delete(T entity);
+    int archive(T entity);
 
-    int deleteById(ID id);
+    int archiveById(ID id);
 }

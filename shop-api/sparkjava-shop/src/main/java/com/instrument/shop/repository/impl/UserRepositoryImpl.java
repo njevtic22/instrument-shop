@@ -30,15 +30,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public long count() {
-        String jpq = "select count(*) from User u";
-        EntityManager em = emf.createEntityManager();
-        long counted = repoUtil.count(em, jpq);
-        em.close();
-        return counted;
-    }
-
-    @Override
     public User save(User user) {
         EntityManager em = emf.createEntityManager();
         User saved = repoUtil.save(em, user);
@@ -55,64 +46,8 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
-        if (!filterPart.isEmpty()) {
-            filterPart = "where " + filterPart.substring(5);
-        }
-        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
-        String jpq = "select u from User u " + filterPart + orderBy;
-        String countQuery = "select count(*) from User u " + filterPart;
-
-        EntityManager em = emf.createEntityManager();
-        PaginatedResponse<User> allUsers = repoUtil.findAll(
-                em,
-                jpq,
-                countQuery,
-                User.class,
-                !filterPart.isEmpty(),
-                filterData,
-                pageRequest
-        );
-        em.close();
-        return allUsers;
-    }
-
-    @Override
-    public Optional<User> findById(Long id) {
-        String jpq = "select u from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        Optional<User> found = repoUtil.findByUniqueProperty(em, jpq, User.class, id);
-        em.close();
-        return found;
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
-        em.close();
-        return exists;
-    }
-
-    @Override
-    public int delete(User user) {
-        return deleteById(user.getId());
-    }
-
-    @Override
-    public int deleteById(Long id) {
-        String jpq = "delete from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "users", "delete by id");
-        em.close();
-        return rowsAffected;
-    }
-
-    @Override
     public PaginatedResponse<User> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "u");
+        String filterPart = jpqlUtil.getValidUserFilter(filterData, "u");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select u from User u where u.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from User u where u.archived = false" + filterPart;
@@ -208,7 +143,7 @@ public class UserRepositoryImpl implements UserRepository {
 
     @Override
     public int updateUserImage(Long userId, Long imageId) {
-        String jpq = "update User u set u.image = (select i from Image i where i.id = ?1) where u.id = ?2";
+        String jpq = "update User u set u.image = (select i from Image i where i.archived = false and i.id = ?1) where u.id = ?2";
         EntityManager em = emf.createEntityManager();
         int rowsAffected = repoUtil.update(em, jpq, Map.of(1, imageId, 2, userId), 1, "users", "update image");
         em.close();

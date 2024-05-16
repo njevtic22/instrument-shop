@@ -53,6 +53,8 @@ public class UserServiceImpl implements UserService {
                 encoder.encode(newUser.getPassword()),
                 false,
                 newUser.getRole(),
+                null,
+                null,
                 null
         );
 
@@ -101,7 +103,9 @@ public class UserServiceImpl implements UserService {
                 existing.getPassword(),
                 existing.isArchived(),
                 existing.getRole(),
-                existing.getImage()
+                existing.getImage(),
+                existing.getBought(),
+                existing.getCart()
         );
 
         return repository.save(updated);
@@ -140,13 +144,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void changeImage(User authenticated, Long imageId) {
+    public User updateImage(User authenticated, Long imageId) {
         Image existingImage = authenticated.getImage();
         if (existingImage != null) {
             imageService.delete(existingImage.getId());
         }
 
         repository.updateUserImage(authenticated.getId(), imageId);
+        return repository.findByIdAndArchivedFalse(authenticated.getId()).get();
     }
 
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {

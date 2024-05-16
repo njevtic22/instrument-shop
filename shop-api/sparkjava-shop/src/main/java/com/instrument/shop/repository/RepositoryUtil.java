@@ -92,6 +92,14 @@ public class RepositoryUtil {
         return savedEntities;
     }
 
+    private String getCorrectValue(String key, String value) {
+        if (key.endsWith("Start") || key.endsWith("End")) {
+            return value;
+        } else {
+            return "%" + value + "%";
+        }
+    }
+
     public <T extends DatabaseEntity> PaginatedResponse<T> findAll(
             EntityManager em,
             String jpq,
@@ -115,8 +123,10 @@ public class RepositoryUtil {
 
             if (hasFilter) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
-                    selectAll.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
-                    count.setParameter(entry.getKey() , "%" + entry.getValue() + "%");
+                    String key = entry.getKey();
+                    String value = getCorrectValue(key, entry.getValue());
+                    selectAll.setParameter(key, value);
+                    count.setParameter(key, value);
                 }
             }
 

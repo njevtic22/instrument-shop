@@ -30,49 +30,25 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
-    public long count() {
-        return 0;
+    public AvailableInstrument save(AvailableInstrument instrument) {
+        EntityManager em = emf.createEntityManager();
+        AvailableInstrument saved = repoUtil.save(em, instrument);
+//        em.close();
+        return saved;
     }
 
     @Override
-    public AvailableInstrument save(AvailableInstrument entity) {
-        return null;
-    }
-
-    @Override
-    public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> entities) {
-        return null;
-    }
-
-    @Override
-    public PaginatedResponse<AvailableInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        return null;
-    }
-
-    @Override
-    public Optional<AvailableInstrument> findById(Long aLong) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean existsById(Long aLong) {
-        return false;
-    }
-
-    @Override
-    public int delete(AvailableInstrument entity) {
-        return 0;
-    }
-
-    @Override
-    public int deleteById(Long aLong) {
-        return 0;
+    public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> instruments) {
+        EntityManager em = emf.createEntityManager();
+        List<AvailableInstrument> saved = repoUtil.saveAll(em, instruments);
+        em.close();
+        return saved;
     }
 
     @Override
     public PaginatedResponse<AvailableInstrument> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "i");
-        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
+        String filterPart = jpqlUtil.getValidAInstrumentFilter(filterData, "i");
+        String orderBy = getValidOrderBy(sort);
         String jpq = "select i from AvailableInstrument i where i.archived = false" + filterPart + orderBy;
         String countQuery = "select count(*) from AvailableInstrument i where i.archived = false" + filterPart;
 
@@ -92,11 +68,50 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
 
     @Override
     public Optional<AvailableInstrument> findByIdAndArchivedFalse(Long id) {
-        return Optional.empty();
+        String jpq = "select i from AvailableInstrument i where i.archived = false and i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        Optional<AvailableInstrument> found = repoUtil.findByUniqueProperty(em, jpq, AvailableInstrument.class, id);
+//        em.close();
+        return found;
+    }
+
+    @Override
+    public boolean existsByIdAndArchivedFalse(Long id) {
+        String jpq = "select case when(count(*) = 1) then true else false end from AvailableInstrument i where i.archived = false and i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
+        em.close();
+        return exists;
     }
 
     @Override
     public boolean existsByCode(String code) {
-        return false;
+        String jpq = "select case when (count(*) = 1) then true else false end from AvailableInstrument i where i.code = ?1";
+        EntityManager em = emf.createEntityManager();
+        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, code);
+        em.close();
+        return exists;
+    }
+
+    @Override
+    public int archive(AvailableInstrument instrument) {
+        return archiveById(instrument.getId());
+    }
+
+    @Override
+    public int archiveById(Long id) {
+        String jpq = "update AvailableInstrument i set i.archived = true where i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "available instruments", "archive by id");
+        em.close();
+        return rowsAffected;
+    }
+
+    private String getValidOrderBy(Sort sort) {
+        String sortStr = sort.toString();
+        if (sortStr.contains("type")) {
+            sortStr = sortStr.replaceAll("type", "type.name");
+        }
+        return jpqlUtil.getValidOrderBy(sortStr);
     }
 }

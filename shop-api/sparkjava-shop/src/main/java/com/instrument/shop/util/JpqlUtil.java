@@ -30,6 +30,22 @@ public class JpqlUtil {
         for (Map.Entry<String, String> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
+            filterPart.append(" and lower(")
+                    .append(columnPrefix)
+                    .append(".")
+                    .append(key)
+                    .append(") like lower(:")
+                    .append(key)
+                    .append(")");
+        }
+        return getValidJpqlPart(filterPart.toString());
+    }
+
+    public String getValidUserFilter(Map<String, String> filterData, String columnPrefix) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+
             filterPart.append(" and lower(");
             if (key.equals("role")) {
                 filterPart.append("cast(")
@@ -45,6 +61,49 @@ public class JpqlUtil {
             filterPart.append(") like lower(:")
                     .append(key)
                     .append(")");
+        }
+        return getValidJpqlPart(filterPart.toString());
+    }
+
+    public String getValidAInstrumentFilter(Map<String, String> filterData, String columnPrefix) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+
+            filterPart.append(" and ");
+            if (key.equals("quantityStart")) {
+                filterPart.append(columnPrefix)
+                        .append(".quantity >=");
+
+            } else if (key.equals("quantityEnd")) {
+                filterPart.append(columnPrefix)
+                        .append(".quantity <=");
+
+            } else if (key.equals("priceStart")) {
+                filterPart.append(columnPrefix)
+                        .append(".price >=");
+
+            } else if (key.equals("priceEnd")) {
+                filterPart.append(columnPrefix)
+                        .append(".price <=");
+
+            } else {
+                filterPart.append("lower(");
+                if (key.equals("type")) {
+                    filterPart.append(columnPrefix)
+                            .append(".type.name");
+                } else {
+                    filterPart.append(columnPrefix)
+                            .append(".")
+                            .append(key);
+                }
+                filterPart.append(") like lower(:")
+                        .append(key)
+                        .append(")");
+                continue;
+            }
+            filterPart.append(" :")
+                    .append(key);
         }
         return getValidJpqlPart(filterPart.toString());
     }
