@@ -30,15 +30,6 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
-    public long count() {
-        String jpq = "select count(*) from InstrumentType it";
-        EntityManager em = emf.createEntityManager();
-        long counted = repoUtil.count(em, jpq);
-        em.close();
-        return counted;
-    }
-
-    @Override
     public InstrumentType save(InstrumentType type) {
         EntityManager em = emf.createEntityManager();
         InstrumentType saved = repoUtil.save(em, type);
@@ -52,62 +43,6 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
         List<InstrumentType> saved = repoUtil.saveAll(em, types);
         em.close();
         return saved;
-    }
-
-    @Override
-    public PaginatedResponse<InstrumentType> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidFilter(filterData, "it");
-        if (!filterPart.isEmpty()) {
-            filterPart = "where " + filterPart.substring(5);
-        }
-        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
-        String jpq = "select it from InstrumentType it " + filterPart + orderBy;
-        String countQuery = "select count(*) from InstrumentType it " + filterPart;
-
-        EntityManager em = emf.createEntityManager();
-        PaginatedResponse<InstrumentType> allTypes = repoUtil.findAll(
-                em,
-                jpq,
-                countQuery,
-                InstrumentType.class,
-                !filterPart.isEmpty(),
-                filterData,
-                pageRequest
-        );
-        em.close();
-        return allTypes;
-    }
-
-    @Override
-    public Optional<InstrumentType> findById(Long id) {
-        String jpq = "select it from InstrumentType it where it.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        Optional<InstrumentType> found = repoUtil.findByUniqueProperty(em, jpq, InstrumentType.class, id);
-        em.close();
-        return found;
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        String jpq = "select case when (count(*) = 1) then true else false end from InstrumentType it where it.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
-        em.close();
-        return exists;
-    }
-
-    @Override
-    public int delete(InstrumentType type) {
-        return deleteById(type.getId());
-    }
-
-    @Override
-    public int deleteById(Long id) {
-        String jpq = "delete from InstrumentType it where it.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "instrument types", "delete by id");
-        em.close();
-        return rowsAffected;
     }
 
     @Override

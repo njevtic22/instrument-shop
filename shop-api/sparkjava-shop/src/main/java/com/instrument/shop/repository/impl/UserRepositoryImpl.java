@@ -30,15 +30,6 @@ public class UserRepositoryImpl implements UserRepository {
     }
 
     @Override
-    public long count() {
-        String jpq = "select count(*) from User u";
-        EntityManager em = emf.createEntityManager();
-        long counted = repoUtil.count(em, jpq);
-        em.close();
-        return counted;
-    }
-
-    @Override
     public User save(User user) {
         EntityManager em = emf.createEntityManager();
         User saved = repoUtil.save(em, user);
@@ -52,62 +43,6 @@ public class UserRepositoryImpl implements UserRepository {
         List<User> saved = repoUtil.saveAll(em, users);
         em.close();
         return saved;
-    }
-
-    @Override
-    public PaginatedResponse<User> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        String filterPart = jpqlUtil.getValidUserFilter(filterData, "u");
-        if (!filterPart.isEmpty()) {
-            filterPart = "where " + filterPart.substring(5);
-        }
-        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
-        String jpq = "select u from User u " + filterPart + orderBy;
-        String countQuery = "select count(*) from User u " + filterPart;
-
-        EntityManager em = emf.createEntityManager();
-        PaginatedResponse<User> allUsers = repoUtil.findAll(
-                em,
-                jpq,
-                countQuery,
-                User.class,
-                !filterPart.isEmpty(),
-                filterData,
-                pageRequest
-        );
-        em.close();
-        return allUsers;
-    }
-
-    @Override
-    public Optional<User> findById(Long id) {
-        String jpq = "select u from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        Optional<User> found = repoUtil.findByUniqueProperty(em, jpq, User.class, id);
-        em.close();
-        return found;
-    }
-
-    @Override
-    public boolean existsById(Long id) {
-        String jpq = "select case when (count(*) = 1) then true else false end from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        boolean exists = repoUtil.existsByUniqueProperty(em, jpq, id);
-        em.close();
-        return exists;
-    }
-
-    @Override
-    public int delete(User user) {
-        return deleteById(user.getId());
-    }
-
-    @Override
-    public int deleteById(Long id) {
-        String jpq = "delete from User u where u.id = ?1";
-        EntityManager em = emf.createEntityManager();
-        int rowsAffected = repoUtil.updateByUniqueProperty(em, jpq, id, "users", "delete by id");
-        em.close();
-        return rowsAffected;
     }
 
     @Override

@@ -30,11 +30,6 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
-    public long count() {
-        return 0;
-    }
-
-    @Override
     public AvailableInstrument save(AvailableInstrument instrument) {
         EntityManager em = emf.createEntityManager();
         AvailableInstrument saved = repoUtil.save(em, instrument);
@@ -45,31 +40,6 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     @Override
     public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> entities) {
         return null;
-    }
-
-    @Override
-    public PaginatedResponse<AvailableInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        return null;
-    }
-
-    @Override
-    public Optional<AvailableInstrument> findById(Long aLong) {
-        return Optional.empty();
-    }
-
-    @Override
-    public boolean existsById(Long aLong) {
-        return false;
-    }
-
-    @Override
-    public int delete(AvailableInstrument entity) {
-        return 0;
-    }
-
-    @Override
-    public int deleteById(Long aLong) {
-        return 0;
     }
 
     @Override
