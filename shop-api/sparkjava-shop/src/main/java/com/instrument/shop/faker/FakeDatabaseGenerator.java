@@ -60,10 +60,10 @@ public class FakeDatabaseGenerator {
 
     private final String encodedPassword = "$2a$10$JCYrt8QGHg4suBXWiRgjKu93h5DCq3yFDXMDsTY/Itkgeu3h3pCE6";
 
-    private final PrintWriter userOut = new PrintWriter(new FileWriter("./src/main/resources/users-generated.sql"));
-    private final PrintWriter imOut = new PrintWriter(new FileWriter("./src/main/resources/images-generated.sql"));
-    private final PrintWriter instrumentOut = new PrintWriter(new FileWriter("./src/main/resources/instruments-generated.sql"));
-    private final PrintWriter boughtOut = new PrintWriter(new FileWriter("./src/main/resources/bought-instruments-generated.sql"));
+    private final PrintWriter userOut = new PrintWriter(new FileWriter("./src/main/resources/database/users-generated.sql"));
+    private final PrintWriter imOut = new PrintWriter(new FileWriter("./src/main/resources/database/images-generated.sql"));
+    private final PrintWriter instrumentOut = new PrintWriter(new FileWriter("./src/main/resources/database/instruments-generated.sql"));
+    private final PrintWriter boughtOut = new PrintWriter(new FileWriter("./src/main/resources/database/bought-instruments-generated.sql"));
 
     private final CycleIterator<String> imageUrl = getImageUrlIterator();
     private final Iterator<String> instrumentType = getInstrumentTypeIterator();
