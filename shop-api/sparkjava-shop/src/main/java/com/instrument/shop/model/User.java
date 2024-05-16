@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
@@ -49,10 +50,10 @@ public class User implements DatabaseEntity {
     @OneToOne
     private Image image;
 
-    @OneToMany
+    @OneToMany(mappedBy = "owner")
     private List<BoughtInstrument> bought;
 
-    @OneToMany
+    @ManyToMany
     private List<AvailableInstrument> cart;
 
     public User() { }
