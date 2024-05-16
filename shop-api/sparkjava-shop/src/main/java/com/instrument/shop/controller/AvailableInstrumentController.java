@@ -5,7 +5,7 @@ import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.dto.instrument.AddInstrumentDto;
-import com.instrument.shop.dto.instrument.InstrumentViewDto;
+import com.instrument.shop.dto.instrument.AvailableViewDto;
 import com.instrument.shop.dto.instrument.UpdateInstrumentDto;
 import com.instrument.shop.mapper.InstrumentMapper;
 import com.instrument.shop.model.AvailableInstrument;
@@ -58,7 +58,7 @@ public class AvailableInstrumentController {
 
     @GetMapping
     @MethodOrder(80)
-    public PaginatedResponse<InstrumentViewDto> getAll(
+    public PaginatedResponse<AvailableViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", required = false) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
@@ -69,7 +69,7 @@ public class AvailableInstrumentController {
         PageRequest pageRequest = new PageRequest(page, size);
 
         PaginatedResponse<AvailableInstrument> allInstruments = service.getAll(filterData, sort, pageRequest);
-        List<InstrumentViewDto> allInstrumentsDto = allInstruments.data()
+        List<AvailableViewDto> allInstrumentsDto = allInstruments.data()
                 .stream()
                 .map(mapper::toViewDto)
                 .toList();
@@ -83,7 +83,7 @@ public class AvailableInstrumentController {
 
     @GetMapping("/:id")
     @MethodOrder(60)
-    public InstrumentViewDto getById(@PathParam("id") Long id) {
+    public AvailableViewDto getById(@PathParam("id") Long id) {
         AvailableInstrument found = service.getById(id);
         return mapper.toViewDto(found);
     }
@@ -91,7 +91,7 @@ public class AvailableInstrumentController {
     @PutMapping("/:id")
     @MethodOrder(40)
     @PreAuthorize("SALESMAN")
-    public InstrumentViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateInstrumentDto changesDto) {
+    public AvailableViewDto update(@PathParam("id") Long id, @Valid @RequestBody UpdateInstrumentDto changesDto) {
         AvailableInstrument changes = mapper.toModel(changesDto);
         AvailableInstrument updated = service.update(id, changes);
         return mapper.toViewDto(updated);
@@ -108,7 +108,7 @@ public class AvailableInstrumentController {
     @PutMapping("/:id/images")
     @MethodOrder(10)
     @PreAuthorize("SALESMAN")
-    public InstrumentViewDto addImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
+    public AvailableViewDto addImages(@PathParam("id") Long id, @QueryParamValues("imageIds") Long[] imageIds) {
         AvailableInstrument updated = service.addImages(id, imageIds);
         return mapper.toViewDto(updated);
     }

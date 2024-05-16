@@ -2,15 +2,16 @@ package com.instrument.shop.mapper;
 
 import com.instrument.shop.dto.image.ImageViewDto;
 import com.instrument.shop.dto.instrument.AddInstrumentDto;
-import com.instrument.shop.dto.instrument.InstrumentViewDto;
+import com.instrument.shop.dto.instrument.AvailableViewDto;
+import com.instrument.shop.dto.instrument.BoughtViewDto;
 import com.instrument.shop.dto.instrument.UpdateInstrumentDto;
 import com.instrument.shop.model.AvailableInstrument;
+import com.instrument.shop.model.BoughtInstrument;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.model.InstrumentType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Singleton
@@ -50,14 +51,10 @@ public class InstrumentMapper {
         );
     }
 
-    public InstrumentViewDto toViewDto(AvailableInstrument instrument) {
-        List<Image> images = instrument.getImages();
-        ArrayList<ImageViewDto> imagesDto = new ArrayList<>(images.size());
-        for (Image image : images) {
-            imagesDto.add(imageMapper.toViewDto(image));
-        }
+    public AvailableViewDto toViewDto(AvailableInstrument instrument) {
+        List<ImageViewDto> imagesDto = getImageDto(instrument.getImages());
 
-        return new InstrumentViewDto(
+        return new AvailableViewDto(
                 instrument.getId(),
                 instrument.getCode(),
                 instrument.getName(),
@@ -65,8 +62,31 @@ public class InstrumentMapper {
                 instrument.getDescription(),
                 instrument.getPrice(),
                 imagesDto,
-                instrument.getQuantity(),
-                instrument.getType().getName()
+                instrument.getType().getName(),
+                instrument.getQuantity()
         );
+    }
+
+    public BoughtViewDto toViewDto(BoughtInstrument instrument) {
+        List<ImageViewDto> imagesDto = getImageDto(instrument.getImages());
+
+        return new BoughtViewDto(
+                instrument.getId(),
+                instrument.getCode(),
+                instrument.getName(),
+                instrument.getMark(),
+                instrument.getDescription(),
+                instrument.getPrice(),
+                imagesDto,
+                instrument.getType(),
+                instrument.getOwned()
+        );
+    }
+
+    private List<ImageViewDto> getImageDto(List<Image> images) {
+        return images
+                .stream()
+                .map(imageMapper::toViewDto)
+                .toList();
     }
 }
