@@ -38,8 +38,11 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
-    public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> entities) {
-        return null;
+    public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> instruments) {
+        EntityManager em = emf.createEntityManager();
+        List<AvailableInstrument> saved = repoUtil.saveAll(em, instruments);
+        em.close();
+        return saved;
     }
 
     @Override
