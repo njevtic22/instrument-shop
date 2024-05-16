@@ -6,6 +6,7 @@ import com.instrument.shop.util.CycleIterator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Random;
@@ -39,16 +40,28 @@ public class FakerUtil {
         return typesTemp.iterator();
     }
 
-    private static String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-    private static Random rnd = new Random();           // or SecureRandom for crypto stronger generator
-    public static String generateInstrumentCode(Long instrumentId) {
-        int n = alphabet.length();
+    private final static String alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    private final static int n = alphabet.length();
+    private final static Random rnd = new Random();           // or SecureRandom for crypto stronger generator
+    public static String generateCode(Long entityId, int minLength) {
         StringBuilder code = new StringBuilder(5);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < minLength; i++) {
             code.append(alphabet.charAt(rnd.nextInt(n)));
         }
-        code.append(instrumentId);
+        code.append(entityId);
         return code.toString();
+    }
+
+    public static LocalDateTime generatePastLocalDateTime(Faker faker, LocalDateTime now) {
+        return LocalDateTime.of(
+                now.getYear(),                              // year
+                faker.number().numberBetween(1, now.getMonthValue()),    // month
+                faker.number().numberBetween(1, 28 + 1),    // dayOfMonth
+                faker.number().numberBetween(9, 5 + 1),    // hour
+                faker.number().numberBetween(1, 59 + 1),    // minute
+                faker.number().numberBetween(1, 59 + 1)     // second
+
+        );
     }
 
     public static String correctQuote(String quote, int maxQuoteLength) {

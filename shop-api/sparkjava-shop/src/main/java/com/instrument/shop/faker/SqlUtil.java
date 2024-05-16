@@ -1,6 +1,7 @@
 package com.instrument.shop.faker;
 
 import com.instrument.shop.model.AvailableInstrument;
+import com.instrument.shop.model.BoughtInstrument;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.model.Instrument;
 import com.instrument.shop.model.InstrumentType;
@@ -46,6 +47,19 @@ public class SqlUtil {
                 instrument.getQuantity() + ", " +
                 instrument.isArchived() + ", " +
                 instrument.getType().getId() + ");";
+    }
+
+    public static String toSqlInsert(BoughtInstrument instrument) {
+        return "insert into bought_instruments (id, code, name, mark, description, price, owned, type, owner_id) values (" +
+                instrument.getId() + ", '" +
+                instrument.getCode() + "', '" +
+                instrument.getName() + "', '" +
+                instrument.getMark() + "', '" +
+                instrument.getDescription() + "', " +
+                instrument.getPrice() + ", " +
+                instrument.getOwned() + ", '" +
+                instrument.getType() + "', " +
+                instrument.getOwner().getId() + ");";
     }
 
     public static String toSqlInsert(Instrument instrument, Image image) {
