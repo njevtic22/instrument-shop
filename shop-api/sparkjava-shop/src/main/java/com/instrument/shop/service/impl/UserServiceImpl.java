@@ -53,6 +53,8 @@ public class UserServiceImpl implements UserService {
                 encoder.encode(newUser.getPassword()),
                 false,
                 newUser.getRole(),
+                null,
+                null,
                 null
         );
 
@@ -101,7 +103,9 @@ public class UserServiceImpl implements UserService {
                 existing.getPassword(),
                 existing.isArchived(),
                 existing.getRole(),
-                existing.getImage()
+                existing.getImage(),
+                existing.getBought(),
+                existing.getCart()
         );
 
         return repository.save(updated);
