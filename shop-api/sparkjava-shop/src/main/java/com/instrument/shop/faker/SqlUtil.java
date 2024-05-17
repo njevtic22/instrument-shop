@@ -5,6 +5,8 @@ import com.instrument.shop.model.BoughtInstrument;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.model.Instrument;
 import com.instrument.shop.model.InstrumentType;
+import com.instrument.shop.model.Receipt;
+import com.instrument.shop.model.ReceiptItem;
 import com.instrument.shop.model.User;
 
 public class SqlUtil {
@@ -64,6 +66,30 @@ public class SqlUtil {
 
     public static String toSqlInsert(Instrument instrument, Image image) {
         return "insert into instrument_images (instrument_id, images_id) values (" + instrument.getId() + ", " + image.getId() + ");";
+    }
+
+    public static String toSqlInsert(Receipt receipt) {
+        return "insert into receipts (id, code, total_price, paid, change, issued_at) values (" +
+                receipt.getId() + ", '" +
+                receipt.getCode() + "', " +
+                receipt.getTotalPrice()  + ", " +
+                receipt.getPaid() + ", " +
+                receipt.getChange() + ", '" +
+                receipt.getIssuedAt() + "');";
+    }
+
+    public static String toSqlInsert(ReceiptItem item) {
+        return "insert into receipt_items (id, product_quantity, receipt_id, product_id) values (" +
+                item.getId() + ", " +
+                item.getProductQuantity() + ", " +
+                item.getReceipt().getId() + ", " +
+                item.getProduct().getId() + ");";
+    }
+
+    public static String toSqlInsert(User customer, AvailableInstrument instrument) {
+        return "insert into users_available_instruments (user_id, cart_id) values (" +
+                customer.getId() + ", " +
+                instrument.getId() + ")";
     }
 
     public static String toSqlAlterSequenceRestart(String sequenceName, long restartWith) {

@@ -21,7 +21,7 @@ public class ReceiptItem {
     @SequenceGenerator(name = "receipt_item_generator", sequenceName = "receipt_item_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "product_quantity")
     private int productQuantity;
 
     @ManyToOne

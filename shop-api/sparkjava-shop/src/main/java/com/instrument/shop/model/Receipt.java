@@ -25,7 +25,7 @@ public class Receipt {
     @Column(nullable = false, unique = true)
     private String code;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "total_price")
     private float totalPrice;
 
     @Column(nullable = false)
@@ -34,7 +34,7 @@ public class Receipt {
     @Column(nullable = false)
     private float change;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "issued_at")
     private LocalDateTime issuedAt;
 
     @OneToMany(mappedBy = "receipt")

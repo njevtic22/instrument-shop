@@ -17,6 +17,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Field;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -28,6 +29,7 @@ import java.util.function.Function;
 
 import static com.instrument.shop.faker.FakerUtil.correctQuote;
 import static com.instrument.shop.faker.FakerUtil.generateCode;
+import static com.instrument.shop.faker.FakerUtil.generatePastLocalDateTime;
 import static com.instrument.shop.faker.FakerUtil.getImageUrlIterator;
 import static com.instrument.shop.faker.FakerUtil.getInstrumentTypeIterator;
 import static com.instrument.shop.faker.SqlUtil.toSqlAlterSequenceRestart;
@@ -50,10 +52,14 @@ public class FakeDatabaseGenerator {
     private final int AVAILABLE_INSTRUMENTS_QUANTITY = 20;
 
     private final int MAX_TO_OWN = 15;
+    private final int PAID = 1000 * MAX_TO_OWN;
     private final int RECEIPTS_PER_CUSTOMER = 10;
     private final int ITEMS_PER_RECEIPT = 10;
+    private final int RECEIPTS = RECEIPTS_PER_CUSTOMER * USERS_PER_ROLE;
+    private final int ITEMS = ITEMS_PER_RECEIPT * RECEIPTS;
     private final int BOUGHT_INSTRUMENTS_PER_CUSTOMER = RECEIPTS_PER_CUSTOMER * ITEMS_PER_RECEIPT;
     private final int BOUGHT_INSTRUMENTS = BOUGHT_INSTRUMENTS_PER_CUSTOMER * USERS_PER_ROLE;
+    private final int CART_SIZE_PER_CUSTOMER = 10;
 
     private final int IMAGES_PER_INSTRUMENT = 10;
     private final int IMAGES = roles.length * USERS_PER_ROLE + AVAILABLE_INSTRUMENTS * IMAGES_PER_INSTRUMENT + BOUGHT_INSTRUMENTS * IMAGES_PER_INSTRUMENT;
@@ -64,6 +70,7 @@ public class FakeDatabaseGenerator {
     private final PrintWriter imOut = new PrintWriter(new FileWriter("./src/main/resources/database/images-generated.sql"));
     private final PrintWriter instrumentOut = new PrintWriter(new FileWriter("./src/main/resources/database/instruments-generated.sql"));
     private final PrintWriter boughtOut = new PrintWriter(new FileWriter("./src/main/resources/database/bought-instruments-generated.sql"));
+    private final PrintWriter receiptCartOut = new PrintWriter(new FileWriter("./src/main/resources/database/receipts-carts-generated.sql"));
 
     private final CycleIterator<String> imageUrl = getImageUrlIterator();
     private final Iterator<String> instrumentType = getInstrumentTypeIterator();
@@ -76,13 +83,14 @@ public class FakeDatabaseGenerator {
         out.println("-- Passwords for all users are:");
         out.println("--");
 
-        out.println("-- Scripts combined generates database for sparkjava-shop");
+        out.println("-- Scripts combined generate database for sparkjava-shop");
         out.println("-- It generates:");
         out.println("--\t- "   + IMAGES + " images");
         out.println("--\t- "   + roles.length * USERS_PER_ROLE + " users");
         out.println("--\t\t- " + USERS_PER_ROLE + " managers");
         out.println("--\t\t- " + USERS_PER_ROLE + " salesmen");
         out.println("--\t\t- " + USERS_PER_ROLE + " customers");
+        out.println("--\t\t- " + "with " + CART_SIZE_PER_CUSTOMER + " instruments in cart");
         out.println("--\t- "   + INSTRUMENT_TYPES + " instrument types");
         out.println("--\t- "   + AVAILABLE_INSTRUMENTS + " available instruments");
         out.println("--\t\t- " + AVAILABLE_INSTRUMENTS_PER_TYPE + " per type");
@@ -90,6 +98,10 @@ public class FakeDatabaseGenerator {
         out.println("--\t- "   + BOUGHT_INSTRUMENTS + " bought instruments");
         out.println("--\t\t- " + BOUGHT_INSTRUMENTS_PER_CUSTOMER + " per customer");
         out.println("--\t\t- " + IMAGES_PER_INSTRUMENT + " images for 1 bought instrument");
+        out.println("--\t- "   + RECEIPTS + " receipts");
+        out.println("--\t\t- " + RECEIPTS_PER_CUSTOMER + " per customer");
+        out.println("--\t- "   + ITEMS + " receipt items");
+        out.println("--\t\t- " + ITEMS_PER_RECEIPT + " per receipt");
         out.println("--");
 
         out.flush();
@@ -100,6 +112,7 @@ public class FakeDatabaseGenerator {
         generateHeader(imOut);
         generateHeader(instrumentOut);
         generateHeader(boughtOut);
+        generateHeader(receiptCartOut);
 
 
         // generating images
@@ -124,10 +137,6 @@ public class FakeDatabaseGenerator {
 
 
         // generating bought instruments
-        LongGenerator receiptId = new LongGenerator();
-        LongGenerator receiptItemId = new LongGenerator();
-        HashMap<Long, Receipt> receipts = new HashMap<>();
-        HashMap<Long, ReceiptItem> items = new HashMap<>();
         Map<Long, BoughtInstrument> boughtInstruments = generateBoughtInstruments(
                 instrumentId,
                 availableInstruments,
@@ -135,7 +144,19 @@ public class FakeDatabaseGenerator {
                 imagesIterator
         );
 
+        // generating receipts and receipt items
+        LongGenerator receiptId = new LongGenerator();
+        LongGenerator itemId = new LongGenerator();
+        HashMap<Long, Receipt> receipts = new HashMap<>();
+        HashMap<Long, ReceiptItem> items = new HashMap<>();
+        generateReceipts(receiptId, itemId, receipts, items, users);
 
+
+        // generate cart
+        generateCart(users, availableInstruments);
+
+
+        //////////
 
         // inserting images
         printToSqlInsert(images.values(), "Inserting images", imOut, SqlUtil::toSqlInsert);
@@ -169,11 +190,26 @@ public class FakeDatabaseGenerator {
         printInstrumentImages(List.copyOf(boughtInstruments.values()), boughtOut);
 
 
+        // inserting receipts
+        printToSqlInsert(receipts.values(), "Inserting receipts", receiptCartOut, SqlUtil::toSqlInsert);
+        // altering receipt_iq_seq
+        printSequenceRestart(RECEIPTS, receiptId, "receipt_iq_seq", receiptCartOut);
+
+
+        // inserting receipt items
+        printToSqlInsert(items.values(), "Inserting receipt items", receiptCartOut, SqlUtil::toSqlInsert);
+        // altering receipt_item_id_seq
+        printSequenceRestart(ITEMS, itemId, "receipt_item_id_seq", receiptCartOut);
+
+
+        // inserting users available instruments
+        printCart(users, receiptCartOut);
 
         userOut.close();
         imOut.close();
         instrumentOut.close();
         boughtOut.close();
+        receiptCartOut.close();
     }
 
     private Map<Long, Image> generateImages(LongGenerator imageId) {
@@ -259,8 +295,6 @@ public class FakeDatabaseGenerator {
     }
 
     private Map<Long, BoughtInstrument> generateBoughtInstruments(LongGenerator instrumentId, Map<Long, AvailableInstrument> availableInstruments, Map<Long, User> users, Iterator<Image> images) throws NoSuchFieldException, IllegalAccessException {
-
-
         HashMap<Long, BoughtInstrument> boughtInstruments = new HashMap<>(BOUGHT_INSTRUMENTS);
         List<User> customers = users.values()
                 .stream()
@@ -273,17 +307,22 @@ public class FakeDatabaseGenerator {
         Field quantityField = availableClass.getDeclaredField("quantity");
         quantityField.setAccessible(true);
 
+        Class<Image> imageClass = Image.class;
+        Field urlField = imageClass.getDeclaredField("url");
+        urlField.setAccessible(true);
+
         for (User customer : customers) {
             for (int i = 0; i < BOUGHT_INSTRUMENTS_PER_CUSTOMER; i++) {
+                AvailableInstrument available = remaining.remove(faker.number().numberBetween(0, remaining.size()));
                 Image[] instrumentImages = new Image[IMAGES_PER_INSTRUMENT];
                 for (int k = 0; k < IMAGES_PER_INSTRUMENT; k++) {
                     instrumentImages[k] = images.next();
+                    urlField.set(instrumentImages[k], available.getImages().get(k).getUrl());
                 }
 
                 int toOwn = faker.number().numberBetween(1, MAX_TO_OWN);
 
 
-                AvailableInstrument available = remaining.remove(faker.number().numberBetween(0, remaining.size()));
                 BoughtInstrument bought = new BoughtInstrument(
                         instrumentId.next(),
                         available.getCode(),
@@ -296,6 +335,7 @@ public class FakeDatabaseGenerator {
                         available.getType().getName(),
                         customer
                 );
+                customer.getBought().add(bought);
                 boughtInstruments.put(bought.getId(), bought);
 
                 int newQuantity = available.getQuantity() - toOwn;
@@ -304,6 +344,88 @@ public class FakeDatabaseGenerator {
         }
 
         return boughtInstruments;
+    }
+
+    private void generateReceipts(LongGenerator receiptId, LongGenerator itemId, HashMap<Long, Receipt> receipts, HashMap<Long, ReceiptItem> items, Map<Long, User> users) throws NoSuchFieldException, IllegalAccessException {
+        Class<ReceiptItem> itemClass = ReceiptItem.class;
+        Field receiptField = itemClass.getDeclaredField("receipt");
+        receiptField.setAccessible(true);
+
+        List<User> customers = users.values()
+                .stream()
+                .filter(User::isCustomer)
+                .toList();
+
+        for (User customer : customers) {
+            List<BoughtInstrument> remaining = new ArrayList<>(customer.getBought());
+            for (int i = 0; i < RECEIPTS_PER_CUSTOMER; i++) {
+                float totalPrice = 0;
+                Receipt dummy = new Receipt();
+                ArrayList<ReceiptItem> receiptItems = new ArrayList<>(ITEMS_PER_RECEIPT);
+
+                for (int j = 0; j < ITEMS_PER_RECEIPT; j++) {
+                    BoughtInstrument bought = remaining.remove(faker.number().numberBetween(0, remaining.size()));
+                    totalPrice += bought.getPrice();
+                    ReceiptItem item = new ReceiptItem(
+                            itemId.next(),
+                            bought.getOwned(),
+                            dummy,
+                            bought
+                    );
+                    receiptItems.add(item);
+                    items.put(item.getId(), item);
+                }
+
+                totalPrice = Math.round(totalPrice) + 0.99f;
+
+                Receipt receipt = new Receipt(
+                        receiptId.next(),
+                        generateCode(receiptId.current(), 4),
+                        totalPrice,
+                        PAID,
+                        PAID - totalPrice,
+                        generatePastLocalDateTime(faker, LocalDateTime.now()),
+                        receiptItems
+                );
+                receipts.put(receipt.getId(), receipt);
+
+                for (ReceiptItem item : receiptItems) {
+                    receiptField.set(item, receipt);
+                }
+            }
+        }
+    }
+
+    private void generateCart(Map<Long, User> users, Map<Long, AvailableInstrument> instruments) {
+        List<User> customers = users.values()
+                .stream()
+                .filter(User::isCustomer)
+                .toList();
+
+        for (User customer : customers) {
+            for (int i = 0; i < CART_SIZE_PER_CUSTOMER; i++) {
+                int availableId = faker.number().numberBetween(1, AVAILABLE_INSTRUMENTS);
+                AvailableInstrument available = instruments.get((long) availableId);
+                customer.getCart().add(available);
+            }
+        }
+    }
+
+    private void printCart(Map<Long, User> users, PrintWriter out) {
+        printStartLines("Inserting users available instruments", out);
+
+        List<User> customers = users.values()
+                .stream()
+                .filter(User::isCustomer)
+                .toList();
+
+        for (User customer : customers) {
+            for (AvailableInstrument instrument : customer.getCart()) {
+                out.println(toSqlInsert(customer, instrument));
+            }
+        }
+
+        printEndLines(out);
     }
 
     private void printInstrumentImages(List<Instrument> instruments, PrintWriter out) {
