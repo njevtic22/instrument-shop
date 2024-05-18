@@ -27,8 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static com.instrument.shop.faker.FakerUtil.correctQuote;
 import static com.instrument.shop.faker.FakerUtil.generateCode;
+import static com.instrument.shop.faker.FakerUtil.generateLoremQuote;
 import static com.instrument.shop.faker.FakerUtil.generatePastLocalDateTime;
 import static com.instrument.shop.faker.FakerUtil.getImageUrlIterator;
 import static com.instrument.shop.faker.FakerUtil.getInstrumentTypeIterator;
@@ -251,10 +251,9 @@ public class FakeDatabaseGenerator {
                 AvailableInstrument instrument = new AvailableInstrument(
                         instrumentId.next(),
                         generateCode(instrumentId.current(), 3),
+                        faker.music().instrument() + ": " + instrumentId.current(),
                         faker.dragonBall().character() + ": " + instrumentId.current(),
-                        faker.backToTheFuture().character() + ": " + instrumentId.current(),
-//                        generateLoremQuote(faker, faker.chuckNorris().fact(), QUOTE_LENGTH, LOREM_LENGTH),
-                        correctQuote(faker.chuckNorris().fact(), QUOTE_LENGTH),
+                        generateLoremQuote(faker, faker.chuckNorris().fact(), QUOTE_LENGTH, LOREM_LENGTH),
                         (float) faker.number().numberBetween(100, 1000) + 0.99f,
                         Arrays.asList(instrumentImages),
                         AVAILABLE_INSTRUMENTS_QUANTITY,
