@@ -193,7 +193,7 @@ public class FakeDatabaseGenerator {
         // inserting receipts
         printToSqlInsert(receipts.values(), "Inserting receipts", receiptCartOut, SqlUtil::toSqlInsert);
         // altering receipt_iq_seq
-        printSequenceRestart(RECEIPTS, receiptId, "receipt_iq_seq", receiptCartOut);
+        printSequenceRestart(RECEIPTS, receiptId, "receipt_id_seq", receiptCartOut);
 
 
         // inserting receipt items
