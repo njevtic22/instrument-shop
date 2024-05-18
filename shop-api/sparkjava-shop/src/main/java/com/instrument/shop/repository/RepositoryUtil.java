@@ -93,7 +93,7 @@ public class RepositoryUtil {
     }
 
     private String getCorrectValue(String key, String value) {
-        if (key.endsWith("Start") || key.endsWith("End")) {
+        if (key.endsWith("Start") || key.endsWith("End") || key.equals("ownerId")) {
             return value;
         } else {
             return "%" + value + "%";

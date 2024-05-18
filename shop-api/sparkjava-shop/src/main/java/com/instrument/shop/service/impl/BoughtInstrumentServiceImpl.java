@@ -4,6 +4,7 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.BoughtInstrument;
+import com.instrument.shop.model.User;
 import com.instrument.shop.repository.BoughtInstrumentRepository;
 import com.instrument.shop.service.BoughtInstrumentService;
 import jakarta.inject.Inject;
@@ -26,7 +27,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        return repository.findAll(filterData, sort, pageRequest);
+    public PaginatedResponse<BoughtInstrument> getAll(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findAllByOwnerId(customer.getId(), filterData, sort, pageRequest);
     }
 }

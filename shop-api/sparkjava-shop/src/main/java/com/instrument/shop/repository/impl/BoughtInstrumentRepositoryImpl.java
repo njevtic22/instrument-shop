@@ -39,13 +39,14 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         // TODO: fix filter and order
-        String filterPart = "";
+        String filterPart = "where i.owner.id = :ownerId" + "";
         String orderBy = "";
         String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;
         String countQuery = "select count(*) from BoughtInstrument i " + filterPart;
 
+        filterData.put("ownerId", ownerId.toString());
         EntityManager em = emf.createEntityManager();
         PaginatedResponse<BoughtInstrument> allInstruments = repoUtil.findAll(
                 em,
@@ -56,7 +57,7 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
                 filterData,
                 pageRequest
         );
-        em.close();
+//        em.close();
         return allInstruments;
     }
 }
