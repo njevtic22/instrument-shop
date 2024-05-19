@@ -7,6 +7,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "available_instruments")
@@ -35,6 +36,19 @@ public class AvailableInstrument extends Instrument {
         this.quantity = quantity;
         this.archived = archived;
         this.type = type;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof AvailableInstrument that)) return false;
+        if (!super.equals(o)) return false;
+        return Objects.equals(code, that.code);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), code);
     }
 
     public void setPrice(float price) {

@@ -20,7 +20,7 @@ public abstract class Instrument implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "instrument_generator")
     @SequenceGenerator(name = "instrument_generator", sequenceName = "instrument_id_seq", allocationSize = 1)
-    private Long id;
+    protected Long id;
 
     @Column(nullable = false)
     private String name;
