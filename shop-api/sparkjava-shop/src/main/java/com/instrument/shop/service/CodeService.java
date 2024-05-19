@@ -1,4 +1,4 @@
-package com.instrument.shop.repository;
+package com.instrument.shop.service;
 
 import jakarta.inject.Singleton;
 

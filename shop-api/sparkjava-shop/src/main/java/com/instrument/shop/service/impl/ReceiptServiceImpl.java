@@ -5,7 +5,7 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.Receipt;
-import com.instrument.shop.repository.CodeService;
+import com.instrument.shop.service.CodeService;
 import com.instrument.shop.repository.ReceiptRepository;
 import com.instrument.shop.service.ReceiptItemService;
 import com.instrument.shop.service.ReceiptService;
