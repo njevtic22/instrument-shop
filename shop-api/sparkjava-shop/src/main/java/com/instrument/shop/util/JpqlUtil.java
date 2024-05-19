@@ -107,4 +107,42 @@ public class JpqlUtil {
         }
         return getValidJpqlPart(filterPart.toString());
     }
+
+    public String getValidBInstrumentFilter(Map<String, String> filterData, String columnPrefix) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+
+            filterPart.append(" and ");
+            if (key.equals("priceStart")) {
+                filterPart.append(columnPrefix)
+                        .append(".price >=");
+
+            } else if (key.equals("priceEnd")) {
+                filterPart.append(columnPrefix)
+                        .append(".price <=");
+
+            } else if (key.equals("ownedStart")) {
+                filterPart.append(columnPrefix)
+                        .append(".owned >=");
+
+            } else if (key.equals("ownedEnd")) {
+                filterPart.append(columnPrefix)
+                        .append(".owned <=");
+
+            } else {
+                filterPart.append("lower(")
+                        .append(columnPrefix)
+                        .append(".")
+                        .append(key)
+                        .append(") like lower(:")
+                        .append(key)
+                        .append(")");
+                continue;
+            }
+            filterPart.append(" :")
+                    .append(key);
+        }
+        return getValidJpqlPart(filterPart.toString());
+    }
 }

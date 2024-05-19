@@ -40,9 +40,8 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
 
     @Override
     public PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        // TODO: fix filter and order
-        String filterPart = "where i.owner.id = :ownerId" + "";
-        String orderBy = "";
+        String filterPart = "where i.owner.id = :ownerId" + jpqlUtil.getValidBInstrumentFilter(filterData, "i");
+        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;
         String countQuery = "select count(*) from BoughtInstrument i " + filterPart;
 
@@ -53,7 +52,7 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
                 jpq,
                 countQuery,
                 BoughtInstrument.class,
-                !filterPart.isEmpty(),
+                true,
                 filterData,
                 pageRequest
         );
