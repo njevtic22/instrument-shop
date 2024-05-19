@@ -112,6 +112,11 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     }
 
     @Override
+    public List<AvailableInstrument> saveAll(Iterable<AvailableInstrument> instruments) {
+        return repository.saveAll(instruments);
+    }
+
+    @Override
     public void validateCode(String code) {
         if (repository.existsByCode(code)) {
             throw new UniquePropertyException("Code", code);

@@ -11,6 +11,8 @@ import java.util.List;
 public interface ImageService {
     List<Image> uploadImages(List<byte[]> images) throws IOException;
 
+    List<Image> saveAll(Iterable<Image> images);
+
     List<Image> getAllById(Iterable<Long> ids);
 
     void delete(Long id);

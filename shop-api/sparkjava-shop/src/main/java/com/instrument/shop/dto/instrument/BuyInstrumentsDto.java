@@ -7,13 +7,21 @@ import java.util.Map;
 
 public class BuyInstrumentsDto {
     @NotEmpty
-    private final Map<@Positive Long, @Positive Long> instrumentQuantity;
+    private final Map<@Positive Long, @Positive Integer> instrumentQuantity;
 
-    public BuyInstrumentsDto(Map<Long, Long> instrumentQuantity) {
+    @Positive
+    private final float paid;
+
+    public BuyInstrumentsDto(Map<Long, Integer> instrumentQuantity, float paid) {
         this.instrumentQuantity = instrumentQuantity;
+        this.paid = paid;
     }
 
-    public Map<Long, Long> getInstrumentQuantity() {
+    public Map<Long, Integer> getInstrumentQuantity() {
         return instrumentQuantity;
+    }
+
+    public float getPaid() {
+        return paid;
     }
 }

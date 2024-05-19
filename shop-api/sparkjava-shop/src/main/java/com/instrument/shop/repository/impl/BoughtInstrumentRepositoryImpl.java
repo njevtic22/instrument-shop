@@ -30,7 +30,10 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
 
     @Override
     public List<BoughtInstrument> saveAll(Iterable<BoughtInstrument> instruments) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        List<BoughtInstrument> saved = repoUtil.saveAll(em, instruments);
+        em.close();
+        return saved;
     }
 
     @Override

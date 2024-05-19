@@ -32,8 +32,16 @@ public class AvailableInstrument extends Instrument {
         this.type = type;
     }
 
+    public void setPrice(float price) {
+        this.price = price;
+    }
+
     public int getQuantity() {
         return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public boolean isArchived() {

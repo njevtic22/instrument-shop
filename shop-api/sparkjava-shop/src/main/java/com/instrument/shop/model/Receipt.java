@@ -16,7 +16,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "receipts")
-public class Receipt {
+public class Receipt implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "receipt_generator")
     @SequenceGenerator(name = "receipt_generator", sequenceName = "receipt_id_seq", allocationSize = 1)
@@ -68,6 +68,7 @@ public class Receipt {
         return Objects.hash(id, code);
     }
 
+    @Override
     public Long getId() {
         return id;
     }

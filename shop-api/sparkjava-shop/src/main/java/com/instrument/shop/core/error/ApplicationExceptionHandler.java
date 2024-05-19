@@ -1,6 +1,7 @@
 package com.instrument.shop.core.error;
 
 import com.instrument.shop.core.error.exception.BlankStringException;
+import com.instrument.shop.core.error.exception.BuyingException;
 import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.InvalidUsernameException;
 import com.instrument.shop.core.error.exception.PropertyLengthException;
@@ -42,6 +43,7 @@ public class ApplicationExceptionHandler {
             BlankStringException.class,
             InvalidUsernameException.class,
             PropertyLengthException.class,
+            BuyingException.class,
             JwtException.class
     })
     public ApiError handleBadRequest(RuntimeException ex) {

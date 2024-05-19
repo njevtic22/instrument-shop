@@ -19,6 +19,7 @@ import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
@@ -42,9 +43,10 @@ public class BoughtInstrumentController {
 
     @PostMapping
     @MethodOrder(100)
+    @ResponseStatus(204)
     @PreAuthorize("CUSTOMER")
-    public void buy(@Authenticated User user, @Valid @RequestBody BuyInstrumentsDto buyDto) {
-
+    public void buy(@Authenticated User customer, @Valid @RequestBody BuyInstrumentsDto buyDto) {
+        service.buy(customer, buyDto.getInstrumentQuantity(), buyDto.getPaid());
     }
 
     @GetMapping

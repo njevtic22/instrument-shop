@@ -12,7 +12,7 @@ import java.util.Map;
 
 @ImplementedBy(BoughtInstrumentServiceImpl.class)
 public interface BoughtInstrumentService {
-    void buy(Map<Long, Long> instrumentQuantity);
+    void buy(User customer, Map<Long, Integer> instrumentQuantity, float paid);
 
     PaginatedResponse<BoughtInstrument> getAll(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 }

@@ -22,7 +22,8 @@ public abstract class Instrument implements DatabaseEntity {
     @SequenceGenerator(name = "instrument_generator", sequenceName = "instrument_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    // TODO fix to have unique = true
+    @Column(nullable = false)
     private String code;
 
     @Column(nullable = false)
@@ -35,7 +36,7 @@ public abstract class Instrument implements DatabaseEntity {
     private String description;
 
     @Column(nullable = false)
-    private float price;
+    protected float price;
 
     @OneToMany
     private List<Image> images;

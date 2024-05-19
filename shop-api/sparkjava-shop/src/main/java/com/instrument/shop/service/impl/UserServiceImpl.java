@@ -154,6 +154,12 @@ public class UserServiceImpl implements UserService {
         return repository.findByIdAndArchivedFalse(authenticated.getId()).get();
     }
 
+    @Override
+    public User clearCart(User customer) {
+        customer.getCart().clear();
+        return repository.save(customer);
+    }
+
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
         if (!newPassword.equals(repeatedPassword)) {
             throw new InvalidPasswordException("New password and repeated password do not match");
