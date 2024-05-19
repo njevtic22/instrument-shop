@@ -22,10 +22,6 @@ public abstract class Instrument implements DatabaseEntity {
     @SequenceGenerator(name = "instrument_generator", sequenceName = "instrument_id_seq", allocationSize = 1)
     private Long id;
 
-    // TODO fix to have unique = true
-    @Column(nullable = false)
-    private String code;
-
     @Column(nullable = false)
     private String name;
 
@@ -43,13 +39,12 @@ public abstract class Instrument implements DatabaseEntity {
 
     public Instrument() { }
 
-    public Instrument(String code, String name, String mark, String description, float price, List<Image> images) {
-        this(null, code, name, mark, description, price, images);
+    public Instrument(String name, String mark, String description, float price, List<Image> images) {
+        this(null, name, mark, description, price, images);
     }
 
-    public Instrument(Long id, String code, String name, String mark, String description, float price, List<Image> images) {
+    public Instrument(Long id, String name, String mark, String description, float price, List<Image> images) {
         this.id = id;
-        this.code = Strings.requireNonBlank(code, "Code must not be blank");
         this.name = Strings.requireNonBlank(name, "Name must not be blank");
         this.mark = Strings.requireNonBlank(mark, "Mark must not be blank");
         this.description = Strings.requireNonBlank(description, "Description must not be blank");
@@ -61,21 +56,17 @@ public abstract class Instrument implements DatabaseEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof Instrument that)) return false;
-        return Objects.equals(id, that.id) && Objects.equals(code, that.code);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, code);
+        return Objects.hash(id);
     }
 
     @Override
     public Long getId() {
         return id;
-    }
-
-    public String getCode() {
-        return code;
     }
 
     public String getName() {
