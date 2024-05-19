@@ -1,6 +1,9 @@
 package com.instrument.shop.service.impl;
 
 import com.instrument.shop.core.error.exception.UniquePropertyException;
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.Receipt;
 import com.instrument.shop.repository.CodeService;
 import com.instrument.shop.repository.ReceiptRepository;
@@ -10,6 +13,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 @Singleton
 public class ReceiptServiceImpl implements ReceiptService {
@@ -30,7 +34,7 @@ public class ReceiptServiceImpl implements ReceiptService {
 
         long counted = repository.count();
         Receipt toAdd = new Receipt(
-                codeService.generateCode(counted + 1, 5),
+                codeService.generateCode(counted + 1, 4),
                 newReceipt.getTotalPrice(),
                 newReceipt.getPaid(),
                 newReceipt.getChange(),
@@ -42,6 +46,11 @@ public class ReceiptServiceImpl implements ReceiptService {
         Receipt added = repository.save(toAdd);
         itemService.saveAll(added.getItems());
         return added;
+    }
+
+    @Override
+    public PaginatedResponse<Receipt> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findAll(filterData, sort, pageRequest);
     }
 
     @Override

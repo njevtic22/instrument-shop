@@ -9,6 +9,7 @@ import com.instrument.shop.controller.BoughtInstrumentController;
 import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.InstrumentTypeController;
 import com.instrument.shop.controller.LoggingController;
+import com.instrument.shop.controller.ReceiptController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
 import com.instrument.shop.core.validation.validator.Validator;
@@ -57,7 +58,8 @@ public class Main {
                 injector.getInstance(ImageController.class),
                 injector.getInstance(InstrumentTypeController.class),
                 injector.getInstance(AvailableInstrumentController.class),
-                injector.getInstance(BoughtInstrumentController.class)
+                injector.getInstance(BoughtInstrumentController.class),
+                injector.getInstance(ReceiptController.class)
         );
         sparkCtx.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }

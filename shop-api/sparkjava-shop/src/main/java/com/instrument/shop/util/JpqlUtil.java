@@ -145,4 +145,58 @@ public class JpqlUtil {
         }
         return getValidJpqlPart(filterPart.toString());
     }
+
+    public String getValidReceiptFilter(Map<String, String> filterData, String columnPrefix) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+
+            filterPart.append(" and ");
+            if (key.equals("code")) {
+                filterPart.append("lower(")
+                        .append(columnPrefix)
+                        .append(".")
+                        .append(key)
+                        .append(") like lower(:")
+                        .append(key)
+                        .append(")");
+            } else {
+                if (key.equals("priceStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".totalPrice >=");
+
+                } else if (key.equals("priceEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".totalPrice <=");
+
+                } else if (key.equals("paidStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".paid >=");
+
+                } else if (key.equals("paidEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".paid <=");
+
+                } else if (key.equals("changeStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".change >=");
+
+                } else if (key.equals("changeEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".change <=");
+
+                } else if (key.equals("issuedAtStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".issuedAt >=");
+
+                } else if (key.equals("issuedAtEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".issuedAt <=");
+                }
+                filterPart.append(" :")
+                        .append(key);
+            }
+        }
+        return getValidJpqlPart(filterPart.toString());
+    }
 }
