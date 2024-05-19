@@ -5,13 +5,14 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.BoughtInstrument;
+import com.instrument.shop.model.User;
 import com.instrument.shop.service.impl.BoughtInstrumentServiceImpl;
 
 import java.util.Map;
 
 @ImplementedBy(BoughtInstrumentServiceImpl.class)
 public interface BoughtInstrumentService {
-    void buy(Map<Long, Long> instrumentQuantity);
+    void buy(User customer, Map<Long, Integer> instrumentQuantity, float paid);
 
-    PaginatedResponse<BoughtInstrument> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> getAll(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 }

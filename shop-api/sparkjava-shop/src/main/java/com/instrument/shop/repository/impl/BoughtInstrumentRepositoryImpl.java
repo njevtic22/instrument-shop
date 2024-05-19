@@ -30,7 +30,10 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
 
     @Override
     public List<BoughtInstrument> saveAll(Iterable<BoughtInstrument> instruments) {
-        return null;
+        EntityManager em = emf.createEntityManager();
+        List<BoughtInstrument> saved = repoUtil.saveAll(em, instruments);
+        em.close();
+        return saved;
     }
 
     @Override
@@ -39,24 +42,24 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
-        // TODO: fix filter and order
-        String filterPart = "";
-        String orderBy = "";
+    public PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        String filterPart = "where i.owner.id = :ownerId" + jpqlUtil.getValidBInstrumentFilter(filterData, "i");
+        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;
         String countQuery = "select count(*) from BoughtInstrument i " + filterPart;
 
+        filterData.put("ownerId", ownerId.toString());
         EntityManager em = emf.createEntityManager();
         PaginatedResponse<BoughtInstrument> allInstruments = repoUtil.findAll(
                 em,
                 jpq,
                 countQuery,
                 BoughtInstrument.class,
-                !filterPart.isEmpty(),
+                true,
                 filterData,
                 pageRequest
         );
-        em.close();
+//        em.close();
         return allInstruments;
     }
 }

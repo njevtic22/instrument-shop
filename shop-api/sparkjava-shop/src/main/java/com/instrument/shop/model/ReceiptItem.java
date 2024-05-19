@@ -15,7 +15,7 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "receipt_items")
-public class ReceiptItem {
+public class ReceiptItem implements DatabaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "receipt_item_generator")
     @SequenceGenerator(name = "receipt_item_generator", sequenceName = "receipt_item_id_seq", allocationSize = 1)
@@ -57,6 +57,7 @@ public class ReceiptItem {
         return Objects.hash(id);
     }
 
+    @Override
     public Long getId() {
         return id;
     }
@@ -71,5 +72,9 @@ public class ReceiptItem {
 
     public Receipt getReceipt() {
         return receipt;
+    }
+
+    public void setReceipt(Receipt receipt) {
+        this.receipt = receipt;
     }
 }

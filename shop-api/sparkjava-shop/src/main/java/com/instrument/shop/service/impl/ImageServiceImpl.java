@@ -37,6 +37,11 @@ public class ImageServiceImpl implements ImageService {
     }
 
     @Override
+    public List<Image> saveAll(Iterable<Image> images) {
+        return repository.saveAll(images);
+    }
+
+    @Override
     public List<Image> getAllById(Iterable<Long> ids) {
         return repository.findAllByIdAndArchivedFalse(ids);
     }

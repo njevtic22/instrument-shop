@@ -13,6 +13,9 @@ import java.util.List;
 @Table(name = "bought_instruments")
 public class BoughtInstrument extends Instrument {
     @Column(nullable = false)
+    private String code;
+
+    @Column(nullable = false)
     private int owned;
 
     @Column(nullable = false)
@@ -29,10 +32,15 @@ public class BoughtInstrument extends Instrument {
     }
 
     public BoughtInstrument(Long id, String code, String name, String mark, String description, float price, List<Image> images, int owned, String type, User owner) {
-        super(id, code, name, mark, description, price, images);
+        super(id, name, mark, description, price, images);
+        this.code = Strings.requireNonBlank(code, "Code must not be blank");
         this.owned = owned;
         this.type = Strings.requireNonBlank(type, "Type must not be blank");
         this.owner = owner;
+    }
+
+    public String getCode() {
+        return code;
     }
 
     public int getOwned() {

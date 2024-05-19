@@ -80,7 +80,7 @@ public class UserRepositoryImpl implements UserRepository {
         String jpq = "select u from User u where u.archived = false and u.username = ?1";
         EntityManager em = emf.createEntityManager();
         Optional<User> found = repoUtil.findByUniqueProperty(em, jpq, User.class, username);
-        em.close();
+//        em.close();
         return found;
     }
 

@@ -11,6 +11,8 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -92,9 +94,16 @@ public class RepositoryUtil {
         return savedEntities;
     }
 
-    private String getCorrectValue(String key, String value) {
-        if (key.endsWith("Start") || key.endsWith("End")) {
+    private Object getCorrectValue(String key, String value) {
+        if (key.startsWith("issuedAt")) {
+            return Instant
+                    .ofEpochMilli(Long.parseLong(value))
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+
+        } else if (key.endsWith("Start") || key.endsWith("End") || key.equals("ownerId")) {
             return value;
+
         } else {
             return "%" + value + "%";
         }
@@ -124,7 +133,7 @@ public class RepositoryUtil {
             if (hasFilter) {
                 for (Map.Entry<String, String> entry : filterData.entrySet()) {
                     String key = entry.getKey();
-                    String value = getCorrectValue(key, entry.getValue());
+                    Object value = getCorrectValue(key, entry.getValue());
                     selectAll.setParameter(key, value);
                     count.setParameter(key, value);
                 }

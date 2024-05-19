@@ -16,5 +16,5 @@ public interface BoughtInstrumentRepository {
 
     List<BoughtInstrument> findAllById(Iterable<Long> ids);
 
-    PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest);
 }

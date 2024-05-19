@@ -19,6 +19,7 @@ import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.validation.Valid;
@@ -42,15 +43,17 @@ public class BoughtInstrumentController {
 
     @PostMapping
     @MethodOrder(100)
+    @ResponseStatus(204)
     @PreAuthorize("CUSTOMER")
-    public void buy(@Authenticated User user, @Valid @RequestBody BuyInstrumentsDto buyDto) {
-
+    public void buy(@Authenticated User customer, @Valid @RequestBody BuyInstrumentsDto buyDto) {
+        service.buy(customer, buyDto.getInstrumentQuantity(), buyDto.getPaid());
     }
 
     @GetMapping
     @MethodOrder(80)
     @PreAuthorize("CUSTOMER")
     public PaginatedResponse<BoughtViewDto> getAll(
+            @Authenticated User customer,
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", required = false) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
@@ -60,7 +63,7 @@ public class BoughtInstrumentController {
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 
-        PaginatedResponse<BoughtInstrument> allInstruments = service.getAll(filterData, sort, pageRequest);
+        PaginatedResponse<BoughtInstrument> allInstruments = service.getAll(customer, filterData, sort, pageRequest);
         List<BoughtViewDto> allInstrumentsDto = allInstruments.data()
                 .stream()
                 .map(mapper::toViewDto)
