@@ -51,9 +51,9 @@ public class BoughtInstrumentController {
 
     @GetMapping
     @MethodOrder(80)
-    @PreAuthorize("CUSTOMER")
+    @PreAuthorize({"MANAGER", "CUSTOMER"})
     public PaginatedResponse<BoughtViewDto> getAll(
-            @Authenticated User customer,
+            @Authenticated User user,
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
             @QueryParamValues(value = "sort", required = false) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
@@ -63,7 +63,13 @@ public class BoughtInstrumentController {
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 
-        PaginatedResponse<BoughtInstrument> allInstruments = service.getAll(customer, filterData, sort, pageRequest);
+        PaginatedResponse<BoughtInstrument> allInstruments;
+        if (user.isCustomer()) {
+            allInstruments = service.getAllByCustomer(user, filterData, sort, pageRequest);
+        } else {
+            allInstruments = service.getAll(filterData, sort, pageRequest);
+        }
+
         List<BoughtViewDto> allInstrumentsDto = allInstruments.data()
                 .stream()
                 .map(mapper::toViewDto)

@@ -12,6 +12,7 @@ import com.instrument.shop.model.InstrumentType;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Singleton
@@ -79,7 +80,8 @@ public class InstrumentMapper {
                 instrument.getPrice(),
                 imagesDto,
                 instrument.getType(),
-                instrument.getOwned()
+                instrument.getOwned(),
+                dateToArray(instrument.getPurchased())
         );
     }
 
@@ -88,5 +90,17 @@ public class InstrumentMapper {
                 .stream()
                 .map(imageMapper::toViewDto)
                 .toList();
+    }
+
+    private int[] dateToArray(LocalDateTime date) {
+        return new int[]{
+                date.getYear(),
+                date.getMonthValue(),
+                date.getDayOfMonth(),
+                date.getHour(),
+                date.getMinute(),
+                date.getSecond(),
+                date.getNano(),
+        };
     }
 }

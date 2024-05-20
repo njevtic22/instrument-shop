@@ -95,7 +95,7 @@ public class RepositoryUtil {
     }
 
     private Object getCorrectValue(String key, String value) {
-        if (key.startsWith("issuedAt")) {
+        if (key.startsWith("issuedAt") || key.startsWith("purchased")) {
             return Instant
                     .ofEpochMilli(Long.parseLong(value))
                     .atZone(ZoneId.systemDefault())

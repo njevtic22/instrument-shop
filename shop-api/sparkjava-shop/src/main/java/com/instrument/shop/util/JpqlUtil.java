@@ -130,6 +130,14 @@ public class JpqlUtil {
                 filterPart.append(columnPrefix)
                         .append(".owned <=");
 
+            } else if (key.equals("purchasedStart")) {
+                filterPart.append(columnPrefix)
+                        .append(".purchased >=");
+
+            } else if (key.equals("purchasedEnd")) {
+                filterPart.append(columnPrefix)
+                        .append(".purchased <=");
+
             } else {
                 filterPart.append("lower(")
                         .append(columnPrefix)

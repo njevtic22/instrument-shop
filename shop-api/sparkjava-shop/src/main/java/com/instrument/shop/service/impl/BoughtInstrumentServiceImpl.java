@@ -123,7 +123,12 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> getAll(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<BoughtInstrument> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findAll(filterData, sort, pageRequest);
+    }
+
+    @Override
+    public PaginatedResponse<BoughtInstrument> getAllByCustomer(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByOwnerId(customer.getId(), filterData, sort, pageRequest);
     }
 

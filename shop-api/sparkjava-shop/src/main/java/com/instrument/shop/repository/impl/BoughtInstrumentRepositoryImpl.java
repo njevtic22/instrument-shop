@@ -37,8 +37,27 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
     }
 
     @Override
-    public List<BoughtInstrument> findAllById(Iterable<Long> ids) {
-        return null;
+    public PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+        String filterPart = jpqlUtil.getValidBInstrumentFilter(filterData, "i");
+        if (!filterPart.isEmpty()) {
+            filterPart = "where " + filterPart.substring(5);
+        }
+        String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
+        String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;
+        String countQuery = "select count(*) from BoughtInstrument i " + filterPart;
+
+        EntityManager em = emf.createEntityManager();
+        PaginatedResponse<BoughtInstrument> allInstruments = repoUtil.findAll(
+                em,
+                jpq,
+                countQuery,
+                BoughtInstrument.class,
+                !filterPart.isEmpty(),
+                filterData,
+                pageRequest
+        );
+//        em.close();
+        return allInstruments;
     }
 
     @Override
