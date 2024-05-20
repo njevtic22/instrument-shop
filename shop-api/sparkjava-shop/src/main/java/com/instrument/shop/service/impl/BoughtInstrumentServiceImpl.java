@@ -19,6 +19,7 @@ import com.instrument.shop.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -140,6 +141,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
                 boughtImages,
                 owned,
                 instrument.getType().getName(),
+                LocalDateTime.now(),
                 owner
         );
     }
