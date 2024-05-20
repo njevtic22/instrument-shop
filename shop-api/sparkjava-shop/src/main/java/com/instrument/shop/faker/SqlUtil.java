@@ -52,7 +52,7 @@ public class SqlUtil {
     }
 
     public static String toSqlInsert(BoughtInstrument instrument) {
-        return "insert into bought_instruments (id, code, name, mark, description, price, owned, type, owner_id) values (" +
+        return "insert into bought_instruments (id, code, name, mark, description, price, owned, type, purchased, owner_id) values (" +
                 instrument.getId() + ", '" +
                 instrument.getCode() + "', '" +
                 instrument.getName() + "', '" +
@@ -60,7 +60,8 @@ public class SqlUtil {
                 instrument.getDescription() + "', " +
                 instrument.getPrice() + ", " +
                 instrument.getOwned() + ", '" +
-                instrument.getType() + "', " +
+                instrument.getType() + "', '" +
+                instrument.getPurchased() + "', " +
                 instrument.getOwner().getId() + ");";
     }
 

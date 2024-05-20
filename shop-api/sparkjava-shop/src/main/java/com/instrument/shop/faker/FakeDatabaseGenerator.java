@@ -302,10 +302,6 @@ public class FakeDatabaseGenerator {
 
         ArrayList<AvailableInstrument> remaining = new ArrayList<>(availableInstruments.values());
 
-        Class<AvailableInstrument> availableClass = AvailableInstrument.class;
-        Field quantityField = availableClass.getDeclaredField("quantity");
-        quantityField.setAccessible(true);
-
         Class<Image> imageClass = Image.class;
         Field urlField = imageClass.getDeclaredField("url");
         urlField.setAccessible(true);
@@ -332,13 +328,13 @@ public class FakeDatabaseGenerator {
                         Arrays.asList(instrumentImages),
                         toOwn,
                         available.getType().getName(),
+                        null,
                         customer
                 );
                 customer.getBought().add(bought);
                 boughtInstruments.put(bought.getId(), bought);
 
-                int newQuantity = available.getQuantity() - toOwn;
-                quantityField.set(available, newQuantity);
+                available.setQuantity(available.getQuantity() - toOwn);
             }
         }
 
@@ -346,14 +342,14 @@ public class FakeDatabaseGenerator {
     }
 
     private void generateReceipts(LongGenerator receiptId, LongGenerator itemId, HashMap<Long, Receipt> receipts, HashMap<Long, ReceiptItem> items, Map<Long, User> users) throws NoSuchFieldException, IllegalAccessException {
-        Class<ReceiptItem> itemClass = ReceiptItem.class;
-        Field receiptField = itemClass.getDeclaredField("receipt");
-        receiptField.setAccessible(true);
-
         List<User> customers = users.values()
                 .stream()
                 .filter(User::isCustomer)
                 .toList();
+
+        Class<BoughtInstrument> boughtClass = BoughtInstrument.class;
+        Field purchasedField = boughtClass.getDeclaredField("purchased");
+        purchasedField.setAccessible(true);
 
         for (User customer : customers) {
             List<BoughtInstrument> remaining = new ArrayList<>(customer.getBought());
@@ -362,8 +358,12 @@ public class FakeDatabaseGenerator {
                 Receipt dummy = new Receipt();
                 ArrayList<ReceiptItem> receiptItems = new ArrayList<>(ITEMS_PER_RECEIPT);
 
+                LocalDateTime issuedAt = generatePastLocalDateTime(faker, LocalDateTime.now());
+
                 for (int j = 0; j < ITEMS_PER_RECEIPT; j++) {
                     BoughtInstrument bought = remaining.remove(faker.number().numberBetween(0, remaining.size()));
+                    purchasedField.set(bought, issuedAt);
+
                     totalPrice += bought.getPrice();
                     ReceiptItem item = new ReceiptItem(
                             itemId.next(),
@@ -383,13 +383,13 @@ public class FakeDatabaseGenerator {
                         totalPrice,
                         PAID,
                         PAID - totalPrice,
-                        generatePastLocalDateTime(faker, LocalDateTime.now()),
+                        issuedAt,
                         receiptItems
                 );
                 receipts.put(receipt.getId(), receipt);
 
                 for (ReceiptItem item : receiptItems) {
-                    receiptField.set(item, receipt);
+                    item.setReceipt(receipt);
                 }
             }
         }
