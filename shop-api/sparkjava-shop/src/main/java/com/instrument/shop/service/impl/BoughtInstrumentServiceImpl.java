@@ -19,6 +19,7 @@ import com.instrument.shop.service.UserService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -59,6 +60,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
         ArrayList<BoughtInstrument> boughtInstruments = new ArrayList<>(cart.size());
         ArrayList<AvailableInstrument> changedAvailables = new ArrayList<>(cart.size());
 
+        LocalDateTime now = LocalDateTime.now();
         float totalPrice = 0;
 
         for (Map.Entry<Long, Integer> entry : instrumentQuantity.entrySet()) {
@@ -80,7 +82,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
             available.setQuantity(remaining);
             changedAvailables.add(available);
 
-            BoughtInstrument bought = copy(available, toBuy, customer);
+            BoughtInstrument bought = copy(available, toBuy, customer, now);
             customer.getBought().add(bought);
             boughtInstruments.add(bought);
 
@@ -104,7 +106,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
                 totalPrice,
                 paid,
                 paid - totalPrice,
-                null,
+                now,
                 items
         );
 
@@ -125,7 +127,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
         return repository.findAllByOwnerId(customer.getId(), filterData, sort, pageRequest);
     }
 
-    private BoughtInstrument copy(AvailableInstrument instrument, int owned, User owner) {
+    private BoughtInstrument copy(AvailableInstrument instrument, int owned, User owner, LocalDateTime purchased) {
         List<Image> boughtImages = instrument.getImages()
                 .stream()
                 .map(image -> new Image(image.getUrl()))
@@ -140,6 +142,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
                 boughtImages,
                 owned,
                 instrument.getType().getName(),
+                purchased,
                 owner
         );
     }

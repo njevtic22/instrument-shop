@@ -38,7 +38,7 @@ public class ReceiptServiceImpl implements ReceiptService {
                 newReceipt.getTotalPrice(),
                 newReceipt.getPaid(),
                 newReceipt.getChange(),
-                LocalDateTime.now(),
+                newReceipt.getIssuedAt(),
                 newReceipt.getItems()
         );
         toAdd.getItems().forEach(item -> item.setReceipt(toAdd));
