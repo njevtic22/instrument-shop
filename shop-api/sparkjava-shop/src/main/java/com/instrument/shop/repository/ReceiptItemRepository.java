@@ -9,4 +9,6 @@ import java.util.List;
 @ImplementedBy(ReceiptItemRepositoryImpl.class)
 public interface ReceiptItemRepository {
     List<ReceiptItem> saveAll(Iterable<ReceiptItem> items);
+
+    List<ReceiptItem> findAllByReceiptId(Long receiptId);
 }

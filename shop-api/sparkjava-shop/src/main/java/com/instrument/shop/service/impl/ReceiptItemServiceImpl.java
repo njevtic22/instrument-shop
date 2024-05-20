@@ -21,4 +21,9 @@ public class ReceiptItemServiceImpl implements ReceiptItemService {
     public List<ReceiptItem> saveAll(Iterable<ReceiptItem> items) {
         return repository.saveAll(items);
     }
+
+    @Override
+    public List<ReceiptItem> getAllByReceiptId(Long receiptId) {
+        return repository.findAllByReceiptId(receiptId);
+    }
 }
