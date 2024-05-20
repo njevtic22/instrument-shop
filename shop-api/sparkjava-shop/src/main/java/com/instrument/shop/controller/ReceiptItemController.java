@@ -19,13 +19,11 @@ import java.util.List;
 public class ReceiptItemController {
     private final ReceiptItemService service;
     private final ReceiptMapper mapper;
-    private final PagingFilteringUtil pagingFilteringUtil;
 
     @Inject
-    public ReceiptItemController(ReceiptItemService service, ReceiptMapper mapper, PagingFilteringUtil pagingFilteringUtil) {
+    public ReceiptItemController(ReceiptItemService service, ReceiptMapper mapper) {
         this.service = service;
         this.mapper = mapper;
-        this.pagingFilteringUtil = pagingFilteringUtil;
     }
 
     @GetMapping
