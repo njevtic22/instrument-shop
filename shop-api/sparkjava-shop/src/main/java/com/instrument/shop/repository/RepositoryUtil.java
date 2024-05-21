@@ -94,19 +94,11 @@ public class RepositoryUtil {
         return savedEntities;
     }
 
-    private Object getCorrectValue(String key, String value) {
-        if (key.startsWith("issuedAt") || key.startsWith("purchased")) {
-            return Instant
-                    .ofEpochMilli(Long.parseLong(value))
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-
-        } else if (key.endsWith("Start") || key.endsWith("End") || key.equals("ownerId")) {
-            return value;
-
-        } else {
+    private Object getCorrectValue(Object value) {
+        if (value instanceof String) {
             return "%" + value + "%";
         }
+        return value;
     }
 
     public <T extends DatabaseEntity> PaginatedResponse<T> findAll(
@@ -115,7 +107,7 @@ public class RepositoryUtil {
             String countQuery,
             Class<T> clazz,
             boolean hasFilter,
-            Map<String, String> filterData,
+            Map<String, Object> filterData,
             PageRequest pageRequest
     ) {
         List<T> allEntities = new ArrayList<>();
@@ -131,9 +123,10 @@ public class RepositoryUtil {
             TypedQuery<Long> count = em.createQuery(countQuery, long.class);
 
             if (hasFilter) {
-                for (Map.Entry<String, String> entry : filterData.entrySet()) {
+                for (Map.Entry<String, Object> entry : filterData.entrySet()) {
                     String key = entry.getKey();
-                    Object value = getCorrectValue(key, entry.getValue());
+                    Object value = getCorrectValue(entry.getValue());
+
                     selectAll.setParameter(key, value);
                     count.setParameter(key, value);
                 }

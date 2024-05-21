@@ -15,7 +15,7 @@ public interface ReceiptRepository {
 
     Receipt save(Receipt receipt);
 
-    PaginatedResponse<Receipt> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<Receipt> findAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
     boolean existsByCode(String code);
 }

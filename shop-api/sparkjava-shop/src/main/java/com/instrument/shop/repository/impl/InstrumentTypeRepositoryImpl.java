@@ -46,7 +46,7 @@ public class InstrumentTypeRepositoryImpl implements InstrumentTypeRepository {
     }
 
     @Override
-    public PaginatedResponse<InstrumentType> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<InstrumentType> findAllByArchivedFalse(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         String filterPart = jpqlUtil.getValidFilter(filterData, "it");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select it from InstrumentType it where it.archived = false" + filterPart + orderBy;

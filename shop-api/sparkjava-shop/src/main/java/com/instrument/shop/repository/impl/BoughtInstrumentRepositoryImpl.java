@@ -37,7 +37,7 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<BoughtInstrument> findAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         String filterPart = jpqlUtil.getValidBInstrumentFilter(filterData, "i");
         if (!filterPart.isEmpty()) {
             filterPart = "where " + filterPart.substring(5);
@@ -61,7 +61,7 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
     }
 
     @Override
-    public PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         String filterPart = "where i.owner.id = :ownerId" + jpqlUtil.getValidBInstrumentFilter(filterData, "i");
         String orderBy = jpqlUtil.getValidOrderBy(sort.toString());
         String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;

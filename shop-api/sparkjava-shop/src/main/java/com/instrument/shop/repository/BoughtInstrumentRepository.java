@@ -14,7 +14,7 @@ import java.util.Map;
 public interface BoughtInstrumentRepository {
     List<BoughtInstrument> saveAll(Iterable<BoughtInstrument> instruments);
 
-    PaginatedResponse<BoughtInstrument> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> findAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
-    PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 }

@@ -36,7 +36,7 @@ public class InstrumentTypeServiceImpl implements InstrumentTypeService {
     }
 
     @Override
-    public PaginatedResponse<InstrumentType> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<InstrumentType> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByArchivedFalse(filterData, sort, pageRequest);
     }
 

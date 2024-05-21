@@ -49,7 +49,7 @@ public class ReceiptServiceImpl implements ReceiptService {
     }
 
     @Override
-    public PaginatedResponse<Receipt> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<Receipt> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAll(filterData, sort, pageRequest);
     }
 

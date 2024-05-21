@@ -14,7 +14,7 @@ import java.util.Map;
 public interface BoughtInstrumentService {
     void buy(User customer, Map<Long, Integer> instrumentQuantity, float paid);
 
-    PaginatedResponse<BoughtInstrument> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
-    PaginatedResponse<BoughtInstrument> getAllByCustomer(User customer, Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<BoughtInstrument> getAllByCustomer(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 }

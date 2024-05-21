@@ -41,7 +41,7 @@ public class ReceiptController {
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
-        Map<String, String> filterData = pagingFilteringUtil.buildFilterData(filterParams);
+        Map<String, Object> filterData = pagingFilteringUtil.buildFilterData(filterParams);
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 

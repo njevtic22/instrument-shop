@@ -25,9 +25,9 @@ public class JpqlUtil {
         return validOrderBy.isEmpty() ? validOrderBy : " order by " + validOrderBy;
     }
 
-    public String getValidFilter(Map<String, String> filterData, String columnPrefix) {
+    public String getValidFilter(Map<String, Object> filterData, String columnPrefix) {
         StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
             filterPart.append(" and lower(")
@@ -41,9 +41,9 @@ public class JpqlUtil {
         return getValidJpqlPart(filterPart.toString());
     }
 
-    public String getValidUserFilter(Map<String, String> filterData, String columnPrefix) {
+    public String getValidUserFilter(Map<String, Object> filterData, String columnPrefix) {
         StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
             filterPart.append(" and lower(");
@@ -65,9 +65,9 @@ public class JpqlUtil {
         return getValidJpqlPart(filterPart.toString());
     }
 
-    public String getValidAInstrumentFilter(Map<String, String> filterData, String columnPrefix) {
+    public String getValidAInstrumentFilter(Map<String, Object> filterData, String columnPrefix) {
         StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
             filterPart.append(" and ");
@@ -108,9 +108,9 @@ public class JpqlUtil {
         return getValidJpqlPart(filterPart.toString());
     }
 
-    public String getValidBInstrumentFilter(Map<String, String> filterData, String columnPrefix) {
+    public String getValidBInstrumentFilter(Map<String, Object> filterData, String columnPrefix) {
         StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
             filterPart.append(" and ");
@@ -154,9 +154,9 @@ public class JpqlUtil {
         return getValidJpqlPart(filterPart.toString());
     }
 
-    public String getValidReceiptFilter(Map<String, String> filterData, String columnPrefix) {
+    public String getValidReceiptFilter(Map<String, Object> filterData, String columnPrefix) {
         StringBuilder filterPart = new StringBuilder();
-        for (Map.Entry<String, String> entry : filterData.entrySet()) {
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
             String key = entry.getKey();
 
             filterPart.append(" and ");

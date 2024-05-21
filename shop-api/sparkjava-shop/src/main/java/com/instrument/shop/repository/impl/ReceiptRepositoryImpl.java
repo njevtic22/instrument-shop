@@ -45,7 +45,7 @@ public class ReceiptRepositoryImpl implements ReceiptRepository {
     }
 
     @Override
-    public PaginatedResponse<Receipt> findAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<Receipt> findAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         String filterPart = jpqlUtil.getValidReceiptFilter(filterData, "r");
         if (!filterPart.isEmpty()) {
             filterPart = "where " + filterPart.substring(5);
