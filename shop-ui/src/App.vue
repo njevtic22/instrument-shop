@@ -4,7 +4,11 @@
             <TheHeader @menu-clicked="toggleDrawer"></TheHeader>
             <TheSidebar v-model="drawer"></TheSidebar>
             <div class="main-container">
-                <router-view />
+                <router-view v-slot="{ Component }">
+                    <transition name="fade">
+                        <component :is="Component" />
+                    </transition>
+                </router-view>
             </div>
         </v-main>
     </v-app>
@@ -23,5 +27,19 @@ function toggleDrawer() {
 <style scoped>
 .main-container {
     padding: 2%;
+}
+
+.fade-enter-active {
+    transition: opacity 0.3s ease;
+    transition-delay: 0.3s;
+}
+
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
 }
 </style>

@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer v-model="isOpened" temporary>
+    <v-navigation-drawer v-model="isOpened" permanent>
         <v-list density="compact" nav>
             <v-list-item
                 @click="router.push('/login')"
