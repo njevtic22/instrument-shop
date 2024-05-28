@@ -16,8 +16,17 @@
 
 <script setup>
 import { ref } from "vue";
+import axios from "axios";
 
 const drawer = ref(true);
+
+axios.interceptors.response.use(
+    (response) => response,
+    function (error) {
+        console.log(error.response.data);
+        return Promise.reject(error);
+    }
+);
 
 function toggleDrawer() {
     drawer.value = !drawer.value;

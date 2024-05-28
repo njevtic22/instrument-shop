@@ -12,7 +12,7 @@ const routes = [
     },
     {
         path: "/login",
-        name: "login",
+        name: "Login",
         component: () =>
             import(/* webpackChunkName: "Login" */ "../views/LoginView.vue"),
         meta: {
