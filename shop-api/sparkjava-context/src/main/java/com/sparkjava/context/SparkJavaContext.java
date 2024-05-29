@@ -7,6 +7,7 @@ import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.ExceptionHandler;
 import com.sparkjava.context.annotation.Exceptions;
 import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.OptionsMapping;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PutMapping;
 import com.sparkjava.context.annotation.RequestMapping;
@@ -52,7 +53,8 @@ public class SparkJavaContext {
             GetMapping.class,
             PostMapping.class,
             PutMapping.class,
-            DeleteMapping.class
+            DeleteMapping.class,
+            OptionsMapping.class
     );
 
     private final Set<Class<? extends Annotation>> filterMappings = Set.of(
@@ -175,6 +177,17 @@ public class SparkJavaContext {
                 }
                 if (!deleteMapping.produces().isBlank()) {
                     produces = deleteMapping.produces();
+                }
+            }
+            case "OptionsMapping" -> {
+                OptionsMapping optionsMapping = (OptionsMapping) endpointMapping;
+                methodPath = controllerMapping.value() + optionsMapping.value();
+                sparkMethodName = "options";
+                if (!optionsMapping.consumes().isBlank()) {
+                    consumes = optionsMapping.consumes();
+                }
+                if (!optionsMapping.produces().isBlank()) {
+                    produces = optionsMapping.produces();
                 }
             }
         }

@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.instrument.shop.controller.AuthenticationController;
 import com.instrument.shop.controller.AvailableInstrumentController;
 import com.instrument.shop.controller.BoughtInstrumentController;
+import com.instrument.shop.controller.ConfigController;
 import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.InstrumentTypeController;
 import com.instrument.shop.controller.LoggingController;
@@ -53,6 +54,7 @@ public class Main {
         sparkCtx.setAuthorizer(Set.of("MANAGER", "SALESMAN", "CUSTOMER"), injector.getInstance(RolesGetter.class));
 
         sparkCtx.createEndpoints(
+                injector.getInstance(ConfigController.class),
                 injector.getInstance(AuthenticationController.class),
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class),
