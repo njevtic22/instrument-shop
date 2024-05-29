@@ -1,7 +1,8 @@
 <template>
+    <TheSnackbar ref="theSnack"></TheSnackbar>
     <v-app>
         <v-main>
-            <TheHeader @menu-clicked="toggleDrawer"></TheHeader>
+            <TheHeader @menu-clicked="drawer = !drawer"></TheHeader>
             <TheSidebar v-model="drawer"></TheSidebar>
             <div class="main-container">
                 <router-view v-slot="{ Component }">
@@ -15,22 +16,14 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
-import axios from "axios";
+import { ref, provide, onMounted } from "vue";
 
 const drawer = ref(true);
+const theSnack = ref(null);
 
-axios.interceptors.response.use(
-    (response) => response,
-    function (error) {
-        console.log(error.response.data);
-        return Promise.reject(error);
-    }
-);
-
-function toggleDrawer() {
-    drawer.value = !drawer.value;
-}
+onMounted(() => {
+    provide("snackbar", theSnack.value.show);
+});
 </script>
 
 <style scoped>

@@ -24,11 +24,13 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import { logIn } from "@/store/auth";
 
 const router = useRouter();
+
+const snackbar = inject("snackbar");
 
 const form = ref(null);
 const username = ref("");
@@ -51,12 +53,16 @@ async function login() {
         localStorage.setItem("role", response.data.role);
 
         router.push("/");
+
+        snackbar("Successful login", 3 * 1000, "info");
     };
     // form.value.reset();
     // form.value.resetValidation();
 
+    // theSnack.value.show("Snackbar message", timeout);
+
     const errorCallback = (error) => {
-        console.log(error);
+        snackbar(error.response.data.message);
         // TODO: Add error message in login form
     };
 
