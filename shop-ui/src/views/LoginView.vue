@@ -26,7 +26,7 @@
 <script setup>
 import { ref } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
+import { logIn } from "@/store/auth";
 
 const router = useRouter();
 
@@ -46,19 +46,21 @@ async function login() {
         password: password.value,
     };
 
-    axios
-        .post("http://localhost:8080/api/auth/login", loginData)
-        .then((response) => {
-            localStorage.setItem("token", response.data.token);
-            localStorage.setItem("role", response.data.role);
+    const successCallback = (response) => {
+        localStorage.setItem("token", response.data.token);
+        localStorage.setItem("role", response.data.role);
 
-            router.push("/");
-        })
-        .catch((error) => {
-            // TODO: Add error message in login form
-        });
+        router.push("/");
+    };
     // form.value.reset();
     // form.value.resetValidation();
+
+    const errorCallback = (error) => {
+        console.log(error);
+        // TODO: Add error message in login form
+    };
+
+    logIn(loginData, successCallback, errorCallback);
 }
 </script>
 
