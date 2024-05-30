@@ -16,7 +16,7 @@ import { createVuetify } from "vuetify";
 const myCustomLightTheme = {
     dark: false,
     colors: {
-        background: "#f5f5f5", // whitesmoke
+        background: colors.grey.lighten4, // "#f5f5f5", // whitesmoke
         primary: colors.indigo.darken4, // #1A237E
     },
 };

@@ -11,7 +11,7 @@ const Role = Object.freeze({
 const tmp = localStorage.getItem("role") || Role.ANONYMOUS;
 let currentRole = ref(tmp);
 
-function logIn(loginData, successCallback, errorCallback = () => {}) {
+function logIn(loginData, successCallback, errorCallback) {
     axios
         .post("http://localhost:8080/api/auth/login", loginData)
         .then((response) => {

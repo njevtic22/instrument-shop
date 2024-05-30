@@ -21,8 +21,13 @@ import { ref, provide, onMounted } from "vue";
 const drawer = ref(true);
 const theSnack = ref(null);
 
+function defaultErrorSnackbar(error) {
+    theSnack.value.show(error.response.data.message, -1, "red-darken-1", "");
+}
+
 onMounted(() => {
     provide("snackbar", theSnack.value.show);
+    provide("defaultErrorSnackbar", defaultErrorSnackbar);
 });
 </script>
 

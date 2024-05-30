@@ -25,7 +25,7 @@ const timeout = ref(-1);
 function show(
     newText,
     newTimeout = -1,
-    newAccentColor = "red",
+    newAccentColor = "light-blue-darken-1",
     newBackgroundColor = ""
 ) {
     text.value = newText;

@@ -31,6 +31,7 @@ import { logIn } from "@/store/auth";
 const router = useRouter();
 
 const snackbar = inject("snackbar");
+const errorSnack = inject("defaultErrorSnackbar");
 
 const form = ref(null);
 const username = ref("");
@@ -54,19 +55,17 @@ async function login() {
 
         router.push("/");
 
-        snackbar("Successful login", 3 * 1000, "info");
+        snackbar("Successful login", 3 * 1000);
     };
     // form.value.reset();
     // form.value.resetValidation();
 
-    // theSnack.value.show("Snackbar message", timeout);
+    // const errorCallback = (error) => {
+    //     snackbar(error.response.data.message);
+    //     // TODO: Add error message in login form
+    // };
 
-    const errorCallback = (error) => {
-        snackbar(error.response.data.message);
-        // TODO: Add error message in login form
-    };
-
-    logIn(loginData, successCallback, errorCallback);
+    logIn(loginData, successCallback, errorSnack);
 }
 </script>
 
