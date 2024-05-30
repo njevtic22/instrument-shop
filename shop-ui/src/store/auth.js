@@ -1,5 +1,6 @@
 import { ref } from "vue";
 import axios from "axios";
+import { environment } from "@/environment/environment";
 
 const Role = Object.freeze({
     MANAGER: "MANAGER",
@@ -8,12 +9,14 @@ const Role = Object.freeze({
     ANONYMOUS: "ANONYMOUS",
 });
 
+const authUrl = `${environment.apiUrl}/auth`;
+
 const tmp = localStorage.getItem("role") || Role.ANONYMOUS;
 let currentRole = ref(tmp);
 
 function logIn(loginData, successCallback, errorCallback) {
     axios
-        .post("http://localhost:8080/api/auth/login", loginData)
+        .post(`${authUrl}/login`, loginData)
         .then((response) => {
             successCallback(response);
             let storageRole = localStorage.getItem("role");
