@@ -21,7 +21,7 @@
         <template v-slot:append>
             <v-btn
                 v-if="currentRole !== Role.ANONYMOUS"
-                @click="clearStorage"
+                @click="logout"
                 block
                 color="primary"
             >
@@ -34,16 +34,16 @@
 <script setup>
 import { defineModel } from "vue";
 import { useRouter } from "vue-router";
-import { Role, currentRole, logout } from "@/store/auth";
+import { Role, currentRole, clear } from "@/store/auth";
 
 const router = useRouter();
 const isOpened = defineModel();
 
-function clearStorage() {
+function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
 
-    logout();
+    clear();
 
     router.push("/");
 }
