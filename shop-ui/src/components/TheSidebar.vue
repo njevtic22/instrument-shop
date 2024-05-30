@@ -2,7 +2,7 @@
     <v-navigation-drawer v-model="isOpened" permanent>
         <v-list density="compact" nav>
             <v-list-item
-                v-if="currentRole === 'ANONYMOUS'"
+                v-if="currentRole === Role.ANONYMOUS"
                 @click="router.push('/login')"
                 prepend-icon="mdi-login"
                 title="Login"
@@ -19,7 +19,12 @@
         </v-list>
 
         <template v-slot:append>
-            <v-btn v-if="currentRole !== 'ANONYMOUS'" block color="primary">
+            <v-btn
+                v-if="currentRole !== Role.ANONYMOUS"
+                @click="clearStorage"
+                block
+                color="primary"
+            >
                 Logout
             </v-btn>
         </template>
@@ -29,10 +34,19 @@
 <script setup>
 import { defineModel } from "vue";
 import { useRouter } from "vue-router";
-import { currentRole } from "@/store/auth";
+import { Role, currentRole, logout } from "@/store/auth";
 
 const router = useRouter();
 const isOpened = defineModel();
+
+function clearStorage() {
+    localStorage.removeItem("token");
+    localStorage.removeItem("role");
+
+    logout();
+
+    router.push("/");
+}
 
 // to avoid constantly calling isAnonymous when directly
 // binding to v-if
