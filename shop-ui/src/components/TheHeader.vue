@@ -1,5 +1,5 @@
 <template>
-    <v-app-bar :elevation="10" density="compact" color="primary">
+    <v-app-bar density="compact" color="primary">
         <template v-slot:prepend>
             <v-app-bar-title
                 @click="redirectToInstruments"

@@ -15,8 +15,20 @@
             ></v-text-field>
         </v-form>
 
+        <v-card-item
+            :class="errorOccured ? '' : 'error-hidden'"
+            class="d-flex justify-center error-color"
+        >
+            {{ errorMessage }}
+        </v-card-item>
+
         <v-card-actions class="justify-center">
-            <v-btn variant="elevated" color="primary" @click="login">
+            <v-btn
+                :disabled="!isFormValid"
+                variant="elevated"
+                color="primary"
+                @click="login"
+            >
                 Login
             </v-btn>
         </v-card-actions>
@@ -24,18 +36,20 @@
 </template>
 
 <script setup>
-import { ref, inject } from "vue";
+import { ref, inject, computed } from "vue";
 import { useRouter } from "vue-router";
 import { logIn } from "@/store/auth";
 
 const router = useRouter();
 
 const snackbar = inject("snackbar");
-const errorSnack = inject("defaultErrorSnackbar");
 
 const form = ref(null);
 const username = ref("");
 const password = ref("");
+
+const errorMessage = ref("Bad credentials");
+const errorOccured = ref(false);
 
 async function login() {
     const { valid } = await form.value.validate();
@@ -57,20 +71,34 @@ async function login() {
 
         snackbar("Successful login", 3 * 1000);
     };
-    // form.value.reset();
-    // form.value.resetValidation();
 
-    // const errorCallback = (error) => {
-    //     snackbar(error.response.data.message);
-    //     // TODO: Add error message in login form
-    // };
+    const errorCallback = (error) => {
+        errorMessage.value = error.response.data.message;
+        errorOccured.value = true;
+    };
 
-    logIn(loginData, successCallback, errorSnack);
+    logIn(loginData, successCallback, errorCallback);
 }
+
+const isFormValid = computed(() => {
+    return (
+        username.value.length !== 0 &&
+        password.value.length !== 0 &&
+        form.value.isValid
+    );
+});
 </script>
 
 <style scoped>
 .padded {
     padding: 3%;
+}
+
+.error-hidden {
+    visibility: hidden;
+}
+
+.error-color {
+    color: #b71c1c;
 }
 </style>
