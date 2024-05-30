@@ -3,13 +3,17 @@
         <v-form ref="form">
             <v-text-field
                 v-model="username"
-                :rules="[(value) => !!value || 'Username is required']"
+                :rules="[required]"
                 label="Username"
                 required
             ></v-text-field>
+
             <v-text-field
                 v-model="password"
-                :rules="[(value) => !!value || 'Password is required']"
+                :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+                @click:append-inner="showPassword = !showPassword"
+                :type="showPassword ? 'text' : 'password'"
+                :rules="[required]"
                 label="Password"
                 required
             ></v-text-field>
@@ -47,6 +51,9 @@ const snackbar = inject("snackbar");
 const form = ref(null);
 const username = ref("");
 const password = ref("");
+const showPassword = ref(false);
+
+const required = (value) => !!value || "Required";
 
 const errorMessage = ref("Bad credentials");
 const errorOccured = ref(false);
