@@ -1,7 +1,7 @@
 <template>
     <div>
         <v-row align="stretch" class="justify-center">
-            <v-col cols="5">
+            <v-col cols="4">
                 <v-img
                     src="@/assets/not-found.png"
                     error="Even image is not found"

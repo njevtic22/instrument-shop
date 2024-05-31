@@ -29,4 +29,8 @@ function clear() {
     currentRole.value = Role.ANONYMOUS;
 }
 
-export { Role, currentRole, logIn, clear };
+function isAnonymous() {
+    return currentRole.value === Role.ANONYMOUS;
+}
+
+export { Role, currentRole, logIn, clear, isAnonymous };
