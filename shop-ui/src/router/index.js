@@ -19,6 +19,18 @@ const routes = [
             title: "Login",
         },
     },
+    {
+        path: "/not-found",
+        alias: "/:pathMatch(.*)*",
+        name: "NotFound",
+        component: () =>
+            import(
+                /* webpackChunkName: "NotFound" */ "../views/NotFoundView.vue"
+            ),
+        meta: {
+            title: "Not Found",
+        },
+    },
 ];
 
 const router = createRouter({
