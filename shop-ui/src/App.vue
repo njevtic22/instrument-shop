@@ -16,6 +16,7 @@
 </template>
 
 <script setup>
+import axios from "axios";
 import { ref, provide, onMounted } from "vue";
 
 const drawer = ref(true);
@@ -24,6 +25,9 @@ const theSnack = ref(null);
 function defaultErrorSnackbar(error) {
     theSnack.value.show(error.response.data.message, -1, "red-darken-1", "");
 }
+
+axios.defaults.headers.common["Authorization"] =
+    "Bearer " + localStorage.getItem("token");
 
 onMounted(() => {
     provide("snackbar", theSnack.value.show);

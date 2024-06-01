@@ -1,6 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Instruments from "../views/InstrumentsView.vue";
-import { Role, isAnonymous } from "@/store/auth";
+import { Role, currentRole } from "@/store/auth";
 
 const routes = [
     {
@@ -19,6 +19,18 @@ const routes = [
         meta: {
             title: "Login",
             requiredRole: [Role.ANONYMOUS],
+        },
+    },
+    {
+        path: "/profile",
+        name: "Profile",
+        component: () =>
+            import(
+                /* webpackChunkName: "Profile" */ "../views/ProfileView.vue"
+            ),
+        meta: {
+            title: "Profile",
+            requiredRole: [Role.MANAGER, Role.SALESMAN, Role.CUSTOMER],
         },
     },
     {
@@ -41,12 +53,14 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-    if (!to.meta.requiredRole || to.meta.requiredRole.length == 0) {
+    const roles = to.meta.requiredRole;
+    if (!roles || roles.length == 0) {
         next();
         return;
     }
 
-    if (isAnonymous() && to.path === "/login") {
+    const authorized = roles.some((role) => role === currentRole.value);
+    if (authorized) {
         next();
         return;
     }

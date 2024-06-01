@@ -10,6 +10,14 @@
             >
             </v-list-item>
             <v-list-item
+                v-if="currentRole !== Role.ANONYMOUS"
+                @click="router.push('/profile')"
+                prepend-icon="mdi-account"
+                title="Profile"
+                value="Profile"
+            >
+            </v-list-item>
+            <v-list-item
                 @click="router.push('/')"
                 prepend-icon="mdi-guitar-acoustic"
                 title="Instruments"
@@ -34,7 +42,9 @@
 <script setup>
 import { defineModel } from "vue";
 import { useRouter } from "vue-router";
-import { Role, currentRole, clear } from "@/store/auth";
+import { Role, currentRole, clear as clearRole } from "@/store/auth";
+import { clear as clearProfile } from "@/store/profile";
+import axios from "axios";
 
 const router = useRouter();
 const isOpened = defineModel();
@@ -43,8 +53,10 @@ function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
 
-    clear();
+    clearRole();
+    clearProfile();
 
+    axios.defaults.headers.common["Authorization"] = null;
     router.push("/");
 }
 

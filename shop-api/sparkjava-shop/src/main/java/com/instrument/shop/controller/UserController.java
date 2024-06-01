@@ -129,6 +129,12 @@ public class UserController {
         return mapper.toViewDto(updated);
     }
 
+    @GetMapping("/profile")
+    @MethodOrder(43)
+    public UserViewDto getProfile(@Authenticated User authenticated) {
+        return mapper.toViewDto(authenticated);
+    }
+
     @GetMapping("/:id")
     @MethodOrder(40)
     @PreAuthorize
