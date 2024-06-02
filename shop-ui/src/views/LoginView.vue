@@ -94,11 +94,11 @@ async function login() {
 }
 
 const isFormValid = computed(() => {
-    return (
-        username.value.length !== 0 &&
-        password.value.length !== 0 &&
-        form.value.isValid
-    );
+    if (!form.value) {
+        return false;
+    }
+
+    return form.value.isValid;
 });
 </script>
 

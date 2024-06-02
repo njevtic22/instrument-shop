@@ -18,7 +18,8 @@ function getDefaultState() {
 }
 
 const profileState = ref(getDefaultState());
-const profileUrl = `${environment.apiUrl}/users/profile`;
+const userUrl = `${environment.apiUrl}/users`;
+const profileUrl = `${userUrl}/profile`;
 
 function fetchProfile(errorCallback) {
     axios
@@ -29,8 +30,18 @@ function fetchProfile(errorCallback) {
         .catch(errorCallback);
 }
 
+function updateProfile(changes, successCallback, errorCallback) {
+    axios
+        .put(userUrl, changes)
+        .then((response) => {
+            profileState.value = response.data.updated;
+            successCallback(response);
+        })
+        .catch(errorCallback);
+}
+
 function clear() {
     profileState.value = getDefaultState();
 }
 
-export { profileState, fetchProfile, clear };
+export { profileState, fetchProfile, updateProfile, clear };
