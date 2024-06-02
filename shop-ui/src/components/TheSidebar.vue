@@ -56,7 +56,7 @@ function logout() {
     clearRole();
     clearProfile();
 
-    axios.defaults.headers.common["Authorization"] = null;
+    delete axios.defaults.headers.common["Authorization"];
     router.push("/");
 }
 

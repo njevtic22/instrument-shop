@@ -1,11 +1,12 @@
 <template>
-    <v-card class="padded mx-auto" width="30%">
+    <v-card class="padded mx-auto" width="25%">
         <v-form ref="form">
             <v-text-field
                 v-model="username"
                 :rules="[required]"
                 label="Username"
                 required
+                class="padded"
             ></v-text-field>
 
             <v-text-field
@@ -16,6 +17,7 @@
                 :rules="[required]"
                 label="Password"
                 required
+                class="padded"
             ></v-text-field>
         </v-form>
 
@@ -43,6 +45,7 @@
 import { ref, inject, computed } from "vue";
 import { useRouter } from "vue-router";
 import { logIn } from "@/store/auth";
+import axios from "axios";
 
 const router = useRouter();
 
@@ -73,6 +76,9 @@ async function login() {
     const successCallback = (response) => {
         localStorage.setItem("token", response.data.token);
         localStorage.setItem("role", response.data.role);
+
+        axios.defaults.headers.common["Authorization"] =
+            "Bearer " + response.data.token;
 
         router.push("/");
 
