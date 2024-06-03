@@ -33,7 +33,7 @@
             </v-col>
         </v-row>
         <v-row class="d-flex justify-center">
-            <v-btn :disabled="!isFormValid" @click="emitUpdate" color="primary">
+            <v-btn :disabled="!isFormValid" @click="update" color="primary">
                 Save
             </v-btn>
         </v-row>
@@ -42,10 +42,12 @@
 </template>
 
 <script setup>
-import { ref, defineEmits, computed } from "vue";
-import { profileState } from "@/store/profile";
+import { ref, inject, computed } from "vue";
+import { profileState, updateProfile } from "@/store/profile";
+import axios from "axios";
 
-const emit = defineEmits(["change-profile"]);
+const snackbar = inject("snackbar");
+const errorSnack = inject("defaultErrorSnackbar");
 
 const profile = ref({
     name: profileState.value.name,
@@ -62,22 +64,30 @@ const rules = {
         /.+@.+\..+/.test(email) || "Email must be valid email adress",
 };
 
+// :disabled="!form ? !false : !form.isValid"
 const isFormValid = computed(() => {
-    if (!form.value) {
-        return false;
-    }
-
-    return form.value.isValid;
+    return form.value ? form.value.isValid : false;
 });
 
-function emitUpdate() {
+function update() {
     const changes = {
         name: profile.value.name,
         surname: profile.value.surname,
         email: profile.value.email,
         username: profile.value.username,
     };
-    emit("change-profile", changes);
+
+    const successCallback = (response) => {
+        if (response.data.token) {
+            localStorage.setItem("token", response.data.token);
+            axios.defaults.headers.common["Authorization"] =
+                "Bearer " + response.data.token;
+        }
+
+        snackbar("Profile updated", 3 * 1000);
+    };
+
+    updateProfile(changes, successCallback, errorSnack);
 }
 </script>
 

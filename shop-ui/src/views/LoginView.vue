@@ -93,12 +93,9 @@ async function login() {
     logIn(loginData, successCallback, errorCallback);
 }
 
+// :disabled="!form ? !false : !form.isValid"
 const isFormValid = computed(() => {
-    if (!form.value) {
-        return false;
-    }
-
-    return form.value.isValid;
+    return form.value ? form.value.isValid : false;
 });
 </script>
 

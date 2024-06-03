@@ -5,7 +5,9 @@
             @toggle-expansion="showChange = !showChange"
         ></ProfileData>
 
-        <ProfileChange :showPanel="showChange"></ProfileChange>
+        <v-expand-transition>
+            <ProfileChange :showPanel="showChange"></ProfileChange>
+        </v-expand-transition>
     </v-card>
 </template>
 
