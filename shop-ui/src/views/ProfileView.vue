@@ -6,7 +6,7 @@
         ></ProfileData>
 
         <v-expand-transition>
-            <div v-show="showChange">
+            <div v-if="showChange">
                 <ProfileChange></ProfileChange>
             </div>
         </v-expand-transition>

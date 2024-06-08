@@ -12,9 +12,12 @@
                     :rules="[formRules.required]"
                     label="Old password"
                     required
-                    class="padded"
                 ></v-text-field>
+            </v-col>
+        </v-row>
 
+        <v-row class="d-flex justify-center">
+            <v-col cols="6">
                 <v-text-field
                     v-model="passwordData.newPassword"
                     :append-inner-icon="
@@ -36,7 +39,6 @@
                     label="New password"
                     required
                     counter
-                    class="padded"
                 >
                     <template v-slot:loader>
                         <v-progress-linear
@@ -56,7 +58,11 @@
                         ></PasswordStrength>
                     </div>
                 </v-expand-transition>
+            </v-col>
+        </v-row>
 
+        <v-row class="d-flex justify-center">
+            <v-col cols="6">
                 <v-text-field
                     v-model="passwordData.repeatedPassword"
                     :append-inner-icon="
@@ -70,7 +76,6 @@
                     ]"
                     label="Repeated password"
                     required
-                    class="padded"
                     ref="repeatedPasswordRef"
                 ></v-text-field>
             </v-col>
@@ -170,8 +175,4 @@ function getProgressColor(progress) {
 }
 </script>
 
-<style scoped>
-.padded {
-    padding: 2%;
-}
-</style>
+<style scoped></style>
