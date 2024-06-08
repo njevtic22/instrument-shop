@@ -9,7 +9,7 @@
                     "
                     @click:append-inner="show.oldPassword = !show.oldPassword"
                     :type="show.oldPassword ? 'text' : 'password'"
-                    :rules="[rules.required]"
+                    :rules="[formRules.required]"
                     label="Old password"
                     required
                     class="padded"
@@ -21,12 +21,38 @@
                         show.newPassword ? 'mdi-eye' : 'mdi-eye-off'
                     "
                     @click:append-inner="show.newPassword = !show.newPassword"
+                    :append-icon="
+                        show.passwordRules
+                            ? 'mdi-chevron-up'
+                            : 'mdi-chevron-down'
+                    "
+                    @click:append="show.passwordRules = !show.passwordRules"
                     :type="show.newPassword ? 'text' : 'password'"
-                    :rules="[rules.required]"
+                    :rules="[formRules.required]"
+                    :maxlength="50"
                     label="New password"
                     required
+                    counter
                     class="padded"
-                ></v-text-field>
+                >
+                    <template v-slot:loader>
+                        <v-progress-linear
+                            :model-value="progress.value"
+                            :color="progress.color"
+                            height="7"
+                        ></v-progress-linear>
+                    </template>
+                </v-text-field>
+
+                <v-expand-transition>
+                    <div v-show="show.passwordRules" class="padded">
+                        <PasswordStrength
+                            v-model="passwordData.newPassword"
+                            @progress-changed="updateProgressBar"
+                            @password-valid-changed="updateValid"
+                        ></PasswordStrength>
+                    </div>
+                </v-expand-transition>
 
                 <v-text-field
                     v-model="passwordData.repeatedPassword"
@@ -35,7 +61,10 @@
                     "
                     @click:append-inner="show.newPassword = !show.newPassword"
                     :type="show.newPassword ? 'text' : 'password'"
-                    :rules="[rules.required]"
+                    :rules="[
+                        formRules.required,
+                        formRules.matchWithNewPassword,
+                    ]"
                     label="Repeated password"
                     required
                     class="padded"
@@ -53,7 +82,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 
 const passwordData = ref({
     oldPassword: "",
@@ -61,20 +90,39 @@ const passwordData = ref({
     repeatedPassword: "",
 });
 
+const isNewPasswordValid = ref(false);
+
 const show = ref({
     oldPassword: false,
     newPassword: false,
+    passwordRules: false,
 });
 
 const form = ref(null);
 
-const rules = {
+const progress = ref({
+    value: 0,
+    color: "red-darken-1",
+});
+
+const formRules = {
     required: (value) => Boolean(value) || "Required",
+    matchWithNewPassword: (value) =>
+        value === passwordData.value.newPassword ||
+        "Repeated password does not match new password",
 };
+
+watch(
+    () => passwordData.value.newPassword,
+    () => {
+        form.value.validate();
+    }
+);
 
 // :disabled="!form ? !false : !form.isValid"
 const isFormValid = computed(() => {
-    return form.value ? form.value.isValid : false;
+    const formValid = form.value ? form.value.isValid : false;
+    return formValid && isNewPasswordValid.value;
 });
 
 function update() {
@@ -84,6 +132,35 @@ function update() {
         repeatedPassword: passwordData.value.repeatedPassword,
     };
     console.log(changes);
+}
+
+function updateValid(newValid) {
+    isNewPasswordValid.value = newValid;
+}
+
+function updateProgressBar(newProgres) {
+    progress.value.value = newProgres;
+    progress.value.color = getProgressColor(newProgres);
+}
+
+function getProgressColor(progress) {
+    if (progress <= 25) {
+        return "red-darken-1";
+    }
+
+    if (progress <= 50) {
+        return "deep-orange-darken-1";
+    }
+
+    if (progress <= 75) {
+        return "yellow-darken-1";
+    }
+
+    if (progress < 100) {
+        return "light-blue-darken-1";
+    }
+
+    return "green-darken-1";
 }
 </script>
 

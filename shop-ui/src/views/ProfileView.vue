@@ -6,7 +6,9 @@
         ></ProfileData>
 
         <v-expand-transition>
-            <ProfileChange :showPanel="showChange"></ProfileChange>
+            <div v-show="showChange">
+                <ProfileChange></ProfileChange>
+            </div>
         </v-expand-transition>
     </v-card>
 </template>
