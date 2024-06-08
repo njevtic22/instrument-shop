@@ -71,7 +71,7 @@
 import { defineProps, defineEmits } from "vue";
 import { profileState } from "@/store/profile";
 
-const props = defineProps(["expanded"]);
+defineProps(["expanded"]);
 const emit = defineEmits(["toggle-expansion"]);
 
 const profile = profileState;

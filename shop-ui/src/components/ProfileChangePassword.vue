@@ -30,6 +30,9 @@
                     :type="show.newPassword ? 'text' : 'password'"
                     :rules="[formRules.required]"
                     :maxlength="50"
+                    :error="
+                        !isNewPasswordValid && Boolean(passwordData.newPassword)
+                    "
                     label="New password"
                     required
                     counter
@@ -68,6 +71,7 @@
                     label="Repeated password"
                     required
                     class="padded"
+                    ref="repeatedPasswordRef"
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -99,6 +103,7 @@ const show = ref({
 });
 
 const form = ref(null);
+const repeatedPasswordRef = ref(null);
 
 const progress = ref({
     value: 0,
@@ -115,14 +120,15 @@ const formRules = {
 watch(
     () => passwordData.value.newPassword,
     () => {
-        form.value.validate();
+        if (passwordData.value.repeatedPassword) {
+            repeatedPasswordRef.value.validate();
+        }
     }
 );
 
 // :disabled="!form ? !false : !form.isValid"
 const isFormValid = computed(() => {
-    const formValid = form.value ? form.value.isValid : false;
-    return formValid && isNewPasswordValid.value;
+    return form.value ? form.value.isValid : false;
 });
 
 function update() {

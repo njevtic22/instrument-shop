@@ -1,16 +1,16 @@
 <template>
     <div>
-        Minimum 8 characters long
-        <v-icon
-            :icon="getIcon(passwordRules.minLength)"
-            :color="getColor(passwordRules.minLength)"
-        ></v-icon>
-    </div>
-    <div>
         Maximum 50 characters long
         <v-icon
             :icon="getIcon(passwordRules.maxLength)"
             :color="getColor(passwordRules.maxLength)"
+        ></v-icon>
+    </div>
+    <div>
+        Minimum 8 characters long
+        <v-icon
+            :icon="getIcon(passwordRules.minLength)"
+            :color="getColor(passwordRules.minLength)"
         ></v-icon>
     </div>
     <div>
