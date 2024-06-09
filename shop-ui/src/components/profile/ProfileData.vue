@@ -68,7 +68,6 @@
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from "vue";
 import { profileState } from "@/store/profile";
 
 defineProps(["expanded"]);

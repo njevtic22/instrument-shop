@@ -160,7 +160,7 @@ function getProgressColor(progress) {
     }
 
     if (progress <= 50) {
-        return "deep-orange-darken-1";
+        return "orange-darken-1";
     }
 
     if (progress <= 75) {

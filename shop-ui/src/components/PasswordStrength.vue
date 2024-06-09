@@ -45,7 +45,7 @@
 
 <script setup>
 import specialCharsRegex from "@/util/specialChars";
-import { ref, defineModel, watch, defineEmits } from "vue";
+import { ref, defineModel, watch } from "vue";
 
 const password = defineModel();
 
