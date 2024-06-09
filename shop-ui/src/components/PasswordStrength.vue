@@ -41,10 +41,19 @@
             :color="getColor(passwordRules.special)"
         ></v-icon>
     </div>
+    <div>
+        No alphabetical sequence
+        <v-icon
+            :icon="getIcon(passwordRules.noAlphabetical)"
+            :color="getColor(passwordRules.noAlphabetical)"
+        ></v-icon>
+    </div>
 </template>
 
 <script setup>
-import specialCharsRegex from "@/util/specialChars";
+import getAlphabeticalSequences from "@/util/validator/alphabetical-sequences";
+import containsSequence from "@/util/validator/contains-sequence";
+import specialCharsRegex from "@/util/validator/special-characters";
 import { ref, defineModel, watch } from "vue";
 
 const password = defineModel();
@@ -58,6 +67,10 @@ const regs = {
     special: specialCharsRegex,
 };
 
+const illegalSequences = {
+    alphabetical: getAlphabeticalSequences(5),
+};
+
 const passwordRules = ref({
     minLength: false,
     maxLength: false,
@@ -65,13 +78,14 @@ const passwordRules = ref({
     lowerCase: false,
     digit: false,
     special: false,
+    noAlphabetical: false,
 });
 
 watch(
     () => password.value,
     (newValue) => {
         let fulfilled = 0;
-        let required = 6;
+        let required = 7;
 
         passwordRules.value.minLength = newValue.length >= 8;
         if (passwordRules.value.minLength) {
@@ -100,6 +114,14 @@ watch(
 
         passwordRules.value.special = regs.special.test(newValue);
         if (passwordRules.value.special) {
+            fulfilled += 1;
+        }
+
+        passwordRules.value.noAlphabetical = !containsSequence(
+            newValue,
+            illegalSequences.alphabetical
+        );
+        if (passwordRules.value.noAlphabetical) {
             fulfilled += 1;
         }
 
