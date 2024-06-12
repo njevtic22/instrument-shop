@@ -48,11 +48,34 @@
             :color="getColor(passwordRules.noAlphabetical)"
         ></v-icon>
     </div>
+    <div>
+        No numrical sequence
+        <v-icon
+            :icon="getIcon(passwordRules.noNumerical)"
+            :color="getColor(passwordRules.noNumerical)"
+        ></v-icon>
+    </div>
+    <div>
+        No qwerty sequence
+        <v-icon
+            :icon="getIcon(passwordRules.noQwerty)"
+            :color="getColor(passwordRules.noQwerty)"
+        ></v-icon>
+    </div>
+    <div>
+        No whitespace
+        <v-icon
+            :icon="getIcon(passwordRules.noWhitespace)"
+            :color="getColor(passwordRules.noWhitespace)"
+        ></v-icon>
+    </div>
 </template>
 
 <script setup>
 import getAlphabeticalSequences from "@/util/validator/alphabetical-sequences";
 import containsSequence from "@/util/validator/contains-sequence";
+import getNumericalSequences from "@/util/validator/numerical-sequences";
+import getQwertySequences from "@/util/validator/qwerty-sequences";
 import specialCharsRegex from "@/util/validator/special-characters";
 import { ref, defineModel, watch } from "vue";
 
@@ -65,10 +88,13 @@ const regs = {
     lowerCase: /.*[a-z].*/,
     digit: /.*[0-9].*/,
     special: specialCharsRegex,
+    noWhitespace: /^\S+$/,
 };
 
 const illegalSequences = {
     alphabetical: getAlphabeticalSequences(5),
+    numerical: getNumericalSequences(5),
+    qwerty: getQwertySequences(5),
 };
 
 const passwordRules = ref({
@@ -79,13 +105,16 @@ const passwordRules = ref({
     digit: false,
     special: false,
     noAlphabetical: false,
+    noNumerical: false,
+    noQwerty: false,
+    noWhitespace: false,
 });
 
 watch(
     () => password.value,
     (newValue) => {
         let fulfilled = 0;
-        let required = 7;
+        let required = Object.keys(passwordRules).length;
 
         passwordRules.value.minLength = newValue.length >= 8;
         if (passwordRules.value.minLength) {
@@ -122,6 +151,27 @@ watch(
             illegalSequences.alphabetical
         );
         if (passwordRules.value.noAlphabetical) {
+            fulfilled += 1;
+        }
+
+        passwordRules.value.noNumerical = !containsSequence(
+            newValue,
+            illegalSequences.numerical
+        );
+        if (passwordRules.value.noNumerical) {
+            fulfilled += 1;
+        }
+
+        passwordRules.value.noQwerty = !containsSequence(
+            newValue,
+            illegalSequences.qwerty
+        );
+        if (passwordRules.value.noQwerty) {
+            fulfilled += 1;
+        }
+
+        passwordRules.value.noWhitespace = regs.noWhitespace.test(newValue);
+        if (passwordRules.value.noWhitespace) {
             fulfilled += 1;
         }
 
