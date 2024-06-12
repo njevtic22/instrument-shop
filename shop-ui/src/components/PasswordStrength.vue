@@ -69,9 +69,17 @@
             :color="getColor(passwordRules.noWhitespace)"
         ></v-icon>
     </div>
+    <div>
+        No blacklisted password
+        <v-icon
+            :icon="getIcon(passwordRules.noBlacklisted)"
+            :color="getColor(passwordRules.noBlacklisted)"
+        ></v-icon>
+    </div>
 </template>
 
 <script setup>
+import axios from "axios";
 import getAlphabeticalSequences from "@/util/validator/alphabetical-sequences";
 import containsSequence from "@/util/validator/contains-sequence";
 import getNumericalSequences from "@/util/validator/numerical-sequences";
@@ -97,6 +105,18 @@ const illegalSequences = {
     qwerty: getQwertySequences(5),
 };
 
+let blacklist = [];
+axios
+    .get(
+        "https://res.cloudinary.com/example-app/raw/upload/v1718222814/musical-instruments/xt2l2e"
+    )
+    .then((response) => {
+        blacklist = response.data;
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+
 const passwordRules = ref({
     minLength: false,
     maxLength: false,
@@ -108,13 +128,14 @@ const passwordRules = ref({
     noNumerical: false,
     noQwerty: false,
     noWhitespace: false,
+    noBlacklisted: false,
 });
 
 watch(
     () => password.value,
     (newValue) => {
         let fulfilled = 0;
-        let required = Object.keys(passwordRules).length;
+        let required = Object.keys(passwordRules.value).length;
 
         passwordRules.value.minLength = newValue.length >= 8;
         if (passwordRules.value.minLength) {
@@ -172,6 +193,13 @@ watch(
 
         passwordRules.value.noWhitespace = regs.noWhitespace.test(newValue);
         if (passwordRules.value.noWhitespace) {
+            fulfilled += 1;
+        }
+
+        passwordRules.value.noBlacklisted = !blacklist.some(
+            (blacklistedPassword) => blacklistedPassword === newValue
+        );
+        if (passwordRules.value.noBlacklisted) {
             fulfilled += 1;
         }
 
