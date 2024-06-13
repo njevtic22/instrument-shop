@@ -91,7 +91,11 @@
 </template>
 
 <script setup>
-import { ref, computed, watch } from "vue";
+import { updatePassword } from "@/store/profile";
+import { ref, computed, watch, inject } from "vue";
+
+const snackbar = inject("snackbar");
+const errorSnack = inject("defaultErrorSnackbar");
 
 const passwordData = ref({
     oldPassword: "",
@@ -142,7 +146,12 @@ function update() {
         newPassword: passwordData.value.newPassword,
         repeatedPassword: passwordData.value.repeatedPassword,
     };
-    console.log(changes);
+
+    const successCallback = () => {
+        snackbar("Password changed", 3 * 1000);
+    };
+
+    updatePassword(changes, successCallback, errorSnack);
 }
 
 function updateValid(newValid) {

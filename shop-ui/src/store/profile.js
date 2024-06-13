@@ -40,8 +40,13 @@ function updateProfile(changes, successCallback, errorCallback) {
         .catch(errorCallback);
 }
 
+function updatePassword(changes, successCallback, errorCallback) {
+    const passwordUrl = `${userUrl}/password`;
+    axios.put(passwordUrl, changes).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     profileState.value = getDefaultState();
 }
 
-export { profileState, fetchProfile, updateProfile, clear };
+export { profileState, fetchProfile, updateProfile, updatePassword, clear };
