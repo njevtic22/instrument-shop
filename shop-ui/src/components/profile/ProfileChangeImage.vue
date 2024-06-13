@@ -23,12 +23,28 @@
             </v-btn>
         </v-row>
         <br />
+        <v-divider></v-divider>
+        <br />
+        <v-row class="d-flex justify-center">
+            <v-btn
+                :disabled="!profile.image"
+                @click="deleteImage"
+                color="error"
+            >
+                Delete image
+            </v-btn>
+        </v-row>
+        <br />
     </v-form>
 </template>
 
 <script setup>
 import { uploadImage } from "@/store/image";
-import { fetchProfile, updateProfileImage } from "@/store/profile";
+import {
+    profileState,
+    fetchProfile,
+    updateProfileImage,
+} from "@/store/profile";
 import { ref, computed, inject } from "vue";
 
 const snackbar = inject("snackbar");
@@ -39,6 +55,8 @@ const form = ref(null);
 const images = ref([]);
 
 const loading = ref(false);
+
+const profile = profileState;
 
 const rules = {
     required: (images) => {
@@ -81,6 +99,15 @@ function upload() {
 
     loading.value = true;
     uploadImage(toUpload, successCallback, errorCallback);
+}
+
+function deleteImage() {
+    const successCallback = () => {
+        fetchProfile(errorSnack);
+        snackbar("Profile image deleted", 3 * 1000);
+    };
+
+    updateProfileImage(-1, successCallback, errorSnack);
 }
 
 // :disabled="!form ? !false : !form.isValid"

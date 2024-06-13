@@ -30,7 +30,7 @@
 <script setup>
 import { ref } from "vue";
 
-const tab = ref(null);
+const tab = ref("Profile");
 </script>
 
 <style scoped></style>
