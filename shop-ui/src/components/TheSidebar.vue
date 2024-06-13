@@ -27,14 +27,7 @@
         </v-list>
 
         <template v-slot:append>
-            <v-btn
-                v-if="currentRole !== Role.ANONYMOUS"
-                @click="logout"
-                block
-                color="primary"
-            >
-                Logout
-            </v-btn>
+            <LogoutButton v-if="currentRole !== Role.ANONYMOUS"></LogoutButton>
         </template>
     </v-navigation-drawer>
 </template>
@@ -42,23 +35,10 @@
 <script setup>
 import { defineModel } from "vue";
 import { useRouter } from "vue-router";
-import { Role, currentRole, clear as clearRole } from "@/store/auth";
-import { clear as clearProfile } from "@/store/profile";
-import axios from "axios";
+import { Role, currentRole } from "@/store/auth";
 
 const router = useRouter();
 const isOpened = defineModel();
-
-function logout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("role");
-
-    clearRole();
-    clearProfile();
-
-    delete axios.defaults.headers.common["Authorization"];
-    router.push("/");
-}
 
 // to avoid constantly calling isAnonymous when directly
 // binding to v-if

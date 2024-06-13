@@ -42,14 +42,12 @@
 </template>
 
 <script setup>
-import { ref, inject, computed } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { logIn } from "@/store/auth";
 import axios from "axios";
 
 const router = useRouter();
-
-const snackbar = inject("snackbar");
 
 const form = ref(null);
 const username = ref("");
@@ -81,8 +79,6 @@ async function login() {
             "Bearer " + response.data.token;
 
         router.push("/");
-
-        snackbar("Successful login", 3 * 1000);
     };
 
     const errorCallback = (error) => {
