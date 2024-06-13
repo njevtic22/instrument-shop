@@ -1,11 +1,8 @@
 <template>
     <v-row no-gutters>
         <v-col cols="4" class="d-flex flex-column align-center">
-            <v-img
-                :src="profile.image.url"
-                alt="Profile Image"
-                class="profile-image"
-            ></v-img>
+            <v-img :src="getImage()" alt="Profile image" class="profile-image">
+            </v-img>
         </v-col>
         <v-col cols="8">
             <v-card-text>
@@ -74,6 +71,12 @@ defineProps(["expanded"]);
 const emit = defineEmits(["toggle-expansion"]);
 
 const profile = profileState;
+
+function getImage() {
+    return profile.value.image
+        ? profile.value.image.url
+        : "/src/assets/user-logo.png";
+}
 </script>
 
 <style scoped>

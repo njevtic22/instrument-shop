@@ -45,8 +45,20 @@ function updatePassword(changes, successCallback, errorCallback) {
     axios.put(passwordUrl, changes).then(successCallback).catch(errorCallback);
 }
 
+function updateProfileImage(imageId, successCallback, errorCallback) {
+    const imageUrl = `${userUrl}/image?imageId=${imageId}`;
+    axios.put(imageUrl).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     profileState.value = getDefaultState();
 }
 
-export { profileState, fetchProfile, updateProfile, updatePassword, clear };
+export {
+    profileState,
+    fetchProfile,
+    updateProfile,
+    updatePassword,
+    updateProfileImage,
+    clear,
+};
