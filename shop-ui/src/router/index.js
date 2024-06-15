@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from "vue-router";
-import Instruments from "../views/InstrumentsView.vue";
+import Instruments from "@/views/InstrumentsView.vue";
 import { Role, currentRole } from "@/store/auth";
 
 const routes = [

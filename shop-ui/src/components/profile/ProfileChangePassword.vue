@@ -91,8 +91,8 @@
 </template>
 
 <script setup>
-import { updatePassword } from "@/store/profile";
 import { ref, computed, watch, inject } from "vue";
+import { updatePassword } from "@/store/profile";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
@@ -141,11 +141,7 @@ const isFormValid = computed(() => {
 });
 
 function update() {
-    const changes = {
-        oldPassword: passwordData.value.oldPassword,
-        newPassword: passwordData.value.newPassword,
-        repeatedPassword: passwordData.value.repeatedPassword,
-    };
+    const changes = { ...passwordData.value };
 
     const successCallback = () => {
         snackbar("Password changed", 3 * 1000);

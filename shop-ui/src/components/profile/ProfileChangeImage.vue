@@ -39,13 +39,13 @@
 </template>
 
 <script setup>
+import { ref, computed, inject } from "vue";
 import { uploadImage } from "@/store/image";
 import {
     profileState,
     fetchProfile,
     updateProfileImage,
 } from "@/store/profile";
-import { ref, computed, inject } from "vue";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");

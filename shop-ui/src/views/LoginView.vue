@@ -2,7 +2,7 @@
     <v-card class="padded mx-auto" width="25%">
         <v-form ref="form">
             <v-text-field
-                v-model="username"
+                v-model="data.username"
                 :rules="[required]"
                 label="Username"
                 required
@@ -10,7 +10,7 @@
             ></v-text-field>
 
             <v-text-field
-                v-model="password"
+                v-model="data.password"
                 :append-inner-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
                 @click:append-inner="showPassword = !showPassword"
                 :type="showPassword ? 'text' : 'password'"
@@ -22,10 +22,10 @@
         </v-form>
 
         <v-card-item
-            :class="errorOccured ? '' : 'error-hidden'"
+            :class="error.occured ? '' : 'error-hidden'"
             class="d-flex justify-center error-color"
         >
-            {{ errorMessage }}
+            {{ error.message }}
         </v-card-item>
 
         <v-card-actions class="justify-center">
@@ -44,20 +44,25 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { logIn } from "@/store/auth";
 import axios from "axios";
+import { logIn } from "@/store/auth";
 
 const router = useRouter();
 
 const form = ref(null);
-const username = ref("");
-const password = ref("");
+
+const data = ref({
+    username: "",
+    password: "",
+});
 const showPassword = ref(false);
 
 const required = (value) => !!value || "Required";
 
-const errorMessage = ref("Bad credentials");
-const errorOccured = ref(false);
+const error = ref({
+    message: "Bad credentials",
+    occured: false,
+});
 
 async function login() {
     const { valid } = await form.value.validate();
@@ -66,10 +71,7 @@ async function login() {
         return;
     }
 
-    const loginData = {
-        username: username.value,
-        password: password.value,
-    };
+    const loginData = { ...data.value };
 
     const successCallback = (response) => {
         localStorage.setItem("token", response.data.token);
@@ -81,9 +83,9 @@ async function login() {
         router.push("/");
     };
 
-    const errorCallback = (error) => {
-        errorMessage.value = error.response.data.message;
-        errorOccured.value = true;
+    const errorCallback = (err) => {
+        error.value.message = err.response.data.message;
+        error.value.occured = true;
     };
 
     logIn(loginData, successCallback, errorCallback);

@@ -3,11 +3,11 @@
 </template>
 
 <script setup>
+import { useRouter } from "vue-router";
+import axios from "axios";
 import { clear as clearRole } from "@/store/auth";
 import { clear as clearProfile } from "@/store/profile";
-import axios from "axios";
 
-import { useRouter } from "vue-router";
 const router = useRouter();
 
 function logout() {

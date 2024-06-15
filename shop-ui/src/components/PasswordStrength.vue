@@ -79,13 +79,13 @@
 </template>
 
 <script setup>
+import { ref, defineModel, watch } from "vue";
 import axios from "axios";
 import getAlphabeticalSequences from "@/util/validator/alphabetical-sequences";
 import containsSequence from "@/util/validator/contains-sequence";
 import getNumericalSequences from "@/util/validator/numerical-sequences";
 import getQwertySequences from "@/util/validator/qwerty-sequences";
 import specialCharsRegex from "@/util/validator/special-characters";
-import { ref, defineModel, watch } from "vue";
 
 const password = defineModel();
 

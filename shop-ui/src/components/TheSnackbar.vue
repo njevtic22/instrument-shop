@@ -1,14 +1,16 @@
 <template>
     <v-snackbar
-        v-model="visible"
-        :timeout="timeout"
-        :color="backgroundColor"
-        :timer="accentColor"
+        v-model="snack.visible"
+        :timeout="snack.timeout"
+        :color="snack.backgroundColor"
+        :timer="snack.accentColor"
     >
-        {{ text }}
+        {{ snack.text }}
 
         <template v-slot:actions>
-            <v-btn @click="visible = false" :color="accentColor"> Close </v-btn>
+            <v-btn @click="snack.visible = false" :color="snack.accentColor">
+                Close
+            </v-btn>
         </template>
     </v-snackbar>
 </template>
@@ -16,11 +18,13 @@
 <script setup>
 import { ref } from "vue";
 
-const visible = ref(false);
-const text = ref("");
-const backgroundColor = ref("");
-const accentColor = ref("info");
-const timeout = ref(-1);
+const snack = ref({
+    visible: false,
+    text: "",
+    backgroundColor: "",
+    accentColor: "light-blue-darken-1",
+    timeout: -1,
+});
 
 function show(
     newText,
@@ -28,12 +32,12 @@ function show(
     newAccentColor = "light-blue-darken-1",
     newBackgroundColor = ""
 ) {
-    text.value = newText;
-    timeout.value = newTimeout;
-    accentColor.value = newAccentColor;
-    backgroundColor.value = newBackgroundColor;
+    snack.value.text = newText;
+    snack.value.timeout = newTimeout;
+    snack.value.accentColor = newAccentColor;
+    snack.value.backgroundColor = newBackgroundColor;
 
-    visible.value = true;
+    snack.value.visible = true;
 }
 
 defineExpose({

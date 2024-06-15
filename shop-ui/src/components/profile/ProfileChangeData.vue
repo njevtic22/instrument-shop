@@ -43,8 +43,8 @@
 
 <script setup>
 import { ref, inject, computed } from "vue";
-import { profileState, updateProfile } from "@/store/profile";
 import axios from "axios";
+import { profileState, updateProfile } from "@/store/profile";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
@@ -70,12 +70,7 @@ const isFormValid = computed(() => {
 });
 
 function update() {
-    const changes = {
-        name: profile.value.name,
-        surname: profile.value.surname,
-        email: profile.value.email,
-        username: profile.value.username,
-    };
+    const changes = { ...profile.value };
 
     const successCallback = (response) => {
         if (response.data.token) {
