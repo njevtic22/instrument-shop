@@ -13,9 +13,15 @@
         </template>
 
         <template v-slot:append>
-            <v-app-bar-title class="ma-2 pa-2">
-                {{ route.meta.title }}
-            </v-app-bar-title>
+            <transition name="fade">
+                <v-app-bar-title
+                    v-show="route.meta.title"
+                    :key="route.meta.title"
+                    class="ma-2 pa-2"
+                >
+                    {{ route.meta.title }}
+                </v-app-bar-title>
+            </transition>
         </template>
     </v-app-bar>
 </template>
@@ -32,4 +38,18 @@ function redirectToInstruments() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active {
+    transition: opacity 0.3s ease;
+    transition-delay: 0.3s;
+}
+
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+</style>

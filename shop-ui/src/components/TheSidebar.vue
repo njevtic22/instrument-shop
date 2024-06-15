@@ -1,33 +1,42 @@
 <template>
     <v-navigation-drawer v-model="isOpened" permanent>
         <v-list density="compact" nav>
-            <v-list-item
-                v-if="currentRole === Role.ANONYMOUS"
-                @click="router.push('/login')"
-                prepend-icon="mdi-login"
-                title="Login"
-                value="Login"
-            >
-            </v-list-item>
-            <v-list-item
-                v-if="currentRole !== Role.ANONYMOUS"
-                @click="router.push('/profile')"
-                prepend-icon="mdi-account"
-                title="Profile"
-                value="Profile"
-            >
-            </v-list-item>
-            <v-list-item
-                @click="router.push('/')"
-                prepend-icon="mdi-guitar-acoustic"
-                title="Instruments"
-                value="Instruments"
-            >
-            </v-list-item>
+            <TransitionGroup name="fade">
+                <v-list-item
+                    v-if="currentRole === Role.ANONYMOUS"
+                    @click="router.push('/login')"
+                    prepend-icon="mdi-login"
+                    title="Login"
+                    value="Login"
+                    key="Login"
+                >
+                </v-list-item>
+                <v-list-item
+                    v-if="currentRole !== Role.ANONYMOUS"
+                    @click="router.push('/profile')"
+                    prepend-icon="mdi-account"
+                    title="Profile"
+                    value="Profile"
+                    key="Profile"
+                >
+                </v-list-item>
+                <v-list-item
+                    @click="router.push('/')"
+                    prepend-icon="mdi-guitar-acoustic"
+                    title="Instruments"
+                    value="Instruments"
+                    key="Instruments"
+                >
+                </v-list-item>
+            </TransitionGroup>
         </v-list>
 
         <template v-slot:append>
-            <LogoutButton v-if="currentRole !== Role.ANONYMOUS"></LogoutButton>
+            <transition name="fade">
+                <LogoutButton
+                    v-if="currentRole !== Role.ANONYMOUS"
+                ></LogoutButton>
+            </transition>
         </template>
     </v-navigation-drawer>
 </template>
@@ -47,4 +56,23 @@ const isOpened = defineModel();
 // const isAnonymousComputed = computed(() => isAnonymous());
 </script>
 
-<style scoped></style>
+<style scoped>
+.fade-enter-active {
+    transition: opacity 0.3s ease;
+    transition-delay: 0.3s;
+}
+
+.fade-leave-active {
+    transition: opacity 0.3s ease;
+    width: 94%;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+    opacity: 0;
+}
+
+.fade-leave-active {
+    position: absolute;
+}
+</style>
