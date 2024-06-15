@@ -1,80 +1,7 @@
 <template>
-    <div>
-        Maximum 50 characters long
-        <v-icon
-            :icon="getIcon(passwordRules.maxLength)"
-            :color="getColor(passwordRules.maxLength)"
-        ></v-icon>
-    </div>
-    <div>
-        Minimum 8 characters long
-        <v-icon
-            :icon="getIcon(passwordRules.minLength)"
-            :color="getColor(passwordRules.minLength)"
-        ></v-icon>
-    </div>
-    <div>
-        At least one uppercase character
-        <v-icon
-            :icon="getIcon(passwordRules.upperCase)"
-            :color="getColor(passwordRules.upperCase)"
-        ></v-icon>
-    </div>
-    <div>
-        At least one lowercase character
-        <v-icon
-            :icon="getIcon(passwordRules.lowerCase)"
-            :color="getColor(passwordRules.lowerCase)"
-        ></v-icon>
-    </div>
-    <div>
-        At least one digit character
-        <v-icon
-            :icon="getIcon(passwordRules.digit)"
-            :color="getColor(passwordRules.digit)"
-        ></v-icon>
-    </div>
-    <div>
-        At least one special character
-        <v-icon
-            :icon="getIcon(passwordRules.special)"
-            :color="getColor(passwordRules.special)"
-        ></v-icon>
-    </div>
-    <div>
-        No alphabetical sequence
-        <v-icon
-            :icon="getIcon(passwordRules.noAlphabetical)"
-            :color="getColor(passwordRules.noAlphabetical)"
-        ></v-icon>
-    </div>
-    <div>
-        No numrical sequence
-        <v-icon
-            :icon="getIcon(passwordRules.noNumerical)"
-            :color="getColor(passwordRules.noNumerical)"
-        ></v-icon>
-    </div>
-    <div>
-        No qwerty sequence
-        <v-icon
-            :icon="getIcon(passwordRules.noQwerty)"
-            :color="getColor(passwordRules.noQwerty)"
-        ></v-icon>
-    </div>
-    <div>
-        No whitespace
-        <v-icon
-            :icon="getIcon(passwordRules.noWhitespace)"
-            :color="getColor(passwordRules.noWhitespace)"
-        ></v-icon>
-    </div>
-    <div>
-        No blacklisted password
-        <v-icon
-            :icon="getIcon(passwordRules.noBlacklisted)"
-            :color="getColor(passwordRules.noBlacklisted)"
-        ></v-icon>
+    <div v-for="rule in rules" :key="rule.text">
+        {{ rule.text }}
+        <v-icon :icon="rule.icon" :color="rule.color"></v-icon>
     </div>
 </template>
 
@@ -117,90 +44,148 @@ axios
         console.log(error);
     });
 
-const passwordRules = ref({
-    minLength: false,
-    maxLength: false,
-    upperCase: false,
-    lowerCase: false,
-    digit: false,
-    special: false,
-    noAlphabetical: false,
-    noNumerical: false,
-    noQwerty: false,
-    noWhitespace: false,
-    noBlacklisted: false,
-});
+const rules = ref([
+    {
+        text: "Maximum 50 characters long",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = password.length <= 50;
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "Minimum 8 characters long",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = password.length >= 8;
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "At least one uppercase character",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = regs.upperCase.test(password);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "At least one lowercase character",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = regs.lowerCase.test(password);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "At least one digit character",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = regs.digit.test(password);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "At least one special character",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = regs.special.test(password);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "No alphabetical sequence",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = !containsSequence(
+                password,
+                illegalSequences.alphabetical
+            );
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "No numrical sequence",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = !containsSequence(
+                password,
+                illegalSequences.numerical
+            );
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "No qwerty sequence",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = !containsSequence(password, illegalSequences.qwerty);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "No whitespace",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = regs.noWhitespace.test(password);
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+    {
+        text: "No blacklisted password",
+        icon: getIcon(false),
+        color: getColor(false),
+        validate(password) {
+            const valid = !blacklist.some(
+                (blacklistedPassword) => blacklistedPassword === password
+            );
+            this.icon = getIcon(valid);
+            this.color = getColor(valid);
+            return valid;
+        },
+    },
+]);
 
 watch(
     () => password.value,
     (newValue) => {
         let fulfilled = 0;
-        let required = Object.keys(passwordRules.value).length;
+        let required = Object.keys(rules.value).length;
 
-        passwordRules.value.minLength = newValue.length >= 8;
-        if (passwordRules.value.minLength) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.maxLength = newValue.length <= 50;
-        if (passwordRules.value.maxLength) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.upperCase = regs.upperCase.test(newValue);
-        if (passwordRules.value.upperCase) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.lowerCase = regs.lowerCase.test(newValue);
-        if (passwordRules.value.lowerCase) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.digit = regs.digit.test(newValue);
-        if (passwordRules.value.digit) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.special = regs.special.test(newValue);
-        if (passwordRules.value.special) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.noAlphabetical = !containsSequence(
-            newValue,
-            illegalSequences.alphabetical
-        );
-        if (passwordRules.value.noAlphabetical) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.noNumerical = !containsSequence(
-            newValue,
-            illegalSequences.numerical
-        );
-        if (passwordRules.value.noNumerical) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.noQwerty = !containsSequence(
-            newValue,
-            illegalSequences.qwerty
-        );
-        if (passwordRules.value.noQwerty) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.noWhitespace = regs.noWhitespace.test(newValue);
-        if (passwordRules.value.noWhitespace) {
-            fulfilled += 1;
-        }
-
-        passwordRules.value.noBlacklisted = !blacklist.some(
-            (blacklistedPassword) => blacklistedPassword === newValue
-        );
-        if (passwordRules.value.noBlacklisted) {
-            fulfilled += 1;
+        for (let i = 0; i < rules.value.length; i++) {
+            const rule = rules.value[i];
+            const valid = rule.validate(newValue);
+            fulfilled += Number(valid);
         }
 
         const fulfilledPercent = (fulfilled / required) * 100;

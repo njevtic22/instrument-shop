@@ -25,13 +25,7 @@ const reversedCapitalRow3 = '":LKJHGFDSA';
 const reversedRow4 = "/.,mnbvcxz";
 const reversedCapitalRow4 = "?><MNBVCXZ";
 
-const rowPool = {};
-
 export default function getQwertySequences(sequenceLength) {
-    if (rowPool[sequenceLength]) {
-        return rowPool[sequenceLength];
-    }
-
     const illegal = createSequences(sequenceLength, row1);
     illegal.push(...createSequences(sequenceLength, capitalRow1));
     illegal.push(...createSequences(sequenceLength, row2));
@@ -50,6 +44,5 @@ export default function getQwertySequences(sequenceLength) {
     illegal.push(...createSequences(sequenceLength, reversedRow4));
     illegal.push(...createSequences(sequenceLength, reversedCapitalRow4));
 
-    rowPool[sequenceLength] = illegal;
     return illegal;
 }
