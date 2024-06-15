@@ -3,29 +3,12 @@
         <v-list density="compact" nav>
             <TransitionGroup name="fade">
                 <v-list-item
-                    v-if="currentRole === Role.ANONYMOUS"
-                    @click="router.push('/login')"
-                    prepend-icon="mdi-login"
-                    title="Login"
-                    value="Login"
-                    key="Login"
-                >
-                </v-list-item>
-                <v-list-item
-                    v-if="currentRole !== Role.ANONYMOUS"
-                    @click="router.push('/profile')"
-                    prepend-icon="mdi-account"
-                    title="Profile"
-                    value="Profile"
-                    key="Profile"
-                >
-                </v-list-item>
-                <v-list-item
-                    @click="router.push('/')"
-                    prepend-icon="mdi-guitar-acoustic"
-                    title="Instruments"
-                    value="Instruments"
-                    key="Instruments"
+                    v-for="item in activeItems"
+                    :key="item.name"
+                    :title="item.name"
+                    :value="item.name"
+                    :prepend-icon="item.icon"
+                    @click="item.redirect"
                 >
                 </v-list-item>
             </TransitionGroup>
@@ -42,12 +25,49 @@
 </template>
 
 <script setup>
-import { defineModel } from "vue";
+import { defineModel, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { Role, currentRole } from "@/store/auth";
 
 const router = useRouter();
 const isOpened = defineModel();
+
+const items = ref([
+    {
+        name: "Login",
+        icon: "mdi-login",
+        redirect() {
+            router.push("/login");
+        },
+        getActive() {
+            return currentRole.value === Role.ANONYMOUS;
+        },
+    },
+    {
+        name: "Profile",
+        icon: "mdi-account",
+        redirect() {
+            router.push("/profile");
+        },
+        getActive() {
+            return currentRole.value !== Role.ANONYMOUS;
+        },
+    },
+    {
+        name: "Instruments",
+        icon: "mdi-guitar-acoustic",
+        redirect() {
+            router.push("/");
+        },
+        getActive() {
+            return true;
+        },
+    },
+]);
+
+const activeItems = computed(() => {
+    return items.value.filter((item) => item.getActive());
+});
 
 // to avoid constantly calling isAnonymous when directly
 // binding to v-if
