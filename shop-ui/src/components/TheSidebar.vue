@@ -1,5 +1,5 @@
 <template>
-    <v-navigation-drawer v-model="isOpened" permanent>
+    <v-navigation-drawer v-model="isOpened" permanent elevation="4">
         <v-list density="compact" nav>
             <TransitionGroup name="fade">
                 <v-list-item
@@ -61,6 +61,16 @@ const items = ref([
         },
         getActive() {
             return true;
+        },
+    },
+    {
+        name: "Receipts",
+        icon: "mdi-receipt",
+        redirect() {
+            router.push("/receipts");
+        },
+        getActive() {
+            return currentRole.value === Role.MANAGER;
         },
     },
 ]);

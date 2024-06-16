@@ -34,6 +34,18 @@ const routes = [
         },
     },
     {
+        path: "/receipts",
+        name: "Receipts",
+        component: () =>
+            import(
+                /* webpackChunkName: "Receipts" */ "../views/ReceiptsView.vue"
+            ),
+        meta: {
+            title: "Receipts",
+            requiredRole: [Role.MANAGER],
+        },
+    },
+    {
         path: "/not-found",
         alias: "/:pathMatch(.*)*",
         name: "NotFound",
