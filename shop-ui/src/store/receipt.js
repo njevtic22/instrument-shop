@@ -9,11 +9,13 @@ function getDefaultState() {
 const receipts = ref(getDefaultState());
 const receiptsUrl = `${environment.apiUrl}/receipts`;
 
-function fetchReceipts(errorCallback) {
+function fetchReceipts(page, size, successCallback, errorCallback) {
+    const pageUrl = `${receiptsUrl}?page=${page}&size=${size}`;
     axios
-        .get(receiptsUrl)
+        .get(pageUrl)
         .then((response) => {
             receipts.value = response.data.data;
+            successCallback(response);
         })
         .catch(errorCallback);
 }

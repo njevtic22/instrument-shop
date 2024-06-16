@@ -1,13 +1,18 @@
 <template>
-    <v-data-table
+    <v-data-table-server
         v-model:items-per-page="size"
         :items="receipts"
+        :items-length="totalElements"
+        :items-per-page-options="sizeOptions"
         :headers="headers"
-        :items-per-page-options="pageOptions"
         @update:options="loadReceipts"
         class="elevation-4"
+        hover
     >
-    </v-data-table>
+        <template v-slot:item.issuedAt="{ value }">
+            {{ formatDate(value) }}
+        </template>
+    </v-data-table-server>
 </template>
 
 <script setup>
@@ -16,13 +21,30 @@ import { ref, inject } from "vue";
 
 const errorSnack = inject("defaultErrorSnackbar");
 
-fetchReceipts(errorSnack);
+// const tableHeight = ref(400);
+
+// onMounted(() => {
+//     resizeTableHeight();
+//     window.addEventListener("resize", resizeTableHeight);
+// });
+
+// const resizeTableHeight = () => {
+//     const viewportHeight = window.innerHeight;
+//     tableHeight.value = viewportHeight - 166;
+// };
+
+// onUnmounted(() => {
+//     window.removeEventListener("resize", resizeTableHeight);
+// });
 
 const headers = [
+    // {
+    //     title: "ID",
+    //     key: "id",
+    // },
     {
         title: "Code",
         key: "code",
-        align: "start",
     },
     {
         title: "Total price",
@@ -50,21 +72,43 @@ const page = ref(0);
 const size = ref(5);
 const sortBy = ref("");
 
-const pageOptions = [
+const totalElements = ref(0);
+const totalPages = ref(0);
+
+const sizeOptions = [
     { value: 5, title: "5" },
     { value: 10, title: "10" },
     { value: 25, title: "25" },
     { value: 50, title: "50" },
-    { value: 100, title: "100" },
-    { value: -1, title: "$vuetify.dataFooter.itemsPerPageAll" },
+    { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
 ];
 
 function loadReceipts(options) {
-    page.value = options.page;
+    page.value = options.page - 1;
     size.value = options.itemsPerPage;
     sortBy.value = options.sortBy;
-    console.log(JSON.stringify(options));
+    // groupBy.value = options.groupBy;
+
+    fetchReceipts(
+        page.value,
+        size.value,
+        (response) => {
+            totalElements.value = response.data.totalElements;
+            totalPages.value = response.data.totalPages;
+        },
+        errorSnack
+    );
+}
+
+function formatDate(dateArr) {
+    return dateArr[2] + "." + dateArr[1] + "." + dateArr[0] + ".";
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+/* 
+v-data-table-server {
+    height: 100%;
+    max-height: 100%;
+} */
+</style>
