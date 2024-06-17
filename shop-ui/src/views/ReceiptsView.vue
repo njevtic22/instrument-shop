@@ -19,7 +19,7 @@
             <v-expansion-panels static elevation="0" variant="accordion">
                 <v-expansion-panel title="Filter Receipts">
                     <v-expansion-panel-text>
-                        <ReceiptsFilter></ReceiptsFilter>
+                        <ReceiptsFilter @filter="filter"></ReceiptsFilter>
                     </v-expansion-panel-text>
                 </v-expansion-panel>
             </v-expansion-panels>
@@ -94,6 +94,10 @@ const sizeOptions = [
     { value: 50, title: "50" },
     { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
 ];
+
+function filter(filter) {
+    console.log(filter);
+}
 
 function loadReceipts(options) {
     page.value = options.page - 1;

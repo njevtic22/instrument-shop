@@ -2,17 +2,20 @@
     <v-row>
         <v-col>
             <v-text-field
+                v-model="filter.code"
                 class="py-2"
                 density="compact"
                 placeholder="Search code"
                 hide-details
             ></v-text-field>
             <div class="py-2">
-                <v-btn color="primary" block>Apply</v-btn>
+                <v-btn @click="emitFilter" color="primary" block>Apply</v-btn>
             </div>
         </v-col>
         <v-col>
             <v-text-field
+                v-model="filter.priceStart"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Minimum price"
@@ -20,6 +23,8 @@
                 hide-details
             ></v-text-field>
             <v-text-field
+                v-model="filter.priceEnd"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Maximum price"
@@ -29,6 +34,8 @@
         </v-col>
         <v-col>
             <v-text-field
+                v-model="filter.paidStart"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Minimum paid"
@@ -36,6 +43,8 @@
                 hide-details
             ></v-text-field>
             <v-text-field
+                v-model="filter.paidEnd"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Maximum paid"
@@ -45,6 +54,8 @@
         </v-col>
         <v-col>
             <v-text-field
+                v-model="filter.changeStart"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Minimum change"
@@ -52,6 +63,8 @@
                 hide-details
             ></v-text-field>
             <v-text-field
+                v-model="filter.changeEnd"
+                @keydown="validateDigit"
                 class="py-2"
                 density="compact"
                 placeholder="Maximum change"
@@ -61,6 +74,7 @@
         </v-col>
         <v-col>
             <v-text-field
+                v-model="filter.issuedAtStart"
                 class="py-2"
                 density="compact"
                 placeholder="Start issued at"
@@ -68,6 +82,7 @@
                 hide-details
             ></v-text-field>
             <v-text-field
+                v-model="filter.issuedAtEnd"
                 class="py-2"
                 density="compact"
                 placeholder="End issued at"
@@ -78,6 +93,36 @@
     </v-row>
 </template>
 
-<script setup></script>
+<script setup>
+import { ref } from "vue";
+
+const emit = defineEmits(["filter"]);
+
+const filter = ref({
+    code: "",
+    priceStart: "",
+    priceEnd: "",
+    paidStart: "",
+    paidEnd: "",
+    changeStart: "",
+    changeEnd: "",
+    issuedAtStart: "",
+    issuedAtEnd: "",
+});
+
+function validateDigit(event) {
+    if (event.key === "Backspace") {
+        return;
+    }
+
+    if (event.key === " " || isNaN(Number(event.key))) {
+        event.preventDefault();
+    }
+}
+
+function emitFilter() {
+    emit("filter", { ...filter.value });
+}
+</script>
 
 <style scoped></style>
