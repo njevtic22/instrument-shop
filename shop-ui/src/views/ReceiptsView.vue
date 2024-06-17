@@ -5,12 +5,14 @@
         :items-length="totalElements"
         :items-per-page-options="sizeOptions"
         :headers="headers"
+        :sort-by="sortBy"
         @update:options="loadReceipts"
         class="elevation-4"
+        multi-sort
         hover
     >
         <template v-slot:item.issuedAt="{ value }">
-            {{ formatDate(value) }}
+            {{ formatDateTime(value) }}
         </template>
     </v-data-table-server>
 </template>
@@ -70,7 +72,7 @@ const headers = [
 
 const page = ref(0);
 const size = ref(5);
-const sortBy = ref("");
+const sortBy = ref([]);
 
 const totalElements = ref(0);
 const totalPages = ref(0);
@@ -92,6 +94,7 @@ function loadReceipts(options) {
     fetchReceipts(
         page.value,
         size.value,
+        sortBy.value,
         (response) => {
             totalElements.value = response.data.totalElements;
             totalPages.value = response.data.totalPages;
@@ -100,8 +103,22 @@ function loadReceipts(options) {
     );
 }
 
-function formatDate(dateArr) {
-    return dateArr[2] + "." + dateArr[1] + "." + dateArr[0] + ".";
+function formatDateTime(dateArr) {
+    return (
+        dateArr[2] +
+        "." +
+        dateArr[1] +
+        "." +
+        dateArr[0] +
+        ". " +
+        dateArr[3] +
+        ":" +
+        dateArr[4] +
+        ":" +
+        dateArr[5] +
+        "." +
+        dateArr[6]
+    );
 }
 </script>
 
