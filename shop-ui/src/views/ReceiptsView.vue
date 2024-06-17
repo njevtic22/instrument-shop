@@ -14,12 +14,22 @@
         <template v-slot:item.issuedAt="{ value }">
             {{ formatDateTime(value) }}
         </template>
+
+        <template v-slot:footer.prepend>
+            <v-expansion-panels static elevation="0" variant="accordion">
+                <v-expansion-panel title="Filter Receipts">
+                    <v-expansion-panel-text>
+                        <ReceiptsFilter></ReceiptsFilter>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </template>
     </v-data-table-server>
 </template>
 
 <script setup>
-import { receipts, fetchReceipts } from "@/store/receipt";
 import { ref, inject } from "vue";
+import { receipts, fetchReceipts } from "@/store/receipt";
 
 const errorSnack = inject("defaultErrorSnackbar");
 
@@ -32,7 +42,7 @@ const errorSnack = inject("defaultErrorSnackbar");
 
 // const resizeTableHeight = () => {
 //     const viewportHeight = window.innerHeight;
-//     tableHeight.value = viewportHeight - 166;
+//     tableHeight.value = viewportHeight - 348;
 // };
 
 // onUnmounted(() => {
@@ -123,8 +133,7 @@ function formatDateTime(dateArr) {
 </script>
 
 <style scoped>
-/* 
-v-data-table-server {
+/* v-data-table-server {
     height: 100%;
     max-height: 100%;
 } */
