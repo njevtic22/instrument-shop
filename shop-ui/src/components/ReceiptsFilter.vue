@@ -73,22 +73,26 @@
             ></v-text-field>
         </v-col>
         <v-col>
-            <v-text-field
-                v-model="filter.issuedAtStart"
-                class="py-2"
-                density="compact"
-                placeholder="Start issued at"
-                type="number"
-                hide-details
-            ></v-text-field>
-            <v-text-field
-                v-model="filter.issuedAtEnd"
-                class="py-2"
-                density="compact"
-                placeholder="End issued at"
-                type="number"
-                hide-details
-            ></v-text-field>
+            <div class="py-2">
+                <v-date-input
+                    v-model="filter.issuedAtStart"
+                    @keydown="$event.preventDefault()"
+                    density="compact"
+                    placeholder="Start issued at"
+                    hide-details
+                ></v-date-input>
+            </div>
+
+            <div class="py-2">
+                <v-date-input
+                    v-model="filter.issuedAtEnd"
+                    @keydown="$event.preventDefault()"
+                    class="py-2"
+                    density="compact"
+                    placeholder="End issued at"
+                    hide-details
+                ></v-date-input>
+            </div>
         </v-col>
     </v-row>
 </template>
@@ -106,8 +110,8 @@ const filter = ref({
     paidEnd: "",
     changeStart: "",
     changeEnd: "",
-    issuedAtStart: "",
-    issuedAtEnd: "",
+    issuedAtStart: null,
+    issuedAtEnd: null,
 });
 
 function validateDigit(event) {

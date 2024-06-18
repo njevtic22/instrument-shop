@@ -96,6 +96,8 @@ const sizeOptions = [
 ];
 
 function filter(filter) {
+    filter.issuedAtStart = toEpochMili(filter.issuedAtStart);
+    filter.issuedAtEnd = toEpochMili(filter.issuedAtEnd);
     console.log(filter);
 }
 
@@ -133,6 +135,10 @@ function formatDateTime(dateArr) {
         "." +
         dateArr[6]
     );
+}
+
+function toEpochMili(date) {
+    return date.getTime();
 }
 </script>
 
