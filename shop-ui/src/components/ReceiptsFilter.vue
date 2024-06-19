@@ -77,9 +77,11 @@
                 <v-date-input
                     v-model="filter.issuedAtStart"
                     @keydown="$event.preventDefault()"
+                    @click:clear="filter.issuedAtStart = null"
                     density="compact"
                     placeholder="Start issued at"
                     hide-details
+                    clearable
                 ></v-date-input>
             </div>
 
@@ -87,10 +89,12 @@
                 <v-date-input
                     v-model="filter.issuedAtEnd"
                     @keydown="$event.preventDefault()"
+                    @click:clear="filter.issuedAtEnd = null"
                     class="py-2"
                     density="compact"
                     placeholder="End issued at"
                     hide-details
+                    clearable
                 ></v-date-input>
             </div>
         </v-col>

@@ -6,7 +6,7 @@
         :items-per-page-options="sizeOptions"
         :headers="headers"
         :sort-by="sortBy"
-        @update:options="loadReceipts"
+        @update:options="updateOptions"
         class="elevation-4"
         multi-sort
         hover
@@ -83,6 +83,7 @@ const headers = [
 const page = ref(0);
 const size = ref(5);
 const sortBy = ref([]);
+let filterData = {};
 
 const totalElements = ref(0);
 const totalPages = ref(0);
@@ -95,22 +96,33 @@ const sizeOptions = [
     { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
 ];
 
-function filter(filter) {
-    filter.issuedAtStart = toEpochMili(filter.issuedAtStart);
-    filter.issuedAtEnd = toEpochMili(filter.issuedAtEnd);
-    console.log(filter);
+function filter(newFilter) {
+    newFilter.issuedAtStart = newFilter.issuedAtStart
+        ? toEpochMili(newFilter.issuedAtStart)
+        : null;
+    newFilter.issuedAtEnd = newFilter.issuedAtEnd
+        ? toEpochMili(newFilter.issuedAtEnd)
+        : null;
+
+    filterData = newFilter;
+    loadReceipts();
 }
 
-function loadReceipts(options) {
+function updateOptions(options) {
     page.value = options.page - 1;
     size.value = options.itemsPerPage;
     sortBy.value = options.sortBy;
     // groupBy.value = options.groupBy;
 
+    loadReceipts();
+}
+
+function loadReceipts() {
     fetchReceipts(
         page.value,
         size.value,
         sortBy.value,
+        filterData,
         (response) => {
             totalElements.value = response.data.totalElements;
             totalPages.value = response.data.totalPages;

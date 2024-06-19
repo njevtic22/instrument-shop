@@ -1,7 +1,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { environment } from "@/environment/environment";
-import formSort from "@/util/form-sort";
+import { formFilter, formSort } from "@/util/page-filter-util";
 
 function getDefaultState() {
     return [];
@@ -10,9 +10,17 @@ function getDefaultState() {
 const receipts = ref(getDefaultState());
 const receiptsUrl = `${environment.apiUrl}/receipts`;
 
-function fetchReceipts(page, size, sort, successCallback, errorCallback) {
+function fetchReceipts(
+    page,
+    size,
+    sort,
+    filter,
+    successCallback,
+    errorCallback
+) {
     const sortStr = formSort(sort);
-    const pageUrl = `${receiptsUrl}?page=${page}&size=${size}&${sortStr}`;
+    const filterStr = formFilter(filter);
+    const pageUrl = `${receiptsUrl}?page=${page}&size=${size}&${sortStr}&${filterStr}`;
     axios
         .get(pageUrl)
         .then((response) => {
