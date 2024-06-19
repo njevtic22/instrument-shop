@@ -1,18 +1,55 @@
 <template>
     <v-data-table-server
+        v-model:expanded="expanded"
         v-model:items-per-page="size"
-        :items="receipts"
-        :items-length="totalElements"
+        :items="receipts.data"
+        :items-length="receipts.totalElements"
         :items-per-page-options="sizeOptions"
         :headers="headers"
         :sort-by="sortBy"
         @update:options="updateOptions"
+        @click:row="openModal"
+        item-value="id"
         class="elevation-4"
+        show-expand
         multi-sort
         hover
     >
         <template v-slot:item.issuedAt="{ value }">
             {{ formatDateTime(value) }}
+        </template>
+
+        <template v-slot:expanded-row="{ columns, item }">
+            <tr>
+                <td :colspan="columns.length">
+                    <v-table>
+                        <thead>
+                            <tr>
+                                <th class="text-left">Product name</th>
+                                <th class="text-left">Product price</th>
+                                <th class="text-left">Product quantity</th>
+                                <th class="text-left">Total price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr
+                                v-for="receiptItem in item.items"
+                                :key="receiptItem.id"
+                            >
+                                <td>{{ receiptItem.productName }}</td>
+                                <td>{{ receiptItem.productPrice }}</td>
+                                <td>{{ receiptItem.productQuantity }}</td>
+                                <td>
+                                    {{
+                                        receiptItem.productPrice *
+                                        receiptItem.productQuantity
+                                    }}
+                                </td>
+                            </tr>
+                        </tbody>
+                    </v-table>
+                </td>
+            </tr>
         </template>
 
         <template v-slot:footer.prepend>
@@ -30,6 +67,7 @@
 <script setup>
 import { ref, inject } from "vue";
 import { receipts, fetchReceipts } from "@/store/receipt";
+import { fetchReceiptItems } from "@/store/receiptItem";
 
 const errorSnack = inject("defaultErrorSnackbar");
 
@@ -80,13 +118,12 @@ const headers = [
     },
 ];
 
+const expanded = ref([]);
+
 const page = ref(0);
 const size = ref(5);
 const sortBy = ref([]);
 let filterData = {};
-
-const totalElements = ref(0);
-const totalPages = ref(0);
 
 const sizeOptions = [
     { value: 5, title: "5" },
@@ -114,21 +151,37 @@ function updateOptions(options) {
     sortBy.value = options.sortBy;
     // groupBy.value = options.groupBy;
 
+    expanded.value.splice(0, expanded.value.length);
+
     loadReceipts();
 }
 
 function loadReceipts() {
-    fetchReceipts(
-        page.value,
-        size.value,
-        sortBy.value,
-        filterData,
-        (response) => {
-            totalElements.value = response.data.totalElements;
-            totalPages.value = response.data.totalPages;
-        },
-        errorSnack
+    fetchReceipts(page.value, size.value, sortBy.value, filterData, errorSnack);
+}
+
+function openModal(event, clickedRow) {
+    const indexExpanded = expanded.value.findIndex(
+        (i) => i === clickedRow.item.id
     );
+    if (indexExpanded === -1) {
+        expanded.value.push(clickedRow.item.id);
+    } else {
+        expanded.value.splice(indexExpanded, 1);
+    }
+
+    fetchItems(receipts.value.data[clickedRow.index]);
+
+    // attributes that are objects are still proxies
+    // const value = { ...clickedRow.item };
+    // console.log(value);
+}
+
+function fetchItems(receipt) {
+    const successCallback = (response) => {
+        receipt.items = response.data;
+    };
+    fetchReceiptItems(receipt.id, successCallback, errorSnack);
 }
 
 function formatDateTime(dateArr) {
@@ -143,9 +196,7 @@ function formatDateTime(dateArr) {
         ":" +
         dateArr[4] +
         ":" +
-        dateArr[5] +
-        "." +
-        dateArr[6]
+        dateArr[5]
     );
 }
 
