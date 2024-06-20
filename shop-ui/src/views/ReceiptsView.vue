@@ -18,39 +18,6 @@
             {{ formatDateTime(value) }}
         </template>
 
-        <template v-slot:expanded-row="{ columns, item }">
-            <tr>
-                <td :colspan="columns.length">
-                    <v-table>
-                        <thead>
-                            <tr>
-                                <th class="text-left">Product name</th>
-                                <th class="text-left">Product price</th>
-                                <th class="text-left">Product quantity</th>
-                                <th class="text-left">Total price</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr
-                                v-for="receiptItem in item.items"
-                                :key="receiptItem.id"
-                            >
-                                <td>{{ receiptItem.productName }}</td>
-                                <td>{{ receiptItem.productPrice }}</td>
-                                <td>{{ receiptItem.productQuantity }}</td>
-                                <td>
-                                    {{
-                                        receiptItem.productPrice *
-                                        receiptItem.productQuantity
-                                    }}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </v-table>
-                </td>
-            </tr>
-        </template>
-
         <template v-slot:footer.prepend>
             <v-expansion-panels static elevation="0" variant="accordion">
                 <v-expansion-panel title="Filter Receipts">
@@ -67,6 +34,7 @@
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import { receipts, fetchReceipts } from "@/store/receipt";
+import { formatDateTime, toEpochMilli } from "@/util/date";
 
 const router = useRouter();
 
@@ -136,10 +104,10 @@ const sizeOptions = [
 
 function filter(newFilter) {
     newFilter.issuedAtStart = newFilter.issuedAtStart
-        ? toEpochMili(newFilter.issuedAtStart)
+        ? toEpochMilli(newFilter.issuedAtStart)
         : null;
     newFilter.issuedAtEnd = newFilter.issuedAtEnd
-        ? toEpochMili(newFilter.issuedAtEnd)
+        ? toEpochMilli(newFilter.issuedAtEnd)
         : null;
 
     filterData = newFilter;
@@ -182,26 +150,6 @@ function redirect(event, clickedRow) {
 //     // const value = { ...clickedRow.item };
 //     // console.log(value);
 // }
-
-function formatDateTime(dateArr) {
-    return (
-        dateArr[2] +
-        "." +
-        dateArr[1] +
-        "." +
-        dateArr[0] +
-        ". " +
-        dateArr[3] +
-        ":" +
-        dateArr[4] +
-        ":" +
-        dateArr[5]
-    );
-}
-
-function toEpochMili(date) {
-    return date.getTime();
-}
 </script>
 
 <style scoped>

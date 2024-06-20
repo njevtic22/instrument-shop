@@ -12,10 +12,17 @@ const routes = [
         },
     },
     {
+        path: "/instruments/:id",
+        name: "Instrument",
+        component: () => import("../views/InstrumentView.vue"),
+        meta: {
+            title: "Instrument",
+        },
+    },
+    {
         path: "/login",
         name: "Login",
-        component: () =>
-            import(/* webpackChunkName: "Login" */ "../views/LoginView.vue"),
+        component: () => import("../views/LoginView.vue"),
         meta: {
             title: "Login",
             requiredRole: [Role.ANONYMOUS],
@@ -24,10 +31,7 @@ const routes = [
     {
         path: "/profile",
         name: "Profile",
-        component: () =>
-            import(
-                /* webpackChunkName: "Profile" */ "../views/ProfileView.vue"
-            ),
+        component: () => import("../views/ProfileView.vue"),
         meta: {
             title: "Profile",
             requiredRole: [Role.MANAGER, Role.SALESMAN, Role.CUSTOMER],
@@ -36,10 +40,7 @@ const routes = [
     {
         path: "/receipts",
         name: "Receipts",
-        component: () =>
-            import(
-                /* webpackChunkName: "Receipts" */ "../views/ReceiptsView.vue"
-            ),
+        component: () => import("../views/ReceiptsView.vue"),
         meta: {
             title: "Receipts",
             requiredRole: [Role.MANAGER],
@@ -48,10 +49,7 @@ const routes = [
     {
         path: "/receipts/:id",
         name: "Receipt",
-        component: () =>
-            import(
-                /* webpackChunkName: "Receipt" */ "../views/ReceiptView.vue"
-            ),
+        component: () => import("../views/ReceiptView.vue"),
         meta: {
             title: "Receipt",
             requiredRole: [Role.MANAGER],
@@ -61,10 +59,7 @@ const routes = [
         path: "/not-found",
         alias: "/:pathMatch(.*)*",
         name: "NotFound",
-        component: () =>
-            import(
-                /* webpackChunkName: "NotFound" */ "../views/NotFoundView.vue"
-            ),
+        component: () => import("../views/NotFoundView.vue"),
         meta: {
             title: "Not Found",
         },
