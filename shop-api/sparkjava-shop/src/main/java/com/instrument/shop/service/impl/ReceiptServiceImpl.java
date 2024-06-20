@@ -1,19 +1,20 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.UniquePropertyException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.Receipt;
-import com.instrument.shop.service.CodeService;
 import com.instrument.shop.repository.ReceiptRepository;
+import com.instrument.shop.service.CodeService;
 import com.instrument.shop.service.ReceiptItemService;
 import com.instrument.shop.service.ReceiptService;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
-import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Objects;
 
 @Singleton
 public class ReceiptServiceImpl implements ReceiptService {
@@ -51,6 +52,13 @@ public class ReceiptServiceImpl implements ReceiptService {
     @Override
     public PaginatedResponse<Receipt> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAll(filterData, sort, pageRequest);
+    }
+
+    @Override
+    public Receipt getById(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Instrument", id));
     }
 
     @Override

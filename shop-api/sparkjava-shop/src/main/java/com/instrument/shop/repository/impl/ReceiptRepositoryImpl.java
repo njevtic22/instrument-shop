@@ -13,6 +13,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Singleton
 public class ReceiptRepositoryImpl implements ReceiptRepository {
@@ -66,6 +67,15 @@ public class ReceiptRepositoryImpl implements ReceiptRepository {
         );
         em.close();
         return allReceipts;
+    }
+
+    @Override
+    public Optional<Receipt> findById(Long id) {
+        String jpq = "select r from Receipt r where r.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        Optional<Receipt> found = repoUtil.findByUniqueProperty(em, jpq, Receipt.class, id);
+        em.close();
+        return found;
     }
 
     @Override

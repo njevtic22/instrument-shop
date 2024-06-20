@@ -28,4 +28,9 @@ function fetchReceipts(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
-export { receipts, fetchReceipts };
+function fetchReceipt(id, successCallback, errorCallback) {
+    const receiptUrl = `${receiptsUrl}/${id}`;
+    axios.get(receiptUrl).then(successCallback).catch(errorCallback);
+}
+
+export { receipts, fetchReceipts, fetchReceipt };

@@ -9,6 +9,7 @@ import com.instrument.shop.mapper.ReceiptMapper;
 import com.instrument.shop.model.Receipt;
 import com.instrument.shop.service.ReceiptService;
 import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
@@ -56,5 +57,12 @@ public class ReceiptController {
                 allReceipts.totalElements(),
                 allReceipts.totalPages()
         );
+    }
+
+    @GetMapping("/:id")
+    @PreAuthorize("MANAGER")
+    public ReceiptViewDto getById(@PathParam("id") Long id) {
+        Receipt found = service.getById(id);
+        return mapper.toViewDto(found);
     }
 }

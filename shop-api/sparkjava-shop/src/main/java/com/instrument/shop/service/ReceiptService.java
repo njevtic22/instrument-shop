@@ -15,5 +15,7 @@ public interface ReceiptService {
 
     PaginatedResponse<Receipt> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
+    Receipt getById(Long id);
+
     void validateCode(String code);
 }

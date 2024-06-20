@@ -8,10 +8,9 @@
         :headers="headers"
         :sort-by="sortBy"
         @update:options="updateOptions"
-        @click:row="openModal"
+        @click:row="redirect"
         item-value="id"
         class="elevation-4"
-        show-expand
         multi-sort
         hover
     >
@@ -66,8 +65,10 @@
 
 <script setup>
 import { ref, inject } from "vue";
+import { useRouter } from "vue-router";
 import { receipts, fetchReceipts } from "@/store/receipt";
-import { fetchReceiptItems } from "@/store/receiptItem";
+
+const router = useRouter();
 
 const errorSnack = inject("defaultErrorSnackbar");
 
@@ -160,29 +161,27 @@ function loadReceipts() {
     fetchReceipts(page.value, size.value, sortBy.value, filterData, errorSnack);
 }
 
-function openModal(event, clickedRow) {
-    const indexExpanded = expanded.value.findIndex(
-        (i) => i === clickedRow.item.id
-    );
-    if (indexExpanded === -1) {
-        expanded.value.push(clickedRow.item.id);
-    } else {
-        expanded.value.splice(indexExpanded, 1);
-    }
-
-    fetchItems(receipts.value.data[clickedRow.index]);
-
-    // attributes that are objects are still proxies
-    // const value = { ...clickedRow.item };
-    // console.log(value);
+function redirect(event, clickedRow) {
+    router.push("/receipts/" + clickedRow.item.id);
 }
 
-function fetchItems(receipt) {
-    const successCallback = (response) => {
-        receipt.items = response.data;
-    };
-    fetchReceiptItems(receipt.id, successCallback, errorSnack);
-}
+// @click:row="expandRow"
+// function expandRow(event, clickedRow) {
+//     const indexExpanded = expanded.value.findIndex(
+//         (i) => i === clickedRow.item.id
+//     );
+//     if (indexExpanded === -1) {
+//         expanded.value.push(clickedRow.item.id);
+//     } else {
+//         expanded.value.splice(indexExpanded, 1);
+//     }
+
+//     fetchItems(receipts.value.data[clickedRow.index]);
+
+//     // attributes that are objects are still proxies
+//     // const value = { ...clickedRow.item };
+//     // console.log(value);
+// }
 
 function formatDateTime(dateArr) {
     return (
