@@ -11,8 +11,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -121,6 +119,59 @@ public class RepositoryUtil {
             selectAll.setMaxResults(pageRequest.getSize());
 
             TypedQuery<Long> count = em.createQuery(countQuery, long.class);
+
+            if (hasFilter) {
+                for (Map.Entry<String, Object> entry : filterData.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = getCorrectValue(entry.getValue());
+
+                    selectAll.setParameter(key, value);
+                    count.setParameter(key, value);
+                }
+            }
+
+            allEntities = selectAll.getResultList();
+            allEntitiesNum = count.getSingleResult();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+
+        return new PaginatedResponse<>(
+                allEntities,
+                allEntitiesNum,
+                Math.ceilDiv(allEntitiesNum, pageRequest.getSize())
+        );
+    }
+
+    public <T extends DatabaseEntity> PaginatedResponse<T> findAllByProperty(
+            EntityManager em,
+            String jpq,
+            String countQuery,
+            Object property,
+            Class<T> clazz,
+            boolean hasFilter,
+            Map<String, Object> filterData,
+            PageRequest pageRequest
+    ) {
+        List<T> allEntities = new ArrayList<>();
+        long allEntitiesNum = 0;
+
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<T> selectAll = em.createQuery(jpq, clazz);
+            selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
+            selectAll.setMaxResults(pageRequest.getSize());
+
+            TypedQuery<Long> count = em.createQuery(countQuery, long.class);
+
+            selectAll.setParameter(1, property);
+            count.setParameter(1, property);
 
             if (hasFilter) {
                 for (Map.Entry<String, Object> entry : filterData.entrySet()) {

@@ -1,5 +1,8 @@
 package com.instrument.shop.repository.impl;
 
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.ReceiptItem;
 import com.instrument.shop.repository.ReceiptItemRepository;
 import com.instrument.shop.repository.RepositoryUtil;
@@ -8,11 +11,9 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.EntityTransaction;
-import jakarta.persistence.TypedQuery;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class ReceiptItemRepositoryImpl implements ReceiptItemRepository {
@@ -36,25 +37,26 @@ public class ReceiptItemRepositoryImpl implements ReceiptItemRepository {
     }
 
     @Override
-    public List<ReceiptItem> findAllByReceiptId(Long receiptId) {
-        List<ReceiptItem> allItems = new ArrayList<>();
-        String jpq = "select ri from ReceiptItem ri where ri.receipt.id = ?1 order by ri.id asc";
+    public PaginatedResponse<ReceiptItem> findAllByReceiptId(Long receiptId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
+        String filterPart = jpqlUtil.getValidItemFilter(filterData, "ri");
+        String orderBy = jpqlUtil.getValidItemOrderBy(sort);
+        String jpq = "select ri from ReceiptItem ri where ri.receipt.id = ?1" + filterPart + orderBy;
+        String countQuery = "select count(*) from ReceiptItem ri where ri.receipt.id = ?1" + filterPart;
+
+
 
         EntityManager em = emf.createEntityManager();
-        EntityTransaction tr = em.getTransaction();
-        try {
-            tr.begin();
-            TypedQuery<ReceiptItem> selectAll = em.createQuery(jpq, ReceiptItem.class);
-            selectAll.setParameter(1, receiptId);
-            allItems = selectAll.getResultList();
-            tr.commit();
-
-        } catch (RuntimeException ex) {
-            if (tr.isActive()) {
-                tr.rollback();
-            }
-            throw ex;
-        }
+        PaginatedResponse<ReceiptItem> allItems = repoUtil.findAllByProperty(
+                em,
+                jpq,
+                countQuery,
+                receiptId,
+                ReceiptItem.class,
+                !filterPart.isEmpty(),
+                filterData,
+                pageRequest
+        );
+        em.close();
         return allItems;
     }
 

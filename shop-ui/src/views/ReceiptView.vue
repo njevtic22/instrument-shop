@@ -24,26 +24,31 @@
 
     <br />
     <h2>Details</h2>
-    <v-data-table
-        :items="items"
+    <v-data-table-server
+        v-model:items-per-page="size"
+        :items="items.data"
+        :items-length="items.totalElements"
+        :items-per-page-options="sizeOptions"
         :headers="headers"
+        :sort-by="sortBy"
+        @update:options="updateOptions"
         @click:row="redirect"
+        item-value="id"
         class="elevation-4"
-        hide-default-footer
         multi-sort
         hover
     >
         <template v-slot:item.totalProductPrice="{ item }">
             {{ (item.productQuantity * item.productPrice).toFixed(2) }}
         </template>
-    </v-data-table>
+    </v-data-table-server>
 </template>
 
 <script setup>
 import { inject, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { fetchReceipt } from "@/store/receipt";
-import { fetchReceiptItems } from "@/store/receiptItem";
+import { items, fetchReceiptItems } from "@/store/receiptItem";
 import { formatDateTime } from "@/util/date";
 
 const route = useRoute();
@@ -57,7 +62,6 @@ const receipt = ref({
     change: 0,
     issuedAt: [0, 0, 0, 0, 0, 0, 0],
 });
-const items = ref([]);
 
 const headers = [
     // {
@@ -90,6 +94,27 @@ const headers = [
     },
 ];
 
+const page = ref(0);
+const size = ref(5);
+const sortBy = ref([]);
+let filterData = {};
+
+const sizeOptions = [
+    { value: 5, title: "5" },
+    { value: 10, title: "10" },
+    { value: 25, title: "25" },
+    { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
+];
+
+function updateOptions(options) {
+    page.value = options.page - 1;
+    size.value = options.itemsPerPage;
+    sortBy.value = options.sortBy;
+    // groupBy.value = options.groupBy;
+
+    loadItems();
+}
+
 function loadReceipt() {
     const successCallback = (response) => {
         receipt.value = response.data;
@@ -99,12 +124,15 @@ function loadReceipt() {
 loadReceipt();
 
 function loadItems() {
-    const successCallback = (response) => {
-        items.value = response.data;
-    };
-    fetchReceiptItems(route.params.id, successCallback, errorSnack);
+    fetchReceiptItems(
+        route.params.id,
+        page.value,
+        size.value,
+        sortBy.value,
+        filterData,
+        errorSnack
+    );
 }
-loadItems();
 
 function redirect(event, clickedRow) {
     router.push("/instruments/" + clickedRow.item.productId);

@@ -1,6 +1,5 @@
 <template>
     <v-data-table-server
-        v-model:expanded="expanded"
         v-model:items-per-page="size"
         :items="receipts.data"
         :items-length="receipts.totalElements"
@@ -87,8 +86,6 @@ const headers = [
     },
 ];
 
-const expanded = ref([]);
-
 const page = ref(0);
 const size = ref(5);
 const sortBy = ref([]);
@@ -119,8 +116,6 @@ function updateOptions(options) {
     size.value = options.itemsPerPage;
     sortBy.value = options.sortBy;
     // groupBy.value = options.groupBy;
-
-    expanded.value.splice(0, expanded.value.length);
 
     loadReceipts();
 }

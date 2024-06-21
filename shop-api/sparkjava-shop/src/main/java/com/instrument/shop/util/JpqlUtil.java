@@ -1,5 +1,6 @@
 package com.instrument.shop.util;
 
+import com.instrument.shop.core.pagination.Sort;
 import jakarta.inject.Singleton;
 
 import java.util.List;
@@ -206,5 +207,75 @@ public class JpqlUtil {
             }
         }
         return getValidJpqlPart(filterPart.toString());
+    }
+
+    public String getValidItemFilter(Map<String, Object> filterData, String columnPrefix) {
+        StringBuilder filterPart = new StringBuilder();
+        for (Map.Entry<String, Object> entry : filterData.entrySet()) {
+            String key = entry.getKey();
+
+            filterPart.append(" and ");
+            if (key.equals("productName")) {
+                filterPart.append("lower(")
+                        .append(columnPrefix)
+                        .append(".product.name) like lower(:")
+                        .append(key)
+                        .append(")");
+            } else {
+                if (key.equals("productPriceStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".product.price >=");
+
+                } else if (key.equals("productPriceEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".product.price <=");
+
+                } else if (key.equals("productQuantityStart")) {
+                    filterPart.append(columnPrefix)
+                            .append(".productQuantity >=");
+
+                } else if (key.equals("productQuantityEnd")) {
+                    filterPart.append(columnPrefix)
+                            .append(".productQuantity <=");
+
+                }
+                filterPart.append(" :")
+                        .append(key);
+            }
+        }
+        return getValidJpqlPart(filterPart.toString());
+    }
+
+    public String getValidItemOrderBy(Sort sort) {
+        StringBuilder orderBy = new StringBuilder();
+        if (!sort.isUnsorted()) {
+            sort = new Sort("", null, sort);
+            while (sort.hasNext()) {
+                sort = sort.sortNext();
+
+                String property = sort.property();
+
+                if (property.equals("productName")) {
+                    orderBy
+                            .append("product.name ")
+                            .append(sort.order().toString());
+                } else if (property.equals("productPrice")) {
+                    orderBy
+                            .append("product.price ")
+                            .append(sort.order().toString());
+                } else {
+                    orderBy
+                            .append(property)
+                            .append(" ")
+                            .append(sort.order().toString());
+                }
+
+                if (sort.hasNext()) {
+                    orderBy.append(", ");
+                }
+            }
+        }
+
+        return getValidOrderBy(orderBy.toString());
     }
 }

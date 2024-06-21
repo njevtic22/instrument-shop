@@ -1,5 +1,8 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.pagination.PageRequest;
+import com.instrument.shop.core.pagination.PaginatedResponse;
+import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.ReceiptItem;
 import com.instrument.shop.repository.ReceiptItemRepository;
 import com.instrument.shop.service.ReceiptItemService;
@@ -7,6 +10,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
 import java.util.List;
+import java.util.Map;
 
 @Singleton
 public class ReceiptItemServiceImpl implements ReceiptItemService {
@@ -23,7 +27,7 @@ public class ReceiptItemServiceImpl implements ReceiptItemService {
     }
 
     @Override
-    public List<ReceiptItem> getAllByReceiptId(Long receiptId) {
-        return repository.findAllByReceiptId(receiptId);
+    public PaginatedResponse<ReceiptItem> getAllByReceiptId(Long receiptId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findAllByReceiptId(receiptId, filterData, sort, pageRequest);
     }
 }
