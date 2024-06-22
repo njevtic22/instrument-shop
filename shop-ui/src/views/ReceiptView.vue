@@ -41,6 +41,18 @@
         <template v-slot:item.totalProductPrice="{ item }">
             {{ (item.productQuantity * item.productPrice).toFixed(2) }}
         </template>
+
+        <template v-slot:footer.prepend>
+            <v-expansion-panels static elevation="0" variant="accordion">
+                <v-expansion-panel title="Filter receipt items">
+                    <v-expansion-panel-text>
+                        <ReceiptItemsFilter
+                            @filter="filter"
+                        ></ReceiptItemsFilter>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+        </template>
     </v-data-table-server>
 </template>
 
@@ -105,6 +117,11 @@ const sizeOptions = [
     { value: 25, title: "25" },
     { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
 ];
+
+function filter(newFilter) {
+    filterData = newFilter;
+    loadItems();
+}
 
 function updateOptions(options) {
     page.value = options.page - 1;
