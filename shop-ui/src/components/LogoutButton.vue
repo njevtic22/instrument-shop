@@ -9,6 +9,7 @@ import { clear as clearRole } from "@/store/auth";
 import { clear as clearProfile } from "@/store/profile";
 import { clear as clearReceipt } from "@/store/receipt";
 import { clear as clearReceiptItem } from "@/store/receiptItem";
+import { clear as clearUser } from "@/store/user";
 
 const router = useRouter();
 
@@ -20,6 +21,7 @@ function logout() {
     clearProfile();
     clearReceipt();
     clearReceiptItem();
+    clearUser();
 
     delete axios.defaults.headers.common["Authorization"];
     router.push("/");

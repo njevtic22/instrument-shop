@@ -56,6 +56,15 @@ const routes = [
         },
     },
     {
+        path: "/users",
+        name: "Users",
+        component: () => import("../views/UsersView.vue"),
+        meta: {
+            title: "Users",
+            requiredRole: [Role.MANAGER],
+        },
+    },
+    {
         path: "/not-found",
         alias: "/:pathMatch(.*)*",
         name: "NotFound",

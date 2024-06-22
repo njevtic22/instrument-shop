@@ -73,6 +73,16 @@ const items = ref([
             return currentRole.value === Role.MANAGER;
         },
     },
+    {
+        name: "Users",
+        icon: "mdi-account-multiple",
+        redirect() {
+            router.push("/users");
+        },
+        getActive() {
+            return currentRole.value === Role.MANAGER;
+        },
+    },
 ]);
 
 const activeItems = computed(() => {
