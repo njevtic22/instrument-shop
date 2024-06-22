@@ -7,6 +7,8 @@ import { useRouter } from "vue-router";
 import axios from "axios";
 import { clear as clearRole } from "@/store/auth";
 import { clear as clearProfile } from "@/store/profile";
+import { clear as clearReceipt } from "@/store/receipt";
+import { clear as clearReceiptItem } from "@/store/receiptItem";
 
 const router = useRouter();
 
@@ -16,6 +18,8 @@ function logout() {
 
     clearRole();
     clearProfile();
+    clearReceipt();
+    clearReceiptItem();
 
     delete axios.defaults.headers.common["Authorization"];
     router.push("/");

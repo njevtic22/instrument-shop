@@ -33,4 +33,8 @@ function fetchReceipt(id, successCallback, errorCallback) {
     axios.get(receiptUrl).then(successCallback).catch(errorCallback);
 }
 
-export { receipts, fetchReceipts, fetchReceipt };
+function clear() {
+    receipts.value = getDefaultState();
+}
+
+export { receipts, fetchReceipts, fetchReceipt, clear };

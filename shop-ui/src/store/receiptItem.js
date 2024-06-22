@@ -29,4 +29,8 @@ function fetchReceiptItems(receiptId, page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
-export { items, fetchReceiptItems };
+function clear() {
+    items.value = getDefaultState();
+}
+
+export { items, fetchReceiptItems, clear };
