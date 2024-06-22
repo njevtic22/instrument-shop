@@ -1,4 +1,9 @@
 <template>
+    <v-btn @click="dialog = true" class="mb-2" color="primary">
+        Add salesman
+    </v-btn>
+    <UserAddDialog v-model="dialog" @add-user="addSalesman"></UserAddDialog>
+
     <v-data-table-server
         v-model:items-per-page="size"
         :items="users.data"
@@ -29,6 +34,8 @@ import { ref, inject } from "vue";
 import { users, fetchUsers } from "@/store/user";
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const dialog = ref(false);
 
 const headers = [
     // {
@@ -89,6 +96,11 @@ function updateOptions(options) {
 
 function loadUsers() {
     fetchUsers(page.value, size.value, sortBy.value, filterData, errorSnack);
+}
+
+function addSalesman(salesman) {
+    salesman.role = "SALESMAN";
+    console.log(salesman);
 }
 </script>
 
