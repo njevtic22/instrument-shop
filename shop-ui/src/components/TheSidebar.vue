@@ -44,6 +44,16 @@ const items = ref([
         },
     },
     {
+        name: "Register",
+        icon: "mdi-account-plus",
+        redirect() {
+            router.push("/register");
+        },
+        getActive() {
+            return currentRole.value === Role.ANONYMOUS;
+        },
+    },
+    {
         name: "Profile",
         icon: "mdi-account",
         redirect() {
@@ -97,13 +107,16 @@ const activeItems = computed(() => {
 </script>
 
 <style scoped>
+.fade-move {
+    transition: all 0.3s ease;
+}
 .fade-enter-active {
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
     transition-delay: 0.3s;
 }
 
 .fade-leave-active {
-    transition: opacity 0.3s ease;
+    transition: all 0.3s ease;
     width: 94%;
 }
 

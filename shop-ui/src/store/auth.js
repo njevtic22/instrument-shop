@@ -18,9 +18,34 @@ function logIn(loginData, successCallback, errorCallback) {
     axios
         .post(`${authUrl}/login`, loginData)
         .then((response) => {
-            successCallback(response);
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("role", response.data.role);
+
+            axios.defaults.headers.common["Authorization"] =
+                "Bearer " + response.data.token;
+
             let storageRole = localStorage.getItem("role");
             currentRole.value = storageRole ? storageRole : Role.ANONYMOUS;
+
+            successCallback(response);
+        })
+        .catch(errorCallback);
+}
+
+function register(registerData, successCallback, errorCallback) {
+    axios
+        .post(`${authUrl}/register`, registerData)
+        .then((response) => {
+            localStorage.setItem("token", response.data.token);
+            localStorage.setItem("role", response.data.role);
+
+            axios.defaults.headers.common["Authorization"] =
+                "Bearer " + response.data.token;
+
+            let storageRole = localStorage.getItem("role");
+            currentRole.value = storageRole ? storageRole : Role.ANONYMOUS;
+
+            successCallback(response);
         })
         .catch(errorCallback);
 }
@@ -33,4 +58,4 @@ function clear() {
     currentRole.value = Role.ANONYMOUS;
 }
 
-export { Role, currentRole, logIn, isManager, clear };
+export { Role, currentRole, logIn, register, isManager, clear };

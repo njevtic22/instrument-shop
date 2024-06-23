@@ -44,7 +44,6 @@
 <script setup>
 import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import axios from "axios";
 import { logIn } from "@/store/auth";
 
 const router = useRouter();
@@ -73,13 +72,7 @@ async function login() {
 
     const loginData = { ...data.value };
 
-    const successCallback = (response) => {
-        localStorage.setItem("token", response.data.token);
-        localStorage.setItem("role", response.data.role);
-
-        axios.defaults.headers.common["Authorization"] =
-            "Bearer " + response.data.token;
-
+    const successCallback = () => {
         router.push("/");
     };
 
