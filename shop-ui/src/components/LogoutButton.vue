@@ -17,14 +17,20 @@ function logout() {
     localStorage.removeItem("token");
     localStorage.removeItem("role");
 
-    clearRole();
-    clearProfile();
-    clearReceipt();
-    clearReceiptItem();
-    clearUser();
-
     delete axios.defaults.headers.common["Authorization"];
     router.push("/");
+
+    // v-data-table update:options event is fired
+    // when data is cleared and first page is not currently shown
+    // if there is no data, then the first page is shown which could fire said event
+    // That is why setTimeout is written, to make sure table component is destroyed and then clear data
+    clearRole();
+    clearProfile();
+    setTimeout(() => {
+        clearReceipt();
+        clearReceiptItem();
+        clearUser();
+    }, 0.1 * 1000);
 }
 </script>
 
