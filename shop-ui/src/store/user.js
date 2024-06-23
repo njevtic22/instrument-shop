@@ -28,8 +28,12 @@ function fetchUsers(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
+function addUser(newUser, successCallback, errorCallback) {
+    axios.post(usersUrl, newUser).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     users.value = getDefaultState();
 }
 
-export { users, fetchUsers, clear };
+export { users, fetchUsers, addUser, clear };

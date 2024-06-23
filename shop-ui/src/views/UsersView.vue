@@ -1,8 +1,11 @@
 <template>
-    <v-btn @click="dialog = true" class="mb-2" color="primary">
-        Add salesman
-    </v-btn>
-    <UserAddDialog v-model="dialog" @add-user="addSalesman"></UserAddDialog>
+    <div class="text-right">
+        <v-btn @click="dialog = true" class="mb-2" color="primary">
+            Add salesman
+        </v-btn>
+    </div>
+
+    <UserAddDialog v-model="dialog" @user-added="loadUsers"></UserAddDialog>
 
     <v-data-table-server
         v-model:items-per-page="size"
@@ -96,11 +99,6 @@ function updateOptions(options) {
 
 function loadUsers() {
     fetchUsers(page.value, size.value, sortBy.value, filterData, errorSnack);
-}
-
-function addSalesman(salesman) {
-    salesman.role = "SALESMAN";
-    console.log(salesman);
 }
 </script>
 

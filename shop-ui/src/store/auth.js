@@ -25,8 +25,12 @@ function logIn(loginData, successCallback, errorCallback) {
         .catch(errorCallback);
 }
 
+function isManager() {
+    return currentRole.value === Role.MANAGER;
+}
+
 function clear() {
     currentRole.value = Role.ANONYMOUS;
 }
 
-export { Role, currentRole, logIn, clear };
+export { Role, currentRole, logIn, isManager, clear };
