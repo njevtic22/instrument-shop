@@ -20,5 +20,7 @@ public interface ReceiptRepository {
 
     Optional<Receipt> findById(Long id);
 
+    double countProfit(Map<String, Object> filterData);
+
     boolean existsByCode(String code);
 }

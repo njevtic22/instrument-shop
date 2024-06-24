@@ -1,4 +1,5 @@
 <template>
+    <h3>Profit: {{ profit.toFixed(2) }}</h3>
     <v-data-table-server
         v-model:items-per-page="size"
         :items="receipts.data"
@@ -32,7 +33,7 @@
 <script setup>
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
-import { receipts, fetchReceipts } from "@/store/receipt";
+import { receipts, fetchReceipts, fetchProfit } from "@/store/receipt";
 import { formatDateTime, toEpochMilli } from "@/util/date";
 
 const router = useRouter();
@@ -91,6 +92,8 @@ const size = ref(5);
 const sortBy = ref([]);
 let filterData = {};
 
+const profit = ref(0);
+
 const sizeOptions = [
     { value: 5, title: "5" },
     { value: 10, title: "10" },
@@ -108,6 +111,7 @@ function filter(newFilter) {
         : null;
 
     filterData = newFilter;
+    loadProfit();
     loadReceipts();
 }
 
@@ -117,11 +121,19 @@ function updateOptions(options) {
     sortBy.value = options.sortBy;
     // groupBy.value = options.groupBy;
 
+    loadProfit();
     loadReceipts();
 }
 
 function loadReceipts() {
     fetchReceipts(page.value, size.value, sortBy.value, filterData, errorSnack);
+}
+
+function loadProfit() {
+    const successCallback = (response) => {
+        profit.value = response.data;
+    };
+    fetchProfit(filterData, successCallback, errorSnack);
 }
 
 function redirect(event, clickedRow) {

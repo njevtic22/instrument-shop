@@ -9,6 +9,7 @@ import com.instrument.shop.mapper.ReceiptMapper;
 import com.instrument.shop.model.Receipt;
 import com.instrument.shop.service.ReceiptService;
 import com.sparkjava.context.annotation.GetMapping;
+import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.QueryParam;
@@ -35,6 +36,7 @@ public class ReceiptController {
     }
 
     @GetMapping
+    @MethodOrder(100)
     @PreAuthorize("MANAGER")
     public PaginatedResponse<ReceiptViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
@@ -59,7 +61,16 @@ public class ReceiptController {
         );
     }
 
+    @GetMapping("/profit")
+    @MethodOrder(80)
+    @PreAuthorize("MANAGER")
+    public double getProfit(@QueryParamValues(value = "filter", required = false) String[] filterParams) {
+        Map<String, Object> filterData = pagingFilteringUtil.buildFilterData(filterParams);
+        return service.getProfit(filterData);
+    }
+
     @GetMapping("/:id")
+    @MethodOrder(60)
     @PreAuthorize("MANAGER")
     public ReceiptViewDto getById(@PathParam("id") Long id) {
         Receipt found = service.getById(id);

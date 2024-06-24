@@ -92,7 +92,7 @@ public class RepositoryUtil {
         return savedEntities;
     }
 
-    private Object getCorrectValue(Object value) {
+    public Object getCorrectValue(Object value) {
         if (value instanceof String) {
             return "%" + value + "%";
         }

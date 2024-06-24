@@ -33,8 +33,14 @@ function fetchReceipt(id, successCallback, errorCallback) {
     axios.get(receiptUrl).then(successCallback).catch(errorCallback);
 }
 
+function fetchProfit(filter, successCallback, errorCallback) {
+    const filterStr = formFilter(filter);
+    const profitUrl = `${receiptsUrl}/profit?${filterStr}`;
+    axios.get(profitUrl).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     receipts.value = getDefaultState();
 }
 
-export { receipts, fetchReceipts, fetchReceipt, clear };
+export { receipts, fetchReceipts, fetchReceipt, fetchProfit, clear };

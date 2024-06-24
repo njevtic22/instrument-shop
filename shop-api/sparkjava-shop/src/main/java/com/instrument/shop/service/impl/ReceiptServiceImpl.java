@@ -62,6 +62,11 @@ public class ReceiptServiceImpl implements ReceiptService {
     }
 
     @Override
+    public double getProfit(Map<String, Object> filterData) {
+        return repository.countProfit(filterData);
+    }
+
+    @Override
     public void validateCode(String code) {
         if (repository.existsByCode(code)) {
             throw new UniquePropertyException("Code", code);

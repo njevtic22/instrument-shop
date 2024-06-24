@@ -17,5 +17,7 @@ public interface ReceiptService {
 
     Receipt getById(Long id);
 
+    double getProfit(Map<String, Object> filterData);
+
     void validateCode(String code);
 }

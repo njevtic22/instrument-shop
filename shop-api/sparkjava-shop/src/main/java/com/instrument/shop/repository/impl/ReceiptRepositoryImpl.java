@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 import java.util.Map;
 import java.util.Optional;
@@ -76,6 +78,44 @@ public class ReceiptRepositoryImpl implements ReceiptRepository {
         Optional<Receipt> found = repoUtil.findByUniqueProperty(em, jpq, Receipt.class, id);
         em.close();
         return found;
+    }
+
+    @Override
+    public double countProfit(Map<String, Object> filterData) {
+        String filterPart = jpqlUtil.getValidReceiptFilter(filterData, "r");
+        if (!filterPart.isEmpty()) {
+            filterPart = "where " + filterPart.substring(5);
+        }
+        String jpq = "select sum(r.totalPrice) from Receipt r " + filterPart;
+        double profit = 0;
+
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Double> selectProfit = em.createQuery(jpq, double.class);
+
+
+            if (!filterPart.isEmpty()) {
+                for (Map.Entry<String, Object> entry : filterData.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = repoUtil.getCorrectValue(entry.getValue());
+
+                    selectProfit.setParameter(key, value);
+                }
+            }
+
+            Double result = selectProfit.getSingleResult();
+            profit = result == null ? 0 : result;
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return profit;
     }
 
     @Override
