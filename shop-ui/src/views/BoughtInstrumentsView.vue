@@ -40,22 +40,54 @@
             </v-card>
         </v-col>
     </v-row>
+    <span ref="scrollTarget"></span>
 </template>
 
 <script setup>
-import { inject } from "vue";
+import { inject, ref, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import { isCustomer } from "@/store/auth";
 import {
     boughtInstruments,
     fetchBoughtInstruments,
+    clear,
 } from "@/store/boughtInstrument";
 import { formatDateTime } from "@/util/date";
+import { useIntersectionObserver } from "@vueuse/core";
 
 const router = useRouter();
 const errorSnack = inject("defaultErrorSnackbar");
 
-fetchBoughtInstruments(errorSnack);
+let page = -1;
+let size = 20;
+
+const scrollTarget = ref(null);
+
+function loadBoughtInstruments() {
+    // console.log("page " + page);
+    // console.log("totalPages " + boughtInstruments.value.totalPages);
+
+    if (page > boughtInstruments.value.totalPages) {
+        // no more data to fetch
+        return;
+    }
+
+    fetchBoughtInstruments(page, size, errorSnack);
+}
+
+useIntersectionObserver(
+    scrollTarget,
+    ([{ isIntersecting }]) => {
+        // console.log(isIntersecting);
+        if (isIntersecting) {
+            page++;
+            loadBoughtInstruments();
+        }
+    },
+    {
+        rootMargin: "400px",
+    }
+);
 
 function redirect(instrumentId) {
     router.push(`/instruments/${instrumentId}`);
@@ -67,6 +99,10 @@ function handleClick(event) {
         event.stopPropagation();
     }
 }
+
+onUnmounted(() => {
+    clear();
+});
 </script>
 
 <style scoped></style>

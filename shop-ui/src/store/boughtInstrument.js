@@ -13,11 +13,12 @@ function getDefaultState() {
 const boughtInstruments = ref(getDefaultState());
 const boughtUrl = `${environment.apiUrl}/bought-instruments`;
 
-function fetchBoughtInstruments(errorCallback) {
+function fetchBoughtInstruments(page, size, errorCallback) {
+    const pageUrl = `${boughtUrl}?page=${page}&size=${size}`;
     axios
-        .get(boughtUrl)
+        .get(pageUrl)
         .then((response) => {
-            boughtInstruments.value.data = response.data.data;
+            boughtInstruments.value.data.push(...response.data.data);
             boughtInstruments.value.totalElements = response.data.totalElements;
             boughtInstruments.value.totalPages = response.data.totalPages;
         })
