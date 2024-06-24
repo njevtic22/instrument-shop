@@ -74,6 +74,19 @@ const items = ref([
         },
     },
     {
+        name: "Bought instruments",
+        icon: "mdi-guitar-acoustic",
+        redirect() {
+            router.push("/bought-instruments");
+        },
+        getActive() {
+            return (
+                currentRole.value === Role.MANAGER ||
+                currentRole.value === Role.CUSTOMER
+            );
+        },
+    },
+    {
         name: "Receipts",
         icon: "mdi-receipt",
         redirect() {

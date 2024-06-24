@@ -20,6 +20,15 @@ const routes = [
         },
     },
     {
+        path: "/bought-instruments",
+        name: "Bought instruments",
+        component: () => import("../views/BoughtInstrumentsView.vue"),
+        meta: {
+            title: "Bought instruments",
+            requiredRole: [Role.MANAGER, Role.CUSTOMER],
+        },
+    },
+    {
         path: "/login",
         name: "Login",
         component: () => import("../views/LoginView.vue"),
