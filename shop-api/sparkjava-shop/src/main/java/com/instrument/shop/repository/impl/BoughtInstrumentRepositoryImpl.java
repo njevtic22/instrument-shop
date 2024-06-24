@@ -67,7 +67,7 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
         String jpq = "select i from BoughtInstrument i " + filterPart + orderBy;
         String countQuery = "select count(*) from BoughtInstrument i " + filterPart;
 
-        filterData.put("ownerId", ownerId.toString());
+        filterData.put("ownerId", ownerId);
         EntityManager em = emf.createEntityManager();
         PaginatedResponse<BoughtInstrument> allInstruments = repoUtil.findAll(
                 em,
