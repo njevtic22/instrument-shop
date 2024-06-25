@@ -1,45 +1,63 @@
 <template>
     <v-row>
-        <v-col
-            v-for="bought in boughtInstruments.data"
-            :key="bought.id"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="3"
-        >
-            <v-card @click="redirect(bought.id)" hover>
-                <v-carousel
-                    @click="handleClick"
-                    hide-delimiters
-                    show-arrows="hover"
-                    height="250px"
+        <v-col cols="9">
+            <v-row>
+                <v-col
+                    v-for="bought in boughtInstruments.data"
+                    :key="bought.id"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                    lg="4"
                 >
-                    <v-carousel-item
-                        v-for="image in bought.images"
-                        :key="image.id"
-                        :src="image.url"
-                    >
-                    </v-carousel-item>
-                </v-carousel>
+                    <v-card @click="redirect(bought.id)" hover>
+                        <v-carousel
+                            @click="handleClick"
+                            hide-delimiters
+                            show-arrows="hover"
+                            height="250px"
+                        >
+                            <v-carousel-item
+                                v-for="image in bought.images"
+                                :key="image.id"
+                                :src="image.url"
+                            >
+                            </v-carousel-item>
+                        </v-carousel>
 
-                <v-card-item>
-                    <v-card-title>{{ bought.name }}</v-card-title>
-                    <v-card-subtitle>Type: {{ bought.type }}</v-card-subtitle>
-                    <v-card-subtitle>Mark: {{ bought.mark }}</v-card-subtitle>
-                </v-card-item>
+                        <v-card-item>
+                            <v-card-title>{{ bought.name }}</v-card-title>
+                            <v-card-subtitle>
+                                Type: {{ bought.type }}
+                            </v-card-subtitle>
+                            <v-card-subtitle>
+                                Mark: {{ bought.mark }}
+                            </v-card-subtitle>
+                        </v-card-item>
 
-                <v-card-text>
-                    <div v-if="isCustomer()">Owned: {{ bought.owned }}</div>
-                    <!-- Id {{ bought.id }}
-                    <br /> -->
-                    Code: {{ bought.code }}
-                    <br />
-                    Purchased: {{ formatDateTime(bought.purchased) }}
-                </v-card-text>
-            </v-card>
+                        <v-card-text>
+                            <div v-if="isCustomer()">
+                                Owned: {{ bought.owned }}
+                            </div>
+                            <!-- Id {{ bought.id }}
+                            <br /> -->
+                            Code: {{ bought.code }}
+                            <br />
+                            Purchased: {{ formatDateTime(bought.purchased) }}
+                        </v-card-text>
+                    </v-card>
+                </v-col>
+            </v-row>
+        </v-col>
+
+        <v-col cols="3" class="fixed-form">
+            <v-form>
+                <v-text-field label="Title"></v-text-field>
+                <v-textarea label="Description"></v-textarea>
+            </v-form>
         </v-col>
     </v-row>
+
     <span ref="scrollTarget"></span>
 </template>
 
@@ -105,4 +123,10 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.fixed-form {
+    position: fixed;
+    right: 0;
+    width: 21%;
+}
+</style>
