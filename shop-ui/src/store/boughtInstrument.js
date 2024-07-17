@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { environment } from "@/environment/environment";
+import { formSort } from "@/util/page-filter-util";
 
 function getDefaultState() {
     return {
@@ -13,8 +14,9 @@ function getDefaultState() {
 const boughtInstruments = ref(getDefaultState());
 const boughtUrl = `${environment.apiUrl}/bought-instruments`;
 
-function fetchBoughtInstruments(page, size, errorCallback) {
-    const pageUrl = `${boughtUrl}?page=${page}&size=${size}`;
+function fetchBoughtInstruments(page, size, sort, errorCallback) {
+    const sortStr = formSort(sort);
+    const pageUrl = `${boughtUrl}?page=${page}&size=${size}&${sortStr}`;
     axios
         .get(pageUrl)
         .then((response) => {

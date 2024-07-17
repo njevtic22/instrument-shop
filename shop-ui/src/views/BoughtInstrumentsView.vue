@@ -75,7 +75,11 @@
                         </span>
                     </template>
                 </v-select>
-                {{ sort }}
+
+                <v-btn @click="applyFilter" color="primary">Apply</v-btn>
+                <v-btn @click="clearFilter" variant="outlined" class="ml-2">
+                    Reset
+                </v-btn>
             </v-form>
         </v-col>
     </v-row>
@@ -233,7 +237,7 @@ function updateSortItems(selected) {
 
 const scrollTarget = ref(null);
 
-function loadBoughtInstruments() {
+function loaMoreInstruments() {
     // console.log("page " + page);
     // console.log("totalPages " + boughtInstruments.value.totalPages);
 
@@ -242,7 +246,27 @@ function loadBoughtInstruments() {
         return;
     }
 
-    fetchBoughtInstruments(page, size, errorSnack);
+    fetchBoughtInstruments(page, size, sort.value, errorSnack);
+}
+
+function applyFilter() {
+    resetPage();
+}
+
+function clearFilter() {
+    sort.value.length = 0;
+    Object.values(sortItems.value).forEach((item) => {
+        item.show = true;
+        item.index = 0;
+    });
+
+    resetPage();
+}
+
+function resetPage() {
+    clear();
+    page = 0;
+    fetchBoughtInstruments(page, size, sort.value, errorSnack);
 }
 
 useIntersectionObserver(
@@ -251,7 +275,7 @@ useIntersectionObserver(
         // console.log(isIntersecting);
         if (isIntersecting) {
             page++;
-            loadBoughtInstruments();
+            loaMoreInstruments();
         }
     },
     {
