@@ -121,14 +121,19 @@
                 </v-select>
 
                 <v-btn @click="applyFilter" color="primary">Apply</v-btn>
-                <v-btn @click="clearFilter" variant="outlined" class="ml-2">
+                <v-btn
+                    @click="clearFilter"
+                    color="primary"
+                    variant="outlined"
+                    class="ml-2"
+                >
                     Reset
                 </v-btn>
             </v-form>
         </v-col>
     </v-row>
 
-    <span ref="scrollTarget"></span>
+    <span v-show="showTarget" ref="scrollTarget"></span>
 </template>
 
 <script setup>
@@ -337,10 +342,17 @@ function clearFilter() {
     resetPage();
 }
 
+const showTarget = ref(true);
+
 function resetPage() {
+    showTarget.value = false;
+
     page = -1;
     clear();
-    // infinite scroll should fire event
+
+    setTimeout(() => {
+        showTarget.value = true;
+    }, 10);
 }
 
 useIntersectionObserver(
