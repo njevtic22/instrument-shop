@@ -52,13 +52,57 @@
 
         <v-col cols="3" class="fixed-form">
             <v-form>
+                <h2>Filter</h2>
+                <v-text-field
+                    v-model="filterData.name"
+                    label="Name"
+                    bg-color="white"
+                ></v-text-field>
+                <v-text-field
+                    v-model="filterData.type"
+                    label="Type"
+                    bg-color="white"
+                ></v-text-field>
+                <v-text-field
+                    v-model="filterData.mark"
+                    label="Mark"
+                    bg-color="white"
+                ></v-text-field>
+                <v-text-field
+                    v-model="filterData.code"
+                    label="Code"
+                    bg-color="white"
+                ></v-text-field>
+                <v-row>
+                    <v-col>
+                        <v-date-input
+                            v-model="filterData.purchasedStart"
+                            @keydown="$event.preventDefault()"
+                            @click:clear="filterData.purchasedStart = null"
+                            label="Date from"
+                            bg-color="white"
+                            clearable
+                        ></v-date-input>
+                    </v-col>
+                    <v-col>
+                        <v-date-input
+                            v-model="filterData.purchasedEnd"
+                            @keydown="$event.preventDefault()"
+                            @click:clear="filterData.purchasedEnd = null"
+                            label="Date to"
+                            bg-color="white"
+                            clearable
+                        ></v-date-input>
+                    </v-col>
+                </v-row>
+
                 <h2>Sort</h2>
                 <v-select
                     v-model="sort"
                     :items="filteredItems"
                     :item-props="itemProps"
                     @update:model-value="updateSortItems"
-                    placeholder="Title"
+                    placeholder="Sort"
                     bg-color="white"
                     multiple
                     clearable
@@ -96,7 +140,7 @@ import {
     fetchBoughtInstruments,
     clear,
 } from "@/store/boughtInstrument";
-import { formatDateTime } from "@/util/date";
+import { formatDateTime, toEpochMilli } from "@/util/date";
 import { useIntersectionObserver } from "@vueuse/core";
 
 const router = useRouter();
@@ -104,6 +148,16 @@ const errorSnack = inject("defaultErrorSnackbar");
 
 let page = -1;
 let size = 20;
+let filter = {};
+
+const filterData = ref({
+    name: "",
+    type: "",
+    mark: "",
+    code: "",
+    purchasedStart: null,
+    purchasedEnd: null,
+});
 
 const sort = ref([]);
 
@@ -237,23 +291,44 @@ function updateSortItems(selected) {
 
 const scrollTarget = ref(null);
 
-function loaMoreInstruments() {
-    // console.log("page " + page);
-    // console.log("totalPages " + boughtInstruments.value.totalPages);
-
+function loadMoreInstruments() {
     if (page > boughtInstruments.value.totalPages) {
         // no more data to fetch
         return;
     }
 
+    console.log(filter);
     fetchBoughtInstruments(page, size, sort.value, errorSnack);
 }
 
 function applyFilter() {
+    filter = { ...filterData.value };
+    filter.purchasedStart = filter.purchasedStart
+        ? toEpochMilli(filter.purchasedStart)
+        : null;
+
+    filter.purchasedEnd = filter.purchasedEnd
+        ? toEpochMilli(filter.purchasedEnd)
+        : null;
+
     resetPage();
 }
 
 function clearFilter() {
+    filterData.value.name = "";
+    filterData.value.type = "";
+    filterData.value.mark = "";
+    filterData.value.code = "";
+    filterData.value.purchasedStart = null;
+    filterData.value.purchasedEnd = null;
+
+    filter.name = "";
+    filter.type = "";
+    filter.mark = "";
+    filter.code = "";
+    filter.purchasedStart = null;
+    filter.purchasedEnd = null;
+
     sort.value.length = 0;
     Object.values(sortItems.value).forEach((item) => {
         item.show = true;
@@ -264,9 +339,9 @@ function clearFilter() {
 }
 
 function resetPage() {
+    page = -1;
     clear();
-    page = 0;
-    fetchBoughtInstruments(page, size, sort.value, errorSnack);
+    // infinite scroll should fire event
 }
 
 useIntersectionObserver(
@@ -275,7 +350,7 @@ useIntersectionObserver(
         // console.log(isIntersecting);
         if (isIntersecting) {
             page++;
-            loaMoreInstruments();
+            loadMoreInstruments();
         }
     },
     {
