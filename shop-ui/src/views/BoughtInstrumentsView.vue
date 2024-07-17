@@ -133,7 +133,7 @@
         </v-col>
     </v-row>
 
-    <span v-show="showTarget" ref="scrollTarget"></span>
+    <span ref="scrollTarget"></span>
 </template>
 
 <script setup>
@@ -342,24 +342,24 @@ function clearFilter() {
     resetPage();
 }
 
-const showTarget = ref(true);
+let isReseting = false;
 
 function resetPage() {
-    showTarget.value = false;
+    isReseting = true;
 
-    page = -1;
+    page = 0;
     clear();
+    fetchBoughtInstruments(page, size, sort.value, filter, errorSnack);
 
     setTimeout(() => {
-        showTarget.value = true;
-    }, 10);
+        isReseting = false;
+    }, 100);
 }
 
 useIntersectionObserver(
     scrollTarget,
     ([{ isIntersecting }]) => {
-        // console.log(isIntersecting);
-        if (isIntersecting) {
+        if (isIntersecting && !isReseting) {
             page++;
             loadMoreInstruments();
         }
