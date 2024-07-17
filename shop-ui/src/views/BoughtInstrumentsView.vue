@@ -297,8 +297,7 @@ function loadMoreInstruments() {
         return;
     }
 
-    console.log(filter);
-    fetchBoughtInstruments(page, size, sort.value, errorSnack);
+    fetchBoughtInstruments(page, size, sort.value, filter, errorSnack);
 }
 
 function applyFilter() {
