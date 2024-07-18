@@ -4,6 +4,7 @@
         v-model:type="type"
         :mode="dialogMode"
         @type-added="loadTypes"
+        @type-modified="loadTypes"
     ></InstrumentTypeDialog>
 
     <div class="mx-auto w-50">
@@ -18,7 +19,7 @@
             :items="types.data"
             :items-length="types.totalElements"
             :items-per-page-options="sizeOptions"
-            :headers="headers"
+            :headers="filteredHeaders"
             :sort-by="sortBy"
             @update:options="updateOptions"
             item-value="id"
@@ -51,7 +52,7 @@
 </template>
 
 <script setup>
-import { ref, inject } from "vue";
+import { ref, inject, computed } from "vue";
 import { fetchTypes, types } from "@/store/instrumentType";
 import { isSalesman } from "@/store/auth";
 
@@ -73,18 +74,25 @@ const headers = [
     // {
     //     title: "ID",
     //     key: "id",
+    //     show: true,
     // },
     {
         title: "Name",
         key: "name",
+        show: true,
     },
     {
         title: "Actions",
         key: "actions",
         sortable: false,
         align: "end",
+        show: isSalesman(),
     },
 ];
+
+const filteredHeaders = computed(() => {
+    return headers.filter((h) => h.show);
+});
 
 const page = ref(0);
 const size = ref(5);

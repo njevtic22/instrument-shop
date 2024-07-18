@@ -1,6 +1,6 @@
 <template>
     <v-dialog v-model="dialog" width="25%">
-        <v-card prepend-icon="mdi-plus" title="Add type">
+        <v-card :prepend-icon="icon" :title="title">
             <v-card-text>
                 <v-form ref="form">
                     <v-text-field
@@ -18,7 +18,7 @@
                     color="primary"
                     variant="elevated"
                 >
-                    Add
+                    {{ buttonText }}
                 </v-btn>
                 <v-btn @click="cancel" variant="elevated"> Cancel </v-btn>
             </v-card-actions>
@@ -27,13 +27,13 @@
 </template>
 
 <script setup>
-import { ref, defineModel, inject } from "vue";
-import { addType } from "@/store/instrumentType";
+import { ref, defineModel, inject, computed } from "vue";
+import { addType, updateType } from "@/store/instrumentType";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
-const emit = defineEmits(["type-added"]);
+const emit = defineEmits(["type-added", "type-modified"]);
 const dialog = defineModel("dialog");
 const type = defineModel("type");
 
@@ -73,13 +73,56 @@ async function addInstrumentType() {
 }
 
 async function editInstrumentType() {
-    console.log("TO DO");
+    const { valid } = await form.value.validate();
+    if (!valid) {
+        return;
+    }
+
+    const successCallback = () => {
+        snackbar("Instrument type modified", 3 * 1000);
+        emit("type-modified");
+
+        dialog.value = false;
+        form.value.reset();
+    };
+
+    updateType({ ...type.value }, successCallback, errorSnack);
 }
 
 function cancel() {
     dialog.value = false;
     form.value.reset();
 }
+
+const icon = computed(() => {
+    if (props.mode === "ADD") {
+        return "mdi-plus";
+    } else if (props.mode === "EDIT") {
+        return "mdi-pencil";
+    } else {
+        return "Error";
+    }
+});
+
+const title = computed(() => {
+    if (props.mode === "ADD") {
+        return "Add type";
+    } else if (props.mode === "EDIT") {
+        return "Edit type";
+    } else {
+        return "Error";
+    }
+});
+
+const buttonText = computed(() => {
+    if (props.mode === "ADD") {
+        return "Add";
+    } else if (props.mode === "EDIT") {
+        return "Save";
+    } else {
+        return "Error";
+    }
+});
 </script>
 
 <style scoped></style>

@@ -32,8 +32,13 @@ function addType(newType, successCallback, errorCallback) {
     axios.post(typesUrl, newType).then(successCallback).catch(errorCallback);
 }
 
+function updateType(changes, successCallback, errorCallback) {
+    const updateUrl = `${typesUrl}/${changes.id}`;
+    axios.put(updateUrl, changes).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     types.value = getDefaultState();
 }
 
-export { types, fetchTypes, addType, clear };
+export { types, fetchTypes, addType, updateType, clear };
