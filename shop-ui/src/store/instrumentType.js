@@ -28,8 +28,12 @@ function fetchTypes(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
+function addType(newType, successCallback, errorCallback) {
+    axios.post(typesUrl, newType).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     types.value = getDefaultState();
 }
 
-export { types, fetchTypes, clear };
+export { types, fetchTypes, addType, clear };

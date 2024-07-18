@@ -54,6 +54,10 @@ function isManager() {
     return currentRole.value === Role.MANAGER;
 }
 
+function isSalesman() {
+    return currentRole.value === Role.SALESMAN;
+}
+
 function isCustomer() {
     return currentRole.value === Role.CUSTOMER;
 }
@@ -62,4 +66,13 @@ function clear() {
     currentRole.value = Role.ANONYMOUS;
 }
 
-export { Role, currentRole, logIn, register, isManager, isCustomer, clear };
+export {
+    Role,
+    currentRole,
+    logIn,
+    register,
+    isManager,
+    isSalesman,
+    isCustomer,
+    clear,
+};
