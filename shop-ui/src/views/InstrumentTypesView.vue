@@ -1,11 +1,13 @@
 <template>
     <InstrumentTypeDialog
-        v-model:dialog="dialog"
+        v-model:dialog="typeDialog"
         v-model:type="type"
-        :mode="dialogMode"
+        :mode="typeDialogMode"
         @type-added="loadTypes"
         @type-modified="loadTypes"
     ></InstrumentTypeDialog>
+
+    <ConfirmationDialog width="30%" ref="confirm"></ConfirmationDialog>
 
     <div class="mx-auto w-50">
         <div v-if="isSalesman()" class="text-right">
@@ -31,7 +33,7 @@
                 <v-icon class="me-2" size="small" @click="openEditDialog(item)">
                     mdi-pencil
                 </v-icon>
-                <v-icon size="small" @click="console.log(item)">
+                <v-icon size="small" @click="openConfirmDialog(item)">
                     mdi-delete
                 </v-icon>
             </template>
@@ -53,7 +55,7 @@
 
 <script setup>
 import { ref, inject, computed } from "vue";
-import { fetchTypes, types } from "@/store/instrumentType";
+import { types, fetchTypes, deleteType } from "@/store/instrumentType";
 import { isSalesman } from "@/store/auth";
 
 const Mode = Object.freeze({
@@ -61,10 +63,13 @@ const Mode = Object.freeze({
     EDIT: "EDIT",
 });
 
+const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
-const dialog = ref(false);
-const dialogMode = ref(Mode.ADD);
+const typeDialog = ref(false);
+const typeDialogMode = ref(Mode.ADD);
+
+const confirm = ref(null);
 
 const type = ref({
     name: "",
@@ -128,15 +133,32 @@ function loadTypes() {
 function openAddDialog() {
     type.value.name = "";
 
-    dialogMode.value = Mode.ADD;
-    dialog.value = true;
+    typeDialogMode.value = Mode.ADD;
+    typeDialog.value = true;
 }
 
 function openEditDialog(typeToEdit) {
     type.value = { ...typeToEdit };
 
-    dialogMode.value = Mode.EDIT;
-    dialog.value = true;
+    typeDialogMode.value = Mode.EDIT;
+    typeDialog.value = true;
+}
+
+async function openConfirmDialog(typeToDelete) {
+    const confirmed = await confirm.value.open(
+        "Are you sure you want to permanently delete instrument type with name: " +
+            typeToDelete.name +
+            "?",
+        "Delete instrument type"
+    );
+
+    if (confirmed) {
+        const successCallback = () => {
+            snackbar("Instrument type deleted", 3 * 1000);
+            loadTypes();
+        };
+        deleteType(typeToDelete.id, successCallback, errorSnack);
+    }
 }
 </script>
 

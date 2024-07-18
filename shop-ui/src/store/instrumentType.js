@@ -37,8 +37,13 @@ function updateType(changes, successCallback, errorCallback) {
     axios.put(updateUrl, changes).then(successCallback).catch(errorCallback);
 }
 
+function deleteType(typeId, successCallback, errorCallback) {
+    const deleteUrl = `${typesUrl}/${typeId}`;
+    axios.delete(deleteUrl).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     types.value = getDefaultState();
 }
 
-export { types, fetchTypes, addType, updateType, clear };
+export { types, fetchTypes, addType, updateType, deleteType, clear };
