@@ -29,6 +29,15 @@ const routes = [
         },
     },
     {
+        path: "/instrument-types",
+        name: "Instrument types",
+        component: () => import("../views/InstrumentTypesView.vue"),
+        meta: {
+            title: "Instrument types",
+            requiredRole: [Role.MANAGER, Role.SALESMAN],
+        },
+    },
+    {
         path: "/login",
         name: "Login",
         component: () => import("../views/LoginView.vue"),

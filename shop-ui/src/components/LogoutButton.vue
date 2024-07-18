@@ -11,6 +11,7 @@ import { clear as clearReceipt } from "@/store/receipt";
 import { clear as clearReceiptItem } from "@/store/receiptItem";
 import { clear as clearUser } from "@/store/user";
 import { clear as clearBoughtInstrument } from "@/store/boughtInstrument";
+import { clear as clearType } from "@/store/instrumentType";
 
 const router = useRouter();
 
@@ -32,6 +33,7 @@ function logout() {
         clearReceiptItem();
         clearUser();
         clearBoughtInstrument();
+        clearType();
     }, 0.1 * 1000);
 }
 </script>
