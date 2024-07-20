@@ -1,5 +1,5 @@
 <template>
-    <v-card class="pa-6 mx-auto" width="60%">
+    <v-card class="pa-6 mx-auto elevation-4" width="60%">
         <v-card-text>
             <UserAddForm v-model="user" ref="userForm"></UserAddForm>
         </v-card-text>
@@ -36,8 +36,8 @@ const user = ref({
     repeatedPassword: "",
 });
 
-function registerCustomer() {
-    const valid = userForm.value.validate();
+async function registerCustomer() {
+    const valid = await userForm.value.validate();
     if (!valid) {
         return;
     }

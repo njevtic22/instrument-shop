@@ -43,7 +43,7 @@ const user = ref({
 });
 
 async function addSalesman() {
-    const valid = userForm.value.validate();
+    const valid = await userForm.value.validate();
     if (!valid) {
         return;
     }
@@ -56,6 +56,7 @@ async function addSalesman() {
         userForm.value.reset();
     };
 
+    user.value.role = "SALESMAN";
     addUser({ ...user.value }, successCallback, errorSnack);
 }
 
