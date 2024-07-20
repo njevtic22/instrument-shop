@@ -21,12 +21,16 @@
         </v-card-item>
 
         <v-card-text>
-            <div v-if="isCustomer()">Owned: {{ instrument.owned }}</div>
             <!-- Id {{ instrument.id }}
                             <br /> -->
+            <div v-if="isAvailable()">Available: {{ instrument.quantity }}</div>
+            <div v-if="isCustomer() && isBought()">
+                Owned: {{ instrument.owned }}
+            </div>
+            <div>Price: {{ instrument.price }}</div>
             Code: {{ instrument.code }}
             <br />
-            <div v-if="instrument.purchased">
+            <div v-if="isBought()">
                 Purchased: {{ formatDateTime(instrument.purchased) }}
             </div>
         </v-card-text>
@@ -40,7 +44,7 @@ import { formatDateTime } from "@/util/date";
 
 const router = useRouter();
 
-defineProps(["instrument"]);
+const props = defineProps(["instrument"]);
 
 function redirect(instrumentId) {
     router.push(`/instruments/${instrumentId}`);
@@ -51,6 +55,14 @@ function handleClick(event) {
     if (event.target.tagName === "I" || event.target.tagName === "BUTTON") {
         event.stopPropagation();
     }
+}
+
+function isBought() {
+    return Boolean(props.instrument.purchased);
+}
+
+function isAvailable() {
+    return Boolean(props.instrument.quantity);
 }
 </script>
 

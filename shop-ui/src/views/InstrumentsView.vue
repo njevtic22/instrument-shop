@@ -1,14 +1,25 @@
 <template>
     <v-row>
-        <v-col
-            v-for="available in availableInstruments.data"
-            :key="available.id"
-            cols="12"
-            sm="6"
-            md="4"
-            lg="4"
-        >
-            <InstrumentCard :instrument="available"></InstrumentCard>
+        <v-col cols="9">
+            <v-row>
+                <v-col
+                    v-for="available in availableInstruments.data"
+                    :key="available.id"
+                    cols="12"
+                    sm="6"
+                    md="4"
+                    lg="4"
+                >
+                    <InstrumentCard :instrument="available"></InstrumentCard>
+                </v-col>
+            </v-row>
+        </v-col>
+
+        <v-col cols="3" class="fixed-form">
+            <InstrumentFilter
+                @filter="applyFilter($event)"
+                @clear="clearFilter"
+            ></InstrumentFilter>
         </v-col>
     </v-row>
 
@@ -30,6 +41,16 @@ const scrollTarget = ref(null);
 
 let page = -1;
 let size = 20;
+let filter = {
+    name: "",
+    type: "",
+    mark: "",
+    code: "",
+    purchasedStart: null,
+    purchasedEnd: null,
+};
+
+let sort = [];
 
 function loadMoreInstruments() {
     if (page > availableInstruments.value.totalPages) {
@@ -37,13 +58,47 @@ function loadMoreInstruments() {
         return;
     }
 
-    fetchAvailableInstruments(page, size, errorSnack);
+    fetchAvailableInstruments(page, size, sort, filter, errorSnack);
+}
+
+function applyFilter(sortFilter) {
+    filter = sortFilter.filter;
+    sort = sortFilter.sort;
+
+    resetPage();
+}
+
+function clearFilter() {
+    filter.name = "";
+    filter.type = "";
+    filter.mark = "";
+    filter.code = "";
+    filter.purchasedStart = null;
+    filter.purchasedEnd = null;
+
+    sort.length = 0;
+
+    resetPage();
+}
+
+let isReseting = false;
+
+function resetPage() {
+    isReseting = true;
+
+    page = 0;
+    clear();
+    fetchAvailableInstruments(page, size, sort, filter, errorSnack);
+
+    setTimeout(() => {
+        isReseting = false;
+    }, 100);
 }
 
 useIntersectionObserver(
     scrollTarget,
     ([{ isIntersecting }]) => {
-        if (isIntersecting) {
+        if (isIntersecting && !isReseting) {
             page++;
             loadMoreInstruments();
         }
@@ -58,4 +113,10 @@ onUnmounted(() => {
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+.fixed-form {
+    position: fixed;
+    right: 0;
+    width: 21%;
+}
+</style>
