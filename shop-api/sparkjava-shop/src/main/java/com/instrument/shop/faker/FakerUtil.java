@@ -14,18 +14,17 @@ import java.util.Random;
 public class FakerUtil {
     public static CycleIterator<String> getImageUrlIterator() throws IOException {
         BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/images.txt"));
-        String[] urlsTemp = new String[50];
-        for (int i = 0; i < 50; i++) {
-            String line = in.readLine();
+        ArrayList<String> urls = new ArrayList<>();
+        String line;
+        while ((line = in.readLine()) != null) {
             if (line.startsWith("404")) {
                 break;
             }
-
-            urlsTemp[i] = line;
+            urls.add(line);
         }
 
         in.close();
-        return new CycleIterator<>(urlsTemp);
+        return new CycleIterator<>(urls.toArray(new String[0]));
     }
 
     public static Iterator<String> getInstrumentTypeIterator() throws IOException {
