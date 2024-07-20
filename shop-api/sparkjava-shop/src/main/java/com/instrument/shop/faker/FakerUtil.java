@@ -57,7 +57,7 @@ public class FakerUtil {
                 now.getYear(),                              // year
                 faker.number().numberBetween(1, now.getMonthValue()),    // month
                 faker.number().numberBetween(1, 28 + 1),    // dayOfMonth
-                faker.number().numberBetween(9, 5 + 1),    // hour
+                faker.number().numberBetween(9, 17 + 1),    // hour
                 faker.number().numberBetween(1, 59 + 1),    // minute
                 faker.number().numberBetween(1, 59 + 1)     // second
 
