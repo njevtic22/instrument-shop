@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, inject, computed } from "vue";
+import { ref, defineModel, inject, computed, defineExpose } from "vue";
 import { addType, updateType } from "@/store/instrumentType";
 
 const snackbar = inject("snackbar");
@@ -44,6 +44,15 @@ const form = ref(null);
 const rules = {
     required: (value) => Boolean(value) || "Required",
 };
+
+const Modes = Object.freeze({
+    ADD: "ADD",
+    EDIT: "EDIT",
+});
+
+defineExpose({
+    Modes,
+});
 
 function performAction() {
     if (props.mode === "ADD") {

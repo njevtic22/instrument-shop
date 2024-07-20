@@ -1,5 +1,6 @@
 <template>
     <InstrumentTypeDialog
+        ref="typeRef"
         v-model:dialog="typeDialog"
         v-model:type="type"
         :mode="typeDialogMode"
@@ -58,16 +59,13 @@ import { ref, inject, computed } from "vue";
 import { types, fetchTypes, deleteType } from "@/store/instrumentType";
 import { isSalesman } from "@/store/auth";
 
-const Mode = Object.freeze({
-    ADD: "ADD",
-    EDIT: "EDIT",
-});
-
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
+const typeRef = ref(null);
+
 const typeDialog = ref(false);
-const typeDialogMode = ref(Mode.ADD);
+const typeDialogMode = ref("");
 
 const confirm = ref(null);
 
@@ -133,14 +131,14 @@ function loadTypes() {
 function openAddDialog() {
     type.value.name = "";
 
-    typeDialogMode.value = Mode.ADD;
+    typeDialogMode.value = typeRef.value.Modes.ADD;
     typeDialog.value = true;
 }
 
 function openEditDialog(typeToEdit) {
     type.value = { ...typeToEdit };
 
-    typeDialogMode.value = Mode.EDIT;
+    typeDialogMode.value = typeRef.value.Modes.EDIT;
     typeDialog.value = true;
 }
 
