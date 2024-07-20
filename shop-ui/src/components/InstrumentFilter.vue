@@ -21,7 +21,7 @@
             label="Code"
             bg-color="white"
         ></v-text-field>
-        <v-row>
+        <v-row v-if="mode === Modes.BOUGHT">
             <v-col>
                 <v-date-input
                     v-model="filterData.purchasedStart"
@@ -41,6 +41,26 @@
                     bg-color="white"
                     clearable
                 ></v-date-input>
+            </v-col>
+        </v-row>
+        <v-row v-if="mode === Modes.AVAILABLE">
+            <v-col>
+                <v-text-field
+                    v-model="filterData.priceStart"
+                    @keydown="validateDigit"
+                    label="Minimum price"
+                    bg-color="white"
+                    type="number"
+                ></v-text-field>
+            </v-col>
+            <v-col>
+                <v-text-field
+                    v-model="filterData.priceEnd"
+                    @keydown="validateDigit"
+                    label="Maxim price"
+                    bg-color="white"
+                    type="number"
+                ></v-text-field>
             </v-col>
         </v-row>
 
@@ -81,7 +101,7 @@
 </template>
 
 <script setup>
-import { ref, computed, defineEmits } from "vue";
+import { ref, computed } from "vue";
 import { toEpochMilli } from "@/util/date";
 
 const emit = defineEmits(["filter", "clear"]);
@@ -91,6 +111,8 @@ const filterData = ref({
     type: "",
     mark: "",
     code: "",
+    priceStart: null,
+    priceEnd: null,
     purchasedStart: null,
     purchasedEnd: null,
 });
@@ -178,26 +200,65 @@ const sortItems = ref({
             pairedKey: 7,
         },
     },
-    9: {
+});
+
+const Modes = Object.freeze({
+    AVAILABLE: "AVAILABLE",
+    BOUGHT: "BOUGHT",
+});
+
+const mode = ref("");
+
+// v-model for mode works well for template but not in javascript code
+// because setMode was intended to be in onMounted which executes before
+// mode was set (initialy mode is empty string)
+// Solution is either with exposed setMode function or using wathces
+function setMode(chosenMode) {
+    let asc = {
         show: true,
         index: 0,
-        title: "Purchased,asc",
+        title: "",
         value: {
-            key: "purchased",
+            key: "",
             order: "asc",
             pairedKey: 10,
         },
-    },
-    10: {
+    };
+
+    let desc = {
         show: true,
         index: 0,
-        title: "Purchased,desc",
+        title: "",
         value: {
-            key: "purchased",
+            key: "",
             order: "desc",
             pairedKey: 9,
         },
-    },
+    };
+
+    if (chosenMode === Modes.AVAILABLE) {
+        asc.title = "Price,asc";
+        asc.value.key = "price";
+
+        desc.title = "Price,desc";
+        desc.value.key = "price";
+    } else if (chosenMode === Modes.BOUGHT) {
+        asc.title = "Purchased,asc";
+        asc.value.key = "purchased";
+
+        desc.title = "Purchased,desc";
+        desc.value.key = "purchased";
+    }
+
+    sortItems.value[9] = asc;
+    sortItems.value[10] = desc;
+
+    mode.value = chosenMode;
+}
+
+defineExpose({
+    Modes,
+    setMode,
 });
 
 const filteredItems = computed(() => {
@@ -248,6 +309,8 @@ function clearFilter() {
     filterData.value.type = "";
     filterData.value.mark = "";
     filterData.value.code = "";
+    filterData.value.priceStart = null;
+    filterData.value.priceEnd = null;
     filterData.value.purchasedStart = null;
     filterData.value.purchasedEnd = null;
 
@@ -258,6 +321,16 @@ function clearFilter() {
     });
 
     emit("clear");
+}
+
+function validateDigit(event) {
+    if (event.key === "Backspace") {
+        return;
+    }
+
+    if (event.key === " " || isNaN(Number(event.key))) {
+        event.preventDefault();
+    }
 }
 </script>
 

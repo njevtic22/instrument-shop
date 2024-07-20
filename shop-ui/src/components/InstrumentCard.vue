@@ -16,6 +16,7 @@
 
         <v-card-item>
             <v-card-title>{{ instrument.name }}</v-card-title>
+            <v-card-title>Price: {{ instrument.price }}</v-card-title>
             <v-card-subtitle> Type: {{ instrument.type }} </v-card-subtitle>
             <v-card-subtitle> Mark: {{ instrument.mark }} </v-card-subtitle>
         </v-card-item>
@@ -27,7 +28,6 @@
             <div v-if="isCustomer() && isBought()">
                 Owned: {{ instrument.owned }}
             </div>
-            <div>Price: {{ instrument.price }}</div>
             Code: {{ instrument.code }}
             <br />
             <div v-if="isBought()">

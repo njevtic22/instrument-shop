@@ -1,6 +1,19 @@
 <template>
     <v-row>
         <v-col cols="9">
+            <v-row
+                v-if="
+                    boughtInstruments.data.length === 0 &&
+                    !isReseting &&
+                    page >= 0
+                "
+                class="mx-auto w-25"
+            >
+                <v-col>
+                    <h3>No results</h3>
+                </v-col>
+            </v-row>
+
             <v-row>
                 <v-col
                     v-for="bought in boughtInstruments.data"
@@ -17,6 +30,7 @@
 
         <v-col cols="3" class="fixed-form">
             <InstrumentFilter
+                ref="instrumentFilter"
                 @filter="applyFilter($event)"
                 @clear="clearFilter"
             ></InstrumentFilter>
@@ -27,7 +41,7 @@
 </template>
 
 <script setup>
-import { inject, ref, onUnmounted } from "vue";
+import { inject, ref, onMounted, onUnmounted } from "vue";
 import {
     boughtInstruments,
     fetchBoughtInstruments,
@@ -36,6 +50,13 @@ import {
 import { useIntersectionObserver } from "@vueuse/core";
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const instrumentFilter = ref(null);
+
+onMounted(() => {
+    const mode = instrumentFilter.value.Modes.BOUGHT;
+    instrumentFilter.value.setMode(mode);
+});
 
 let page = -1;
 let size = 20;
@@ -81,24 +102,24 @@ function clearFilter() {
     resetPage();
 }
 
-let isReseting = false;
+const isReseting = ref(false);
 
 function resetPage() {
-    isReseting = true;
+    isReseting.value = true;
 
     page = 0;
     clear();
     fetchBoughtInstruments(page, size, sort, filter, errorSnack);
 
     setTimeout(() => {
-        isReseting = false;
+        isReseting.value = false;
     }, 100);
 }
 
 useIntersectionObserver(
     scrollTarget,
     ([{ isIntersecting }]) => {
-        if (isIntersecting && !isReseting) {
+        if (isIntersecting && !isReseting.value) {
             page++;
             loadMoreInstruments();
         }

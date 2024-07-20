@@ -1,6 +1,19 @@
 <template>
     <v-row>
         <v-col cols="9">
+            <v-row
+                v-if="
+                    availableInstruments.data.length === 0 &&
+                    !isReseting &&
+                    page >= 0
+                "
+                class="mx-auto w-25"
+            >
+                <v-col>
+                    <h3>No results</h3>
+                </v-col>
+            </v-row>
+
             <v-row>
                 <v-col
                     v-for="available in availableInstruments.data"
@@ -17,6 +30,7 @@
 
         <v-col cols="3" class="fixed-form">
             <InstrumentFilter
+                ref="instrumentFilter"
                 @filter="applyFilter($event)"
                 @clear="clearFilter"
             ></InstrumentFilter>
@@ -27,7 +41,7 @@
 </template>
 
 <script setup>
-import { inject, ref, onUnmounted } from "vue";
+import { inject, ref, onMounted, onUnmounted } from "vue";
 import {
     availableInstruments,
     fetchAvailableInstruments,
@@ -36,6 +50,13 @@ import {
 import { useIntersectionObserver } from "@vueuse/core";
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const instrumentFilter = ref(null);
+
+onMounted(() => {
+    const mode = instrumentFilter.value.Modes.AVAILABLE;
+    instrumentFilter.value.setMode(mode);
+});
 
 const scrollTarget = ref(null);
 
@@ -46,8 +67,8 @@ let filter = {
     type: "",
     mark: "",
     code: "",
-    purchasedStart: null,
-    purchasedEnd: null,
+    priceStart: 0,
+    priceEnd: 0,
 };
 
 let sort = [];
@@ -73,32 +94,32 @@ function clearFilter() {
     filter.type = "";
     filter.mark = "";
     filter.code = "";
-    filter.purchasedStart = null;
-    filter.purchasedEnd = null;
+    filter.priceStart = 0;
+    filter.priceEnd = 0;
 
     sort.length = 0;
 
     resetPage();
 }
 
-let isReseting = false;
+const isReseting = ref(false);
 
 function resetPage() {
-    isReseting = true;
+    isReseting.value = true;
 
     page = 0;
     clear();
     fetchAvailableInstruments(page, size, sort, filter, errorSnack);
 
     setTimeout(() => {
-        isReseting = false;
+        isReseting.value = false;
     }, 100);
 }
 
 useIntersectionObserver(
     scrollTarget,
     ([{ isIntersecting }]) => {
-        if (isIntersecting && !isReseting) {
+        if (isIntersecting && !isReseting.value) {
             page++;
             loadMoreInstruments();
         }
