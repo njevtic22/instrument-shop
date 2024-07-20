@@ -1,5 +1,5 @@
 <template>
-    <v-card class="mx-auto" width="90%">
+    <v-card class="mx-auto elevation-4" width="90%">
         <ProfileData
             :expanded="showChange"
             @toggle-expansion="showChange = !showChange"

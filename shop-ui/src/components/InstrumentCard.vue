@@ -26,7 +26,9 @@
                             <br /> -->
             Code: {{ instrument.code }}
             <br />
-            Purchased: {{ formatDateTime(instrument.purchased) }}
+            <div v-if="instrument.purchased">
+                Purchased: {{ formatDateTime(instrument.purchased) }}
+            </div>
         </v-card-text>
     </v-card>
 </template>
