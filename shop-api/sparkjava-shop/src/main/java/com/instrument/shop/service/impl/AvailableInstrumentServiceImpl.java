@@ -60,7 +60,7 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     }
 
     @Override
-    public PaginatedResponse<AvailableInstrument> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<AvailableInstrument> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByArchivedFalse(filterData, sort, pageRequest);
     }
 

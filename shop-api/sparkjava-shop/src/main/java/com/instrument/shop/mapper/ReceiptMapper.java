@@ -1,7 +1,10 @@
 package com.instrument.shop.mapper;
 
+import com.instrument.shop.dto.receipt.ReceiptItemViewDto;
 import com.instrument.shop.dto.receipt.ReceiptViewDto;
+import com.instrument.shop.model.BoughtInstrument;
 import com.instrument.shop.model.Receipt;
+import com.instrument.shop.model.ReceiptItem;
 import jakarta.inject.Singleton;
 
 import java.time.LocalDateTime;
@@ -16,6 +19,17 @@ public class ReceiptMapper {
                 receipt.getPaid(),
                 receipt.getChange(),
                 dateToArray(receipt.getIssuedAt())
+        );
+    }
+
+    public ReceiptItemViewDto toViewDto(ReceiptItem item) {
+        BoughtInstrument product = item.getProduct();
+        return new ReceiptItemViewDto(
+                item.getId(),
+                item.getProductQuantity(),
+                product.getId(),
+                product.getName(),
+                product.getPrice()
         );
     }
 

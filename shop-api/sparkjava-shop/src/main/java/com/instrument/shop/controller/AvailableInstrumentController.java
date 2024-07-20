@@ -60,11 +60,11 @@ public class AvailableInstrumentController {
     @MethodOrder(80)
     public PaginatedResponse<AvailableViewDto> getAll(
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
-            @QueryParamValues(value = "sort", required = false) String[] sortStr,
+            @QueryParamValues(value = "sort", defaultValue = {"id,asc"}) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
-        Map<String, String> filterData = pagingFilteringUtil.buildFilterData(filterParams);
+        Map<String, Object> filterData = pagingFilteringUtil.buildFilterData(filterParams);
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 

@@ -6,10 +6,12 @@ import com.google.inject.Injector;
 import com.instrument.shop.controller.AuthenticationController;
 import com.instrument.shop.controller.AvailableInstrumentController;
 import com.instrument.shop.controller.BoughtInstrumentController;
+import com.instrument.shop.controller.ConfigController;
 import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.InstrumentTypeController;
 import com.instrument.shop.controller.LoggingController;
 import com.instrument.shop.controller.ReceiptController;
+import com.instrument.shop.controller.ReceiptItemController;
 import com.instrument.shop.controller.UserController;
 import com.instrument.shop.core.error.ApplicationExceptionHandler;
 import com.instrument.shop.core.validation.validator.Validator;
@@ -52,6 +54,7 @@ public class Main {
         sparkCtx.setAuthorizer(Set.of("MANAGER", "SALESMAN", "CUSTOMER"), injector.getInstance(RolesGetter.class));
 
         sparkCtx.createEndpoints(
+                injector.getInstance(ConfigController.class),
                 injector.getInstance(AuthenticationController.class),
                 injector.getInstance(LoggingController.class),
                 injector.getInstance(UserController.class),
@@ -59,7 +62,8 @@ public class Main {
                 injector.getInstance(InstrumentTypeController.class),
                 injector.getInstance(AvailableInstrumentController.class),
                 injector.getInstance(BoughtInstrumentController.class),
-                injector.getInstance(ReceiptController.class)
+                injector.getInstance(ReceiptController.class),
+                injector.getInstance(ReceiptItemController.class)
         );
         sparkCtx.registerExceptionHandler(injector.getInstance(ApplicationExceptionHandler.class));
     }

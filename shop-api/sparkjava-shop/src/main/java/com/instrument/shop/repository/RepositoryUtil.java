@@ -11,8 +11,6 @@ import jakarta.persistence.NoResultException;
 import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 
-import java.time.Instant;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -94,19 +92,11 @@ public class RepositoryUtil {
         return savedEntities;
     }
 
-    private Object getCorrectValue(String key, String value) {
-        if (key.startsWith("issuedAt")) {
-            return Instant
-                    .ofEpochMilli(Long.parseLong(value))
-                    .atZone(ZoneId.systemDefault())
-                    .toLocalDateTime();
-
-        } else if (key.endsWith("Start") || key.endsWith("End") || key.equals("ownerId")) {
-            return value;
-
-        } else {
+    public Object getCorrectValue(Object value) {
+        if (value instanceof String) {
             return "%" + value + "%";
         }
+        return value;
     }
 
     public <T extends DatabaseEntity> PaginatedResponse<T> findAll(
@@ -115,7 +105,7 @@ public class RepositoryUtil {
             String countQuery,
             Class<T> clazz,
             boolean hasFilter,
-            Map<String, String> filterData,
+            Map<String, Object> filterData,
             PageRequest pageRequest
     ) {
         List<T> allEntities = new ArrayList<>();
@@ -131,9 +121,63 @@ public class RepositoryUtil {
             TypedQuery<Long> count = em.createQuery(countQuery, long.class);
 
             if (hasFilter) {
-                for (Map.Entry<String, String> entry : filterData.entrySet()) {
+                for (Map.Entry<String, Object> entry : filterData.entrySet()) {
                     String key = entry.getKey();
-                    Object value = getCorrectValue(key, entry.getValue());
+                    Object value = getCorrectValue(entry.getValue());
+
+                    selectAll.setParameter(key, value);
+                    count.setParameter(key, value);
+                }
+            }
+
+            allEntities = selectAll.getResultList();
+            allEntitiesNum = count.getSingleResult();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+
+        return new PaginatedResponse<>(
+                allEntities,
+                allEntitiesNum,
+                Math.ceilDiv(allEntitiesNum, pageRequest.getSize())
+        );
+    }
+
+    public <T extends DatabaseEntity> PaginatedResponse<T> findAllByProperty(
+            EntityManager em,
+            String jpq,
+            String countQuery,
+            Object property,
+            Class<T> clazz,
+            boolean hasFilter,
+            Map<String, Object> filterData,
+            PageRequest pageRequest
+    ) {
+        List<T> allEntities = new ArrayList<>();
+        long allEntitiesNum = 0;
+
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<T> selectAll = em.createQuery(jpq, clazz);
+            selectAll.setFirstResult(pageRequest.getPage() * pageRequest.getSize());
+            selectAll.setMaxResults(pageRequest.getSize());
+
+            TypedQuery<Long> count = em.createQuery(countQuery, long.class);
+
+            selectAll.setParameter(1, property);
+            count.setParameter(1, property);
+
+            if (hasFilter) {
+                for (Map.Entry<String, Object> entry : filterData.entrySet()) {
+                    String key = entry.getKey();
+                    Object value = getCorrectValue(entry.getValue());
+
                     selectAll.setParameter(key, value);
                     count.setParameter(key, value);
                 }

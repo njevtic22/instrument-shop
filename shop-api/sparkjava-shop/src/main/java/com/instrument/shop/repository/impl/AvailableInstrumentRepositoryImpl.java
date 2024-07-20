@@ -46,7 +46,7 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
-    public PaginatedResponse<AvailableInstrument> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<AvailableInstrument> findAllByArchivedFalse(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         String filterPart = jpqlUtil.getValidAInstrumentFilter(filterData, "i");
         String orderBy = getValidOrderBy(sort);
         String jpq = "select i from AvailableInstrument i where i.archived = false" + filterPart + orderBy;

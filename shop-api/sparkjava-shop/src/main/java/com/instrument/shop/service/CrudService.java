@@ -9,7 +9,7 @@ import java.util.Map;
 public interface CrudService<ID, T> {
     T add(T entity);
 
-    PaginatedResponse<T> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<T> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
     T getById(ID id);
 

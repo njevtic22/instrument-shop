@@ -76,7 +76,7 @@ public class UserController {
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
-        Map<String, String> filterData = pagingFilteringUtil.buildFilterData(filterParams);
+        Map<String, Object> filterData = pagingFilteringUtil.buildFilterData(filterParams);
         Sort sort = pagingFilteringUtil.buildSort(sortStr);
         PageRequest pageRequest = new PageRequest(page, size);
 
@@ -127,6 +127,12 @@ public class UserController {
     public UserViewDto updateImage(@Authenticated User authenticated, @QueryParam(value = "imageId", defaultValue = "-1") Long imageId) {
         User updated = service.updateImage(authenticated, imageId);
         return mapper.toViewDto(updated);
+    }
+
+    @GetMapping("/profile")
+    @MethodOrder(43)
+    public UserViewDto getProfile(@Authenticated User authenticated) {
+        return mapper.toViewDto(authenticated);
     }
 
     @GetMapping("/:id")

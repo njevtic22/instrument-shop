@@ -13,7 +13,11 @@ import java.util.Map;
 public interface ReceiptService {
     Receipt add(Receipt newReceipt);
 
-    PaginatedResponse<Receipt> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<Receipt> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
+
+    Receipt getById(Long id);
+
+    double getProfit(Map<String, Object> filterData);
 
     void validateCode(String code);
 }

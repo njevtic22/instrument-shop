@@ -3,6 +3,7 @@ package com.instrument.shop.model;
 import com.instrument.shop.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -25,7 +26,7 @@ public class BoughtInstrument extends Instrument {
     @Column(nullable = false)
     private LocalDateTime purchased;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
 

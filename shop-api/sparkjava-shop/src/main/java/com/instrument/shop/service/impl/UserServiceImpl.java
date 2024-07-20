@@ -62,7 +62,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PaginatedResponse<User> getAll(Map<String, String> filterData, Sort sort, PageRequest pageRequest) {
+    public PaginatedResponse<User> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByArchivedFalse(filterData, sort, pageRequest);
     }
 

@@ -1,5 +1,6 @@
 package com.instrument.shop.dto.user;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 
 public abstract class RequestUserDto {
@@ -10,6 +11,7 @@ public abstract class RequestUserDto {
     private final String surname;
 
     @NotBlank(message = "Email must not be blank")
+    @Email(message = "Email must be properly formed")
     private final String email;
 
     @NotBlank(message = "Username must not be blank")

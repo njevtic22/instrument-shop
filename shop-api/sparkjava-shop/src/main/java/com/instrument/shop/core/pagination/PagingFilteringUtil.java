@@ -2,17 +2,22 @@ package com.instrument.shop.core.pagination;
 
 import jakarta.inject.Singleton;
 
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.Map;
 
 @Singleton
 public class PagingFilteringUtil {
-    public Map<String, String> buildFilterData(String[] filterParams) {
-        HashMap<String, String> filterData = new HashMap<>(filterParams.length);
+    public Map<String, Object> buildFilterData(String[] filterParams) {
+        HashMap<String, Object> filterData = new HashMap<>(filterParams.length);
 
         for (String filterParam : filterParams) {
             String[] paramSplit = filterParam.split("-");
-            filterData.put(paramSplit[0], paramSplit[1]);
+            String key = paramSplit[0];
+            Object value = getCorrectValue(key, paramSplit[1]);
+            filterData.put(key, value);
         }
 
         return filterData;
@@ -36,5 +41,20 @@ public class PagingFilteringUtil {
         }
 
         return next;
+    }
+
+    private Object getCorrectValue(String key, String value) {
+        if (key.startsWith("issuedAt") || key.startsWith("purchased")) {
+            return Instant
+                    .ofEpochMilli(Long.parseLong(value))
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDateTime();
+        }
+
+        if (key.endsWith("Start") || key.endsWith("End")) {
+            return Float.parseFloat(value);
+        }
+
+        return value;
     }
 }

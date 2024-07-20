@@ -13,7 +13,7 @@ public interface CrudRepository<ID, T> {
 
     List<T> saveAll(Iterable<T> entities);
 
-    PaginatedResponse<T> findAllByArchivedFalse(Map<String, String> filterData, Sort sort, PageRequest pageRequest);
+    PaginatedResponse<T> findAllByArchivedFalse(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
     Optional<T> findByIdAndArchivedFalse(ID id);
 
