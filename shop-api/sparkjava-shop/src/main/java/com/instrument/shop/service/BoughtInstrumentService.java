@@ -17,4 +17,6 @@ public interface BoughtInstrumentService {
     PaginatedResponse<BoughtInstrument> getAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
     PaginatedResponse<BoughtInstrument> getAllByCustomer(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
+
+    BoughtInstrument getById(Long id);
 }

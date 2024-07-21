@@ -14,6 +14,7 @@ import jakarta.persistence.EntityManagerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @Singleton
 public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepository {
@@ -80,5 +81,14 @@ public class BoughtInstrumentRepositoryImpl implements BoughtInstrumentRepositor
         );
 //        em.close();
         return allInstruments;
+    }
+
+    @Override
+    public Optional<BoughtInstrument> findById(Long id) {
+        String jpq = "select i from BoughtInstrument i where i.id = ?1";
+        EntityManager em = emf.createEntityManager();
+        Optional<BoughtInstrument> found = repoUtil.findByUniqueProperty(em, jpq, BoughtInstrument.class, id);
+//        em.close();
+        return found;
     }
 }

@@ -53,7 +53,7 @@ public class User implements DatabaseEntity {
     @OneToMany(mappedBy = "owner")
     private List<BoughtInstrument> bought;
 
-    @ManyToMany
+    @ManyToMany(mappedBy = "potentialCustomers")
     private List<AvailableInstrument> cart;
 
     public User() { }

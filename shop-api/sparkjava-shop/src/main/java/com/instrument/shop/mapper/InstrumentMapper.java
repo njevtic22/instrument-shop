@@ -34,7 +34,8 @@ public class InstrumentMapper {
                 null,
                 addDto.getQuantity(),
                 false,
-                new InstrumentType(addDto.getTypeId(), "", false)
+                new InstrumentType(addDto.getTypeId(), "", false),
+                null
         );
     }
 
@@ -48,7 +49,8 @@ public class InstrumentMapper {
                 null,
                 updateDto.getQuantity(),
                 false,
-                new InstrumentType(updateDto.getTypeId(), "", false)
+                new InstrumentType(updateDto.getTypeId(), "", false),
+                null
         );
     }
 

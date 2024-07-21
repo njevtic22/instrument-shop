@@ -27,7 +27,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, inject, computed, defineExpose } from "vue";
+import { ref, defineModel, inject, computed } from "vue";
 import { addType, updateType } from "@/store/instrumentType";
 
 const snackbar = inject("snackbar");
