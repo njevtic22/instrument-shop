@@ -94,6 +94,28 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
+    public PaginatedResponse<AvailableInstrument> findCartByArchivedFalse(Long customerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
+        String filterPart = jpqlUtil.getValidAInstrumentFilter(filterData, "i");
+        String orderBy = getValidOrderBy(sort, "i");
+        String jpq = "select i from AvailableInstrument i join i.potentialCustomers c where i.archived = false and c.id = :customerId" + filterPart + orderBy;
+        String countQuery = "select count(*) from AvailableInstrument i join i.potentialCustomers c where i.archived = false and c.id = :customerId" + filterPart;
+
+        filterData.put("customerId", customerId);
+        EntityManager em = emf.createEntityManager();
+        PaginatedResponse<AvailableInstrument> cart = repoUtil.findAll(
+                em,
+                jpq,
+                countQuery,
+                AvailableInstrument.class,
+                true,
+                filterData,
+                pageRequest
+        );
+//        em.close();
+        return cart;
+    }
+
+    @Override
     public int archive(AvailableInstrument instrument) {
         return archiveById(instrument.getId());
     }
@@ -113,5 +135,16 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
             sortStr = sortStr.replaceAll("type", "type.name");
         }
         return jpqlUtil.getValidOrderBy(sortStr);
+    }
+
+    private String getValidOrderBy(Sort sort, String prefix) {
+        String orderBy = prefix + "." + sort.property() + " " + sort.order().toString();
+        String orderByNext = "";
+
+        if (sort.sortNext() != null) {
+            orderByNext = ", " + getValidOrderBy(sort.sortNext(), prefix);
+        }
+
+        return jpqlUtil.getValidOrderBy(orderBy + orderByNext);
     }
 }

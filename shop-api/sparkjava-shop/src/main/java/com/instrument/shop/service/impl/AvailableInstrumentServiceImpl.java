@@ -9,6 +9,7 @@ import com.instrument.shop.core.pagination.Sort;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.model.Image;
 import com.instrument.shop.model.InstrumentType;
+import com.instrument.shop.model.User;
 import com.instrument.shop.repository.AvailableInstrumentRepository;
 import com.instrument.shop.service.AvailableInstrumentService;
 import com.instrument.shop.service.ImageService;
@@ -163,5 +164,10 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
         }
 
         repository.save(found);
+    }
+
+    @Override
+    public PaginatedResponse<AvailableInstrument> getCart(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
+        return repository.findCartByArchivedFalse(customer.getId(), filterData, sort, pageRequest);
     }
 }

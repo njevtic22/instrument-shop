@@ -6,6 +6,7 @@ import com.google.inject.Injector;
 import com.instrument.shop.controller.AuthenticationController;
 import com.instrument.shop.controller.AvailableInstrumentController;
 import com.instrument.shop.controller.BoughtInstrumentController;
+import com.instrument.shop.controller.CartController;
 import com.instrument.shop.controller.ConfigController;
 import com.instrument.shop.controller.ImageController;
 import com.instrument.shop.controller.InstrumentTypeController;
@@ -62,6 +63,7 @@ public class Main {
                 injector.getInstance(InstrumentTypeController.class),
                 injector.getInstance(AvailableInstrumentController.class),
                 injector.getInstance(BoughtInstrumentController.class),
+                injector.getInstance(CartController.class),
                 injector.getInstance(ReceiptController.class),
                 injector.getInstance(ReceiptItemController.class)
         );
