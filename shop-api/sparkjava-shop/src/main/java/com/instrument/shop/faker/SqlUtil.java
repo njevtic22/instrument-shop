@@ -88,7 +88,7 @@ public class SqlUtil {
     }
 
     public static String toSqlInsert(User customer, AvailableInstrument instrument) {
-        return "insert into users_available_instruments (user_id, cart_id) values (" +
+        return "insert into carts (potential_customer_id, available_instrument_id) values (" +
                 customer.getId() + ", " +
                 instrument.getId() + ")";
     }

@@ -258,7 +258,8 @@ public class FakeDatabaseGenerator {
                         Arrays.asList(instrumentImages),
                         AVAILABLE_INSTRUMENTS_QUANTITY,
                         false,
-                        type
+                        type,
+                        new ArrayList<>()
                 );
                 availableInstruments.put(instrument.getId(), instrument);
             }
@@ -406,12 +407,13 @@ public class FakeDatabaseGenerator {
                 int availableId = faker.number().numberBetween(1, AVAILABLE_INSTRUMENTS);
                 AvailableInstrument available = instruments.get((long) availableId);
                 customer.getCart().add(available);
+                available.getPotentialCustomers().add(customer);
             }
         }
     }
 
     private void printCart(Map<Long, User> users, PrintWriter out) {
-        printStartLines("Inserting users available instruments", out);
+        printStartLines("Carts", out);
 
         List<User> customers = users.values()
                 .stream()
