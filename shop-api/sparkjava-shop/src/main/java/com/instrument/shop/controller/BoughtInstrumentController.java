@@ -13,6 +13,7 @@ import com.instrument.shop.service.BoughtInstrumentService;
 import com.sparkjava.context.annotation.Authenticated;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
+import com.sparkjava.context.annotation.PathParam;
 import com.sparkjava.context.annotation.PostMapping;
 import com.sparkjava.context.annotation.PreAuthorize;
 import com.sparkjava.context.annotation.QueryParam;
@@ -80,5 +81,13 @@ public class BoughtInstrumentController {
                 allInstruments.totalElements(),
                 allInstruments.totalPages()
         );
+    }
+
+    @GetMapping("/:id")
+    @MethodOrder(60)
+    @PreAuthorize({"MANAGER", "CUSTOMER"})
+    public BoughtViewDto getById(@PathParam("id") Long id) {
+        BoughtInstrument found = service.getById(id);
+        return mapper.toViewDto(found);
     }
 }

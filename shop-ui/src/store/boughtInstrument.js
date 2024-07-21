@@ -29,8 +29,18 @@ function fetchBoughtInstruments(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
+function fetchBoughtInstrument(id, successCallback, errorCallback) {
+    const url = `${boughtUrl}/${id}`;
+    axios.get(url).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     boughtInstruments.value = getDefaultState();
 }
 
-export { boughtInstruments, fetchBoughtInstruments, clear };
+export {
+    boughtInstruments,
+    fetchBoughtInstruments,
+    fetchBoughtInstrument,
+    clear,
+};

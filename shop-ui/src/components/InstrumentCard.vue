@@ -47,7 +47,10 @@ const router = useRouter();
 const props = defineProps(["instrument"]);
 
 function redirect(instrumentId) {
-    router.push(`/instruments/${instrumentId}`);
+    router.push({
+        path: `/instruments/${instrumentId}`,
+        query: { type: isAvailable() ? "available" : "bought" },
+    });
 }
 
 function handleClick(event) {

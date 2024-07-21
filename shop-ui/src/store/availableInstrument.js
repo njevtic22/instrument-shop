@@ -29,8 +29,18 @@ function fetchAvailableInstruments(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
+function fetchAvailableInstrument(id, successCallback, errorCallback) {
+    const url = `${availableUrl}/${id}`;
+    axios.get(url).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     availableInstruments.value = getDefaultState();
 }
 
-export { availableInstruments, fetchAvailableInstruments, clear };
+export {
+    availableInstruments,
+    fetchAvailableInstruments,
+    fetchAvailableInstrument,
+    clear,
+};

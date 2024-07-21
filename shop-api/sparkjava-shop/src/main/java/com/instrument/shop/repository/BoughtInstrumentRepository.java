@@ -9,6 +9,7 @@ import com.instrument.shop.repository.impl.BoughtInstrumentRepositoryImpl;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @ImplementedBy(BoughtInstrumentRepositoryImpl.class)
 public interface BoughtInstrumentRepository {
@@ -17,4 +18,6 @@ public interface BoughtInstrumentRepository {
     PaginatedResponse<BoughtInstrument> findAll(Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
 
     PaginatedResponse<BoughtInstrument> findAllByOwnerId(Long ownerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
+
+    Optional<BoughtInstrument> findById(Long id);
 }

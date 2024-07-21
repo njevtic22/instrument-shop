@@ -1,6 +1,7 @@
 package com.instrument.shop.service.impl;
 
 import com.instrument.shop.core.error.exception.BuyingException;
+import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.Sort;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Singleton
 public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
@@ -130,6 +132,13 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
     @Override
     public PaginatedResponse<BoughtInstrument> getAllByCustomer(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findAllByOwnerId(customer.getId(), filterData, sort, pageRequest);
+    }
+
+    @Override
+    public BoughtInstrument getById(Long id) {
+        Objects.requireNonNull(id, "Id must not be null");
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Bought instrument", id));
     }
 
     private BoughtInstrument copy(AvailableInstrument instrument, int owned, User owner, LocalDateTime purchased) {
