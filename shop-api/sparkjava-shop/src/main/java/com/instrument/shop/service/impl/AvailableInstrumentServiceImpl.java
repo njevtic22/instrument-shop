@@ -53,7 +53,8 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
                 new ArrayList<>(),
                 newInstrument.getQuantity(),
                 false,
-                type
+                type,
+                new ArrayList<>()
         );
 
         return repository.save(instrument);
@@ -94,7 +95,8 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
                 existing.getImages(),
                 changes.getQuantity(),
                 existing.isArchived(),
-                type
+                type,
+                existing.getPotentialCustomers()
         );
 
         return repository.save(updated);
