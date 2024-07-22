@@ -57,6 +57,10 @@ public class AvailableInstrument extends Instrument {
         return Objects.hash(super.hashCode(), code);
     }
 
+    public void archive() {
+        archived = true;
+    }
+
     public void setPrice(float price) {
         this.price = price;
     }

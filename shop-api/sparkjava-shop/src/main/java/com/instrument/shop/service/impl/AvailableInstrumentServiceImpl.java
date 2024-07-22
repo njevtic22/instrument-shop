@@ -112,11 +112,17 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     public void delete(Long id) {
         Objects.requireNonNull(id, "Id must not be null");
 
-        if (!repository.existsByIdAndArchivedFalse(id)) {
-            throw new EntityNotFoundException("Instrument", id);
-        }
+        AvailableInstrument found = repository.findByIdAndArchivedFalse(id)
+                .orElseThrow(() -> new EntityNotFoundException("Instrument", id));
 
-        repository.archiveById(id);
+        // is there better way?
+        for (User customer : found.getPotentialCustomers()) {
+            customer.getCart().remove(found);
+        }
+        found.archive();
+
+        repository.save(found);
+        userRepository.saveAll(found.getPotentialCustomers());
     }
 
     @Override
