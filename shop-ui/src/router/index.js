@@ -29,6 +29,15 @@ const routes = [
         },
     },
     {
+        path: "/cart",
+        name: "Cart",
+        component: () => import("../views/CartView.vue"),
+        meta: {
+            title: "Cart",
+            requiredRole: [Role.CUSTOMER],
+        },
+    },
+    {
         path: "/instrument-types",
         name: "Instrument types",
         component: () => import("../views/InstrumentTypesView.vue"),
