@@ -8,6 +8,8 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -53,7 +55,18 @@ public class User implements DatabaseEntity {
     @OneToMany(mappedBy = "owner")
     private List<BoughtInstrument> bought;
 
-    @ManyToMany(mappedBy = "potentialCustomers")
+    @ManyToMany
+    @JoinTable(
+            name = "carts",
+            joinColumns = @JoinColumn(
+                    name = "potential_customer_id",
+                    referencedColumnName = "id"
+            ),
+            inverseJoinColumns = @JoinColumn(
+                    name = "available_instrument_id",
+                    referencedColumnName = "id"
+            )
+    )
     private List<AvailableInstrument> cart;
 
     public User() { }

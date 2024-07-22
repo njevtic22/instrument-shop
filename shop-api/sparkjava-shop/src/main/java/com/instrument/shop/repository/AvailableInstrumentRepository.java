@@ -14,4 +14,6 @@ public interface AvailableInstrumentRepository extends CrudRepository<Long, Avai
     boolean existsByCode(String code);
 
     PaginatedResponse<AvailableInstrument> findCartByArchivedFalse(Long customerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
+
+    boolean isInCart(Long customerId, Long instrumentId);
 }

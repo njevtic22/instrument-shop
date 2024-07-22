@@ -4,8 +4,6 @@ import com.instrument.shop.util.Strings;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
@@ -28,18 +26,7 @@ public class AvailableInstrument extends Instrument {
     @ManyToOne
     private InstrumentType type;
 
-    @ManyToMany(fetch = FetchType.LAZY)
-    @JoinTable(
-            name = "carts",
-            joinColumns = @JoinColumn(
-                    name = "available_instrument_id",
-                    referencedColumnName = "id"
-            ),
-            inverseJoinColumns = @JoinColumn(
-                    name = "potential_customer_id",
-                    referencedColumnName = "id"
-            )
-    )
+    @ManyToMany(fetch = FetchType.LAZY, mappedBy = "cart")
     private List<User> potentialCustomers;
 
     public AvailableInstrument() { }

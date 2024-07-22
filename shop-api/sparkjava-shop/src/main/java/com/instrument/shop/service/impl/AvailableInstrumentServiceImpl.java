@@ -1,5 +1,6 @@
 package com.instrument.shop.service.impl;
 
+import com.instrument.shop.core.error.exception.CartException;
 import com.instrument.shop.core.error.exception.EntityNotFoundException;
 import com.instrument.shop.core.error.exception.PropertyLengthException;
 import com.instrument.shop.core.error.exception.UniquePropertyException;
@@ -11,9 +12,11 @@ import com.instrument.shop.model.Image;
 import com.instrument.shop.model.InstrumentType;
 import com.instrument.shop.model.User;
 import com.instrument.shop.repository.AvailableInstrumentRepository;
+import com.instrument.shop.repository.UserRepository;
 import com.instrument.shop.service.AvailableInstrumentService;
 import com.instrument.shop.service.ImageService;
 import com.instrument.shop.service.InstrumentTypeService;
+import com.sparkjava.context.exception.ForbiddenException;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 
@@ -29,12 +32,14 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     private final AvailableInstrumentRepository repository;
     private final InstrumentTypeService typeService;
     private final ImageService imageService;
+    private final UserRepository userRepository;
 
     @Inject
-    public AvailableInstrumentServiceImpl(AvailableInstrumentRepository repository, InstrumentTypeService typeService, ImageService imageService) {
+    public AvailableInstrumentServiceImpl(AvailableInstrumentRepository repository, InstrumentTypeService typeService, ImageService imageService, UserRepository userRepository) {
         this.repository = repository;
         this.typeService = typeService;
         this.imageService = imageService;
+        this.userRepository = userRepository;
     }
 
     @Override
@@ -169,5 +174,27 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
     @Override
     public PaginatedResponse<AvailableInstrument> getCart(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
         return repository.findCartByArchivedFalse(customer.getId(), filterData, sort, pageRequest);
+    }
+
+    @Override
+    public void addToCart(User customer, Long instrumentId) {
+        if (!customer.isCustomer()) {
+            throw new ForbiddenException();
+        }
+
+        AvailableInstrument found = repository.findByIdAndArchivedFalse(instrumentId)
+                .orElseThrow(() -> new EntityNotFoundException("Available instrument", instrumentId));
+
+        if (found.isArchived()) {
+            throw new CartException("Requested instrument does not exist.");
+        }
+
+        if (repository.isInCart(customer.getId(), found.getId())) {
+            return;
+        }
+
+        // is there any other solution?
+        customer.getCart().add(found);
+        userRepository.save(customer);
     }
 }

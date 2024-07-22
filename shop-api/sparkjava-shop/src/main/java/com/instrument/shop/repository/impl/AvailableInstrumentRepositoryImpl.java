@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -113,6 +115,30 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
         );
 //        em.close();
         return cart;
+    }
+
+    @Override
+    public boolean isInCart(Long customerId, Long instrumentId) {
+        String jpq = "select case when (count(*) = 1) then true else false end from AvailableInstrument i join i.potentialCustomers c where i.id = ?1 and c.id = ?2";
+
+        boolean exists = false;
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsQuery = em.createQuery(jpq, boolean.class);
+            existsQuery.setParameter(1, instrumentId);
+            existsQuery.setParameter(2, customerId);
+            exists = existsQuery.getSingleResult();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return exists;
     }
 
     @Override

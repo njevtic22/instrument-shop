@@ -1,6 +1,7 @@
-package com.instrument.shop.dto.instrument;
+package com.instrument.shop.dto.cart;
 
 import com.instrument.shop.dto.image.ImageViewDto;
+import com.instrument.shop.dto.instrument.AvailableViewDto;
 
 import java.util.List;
 

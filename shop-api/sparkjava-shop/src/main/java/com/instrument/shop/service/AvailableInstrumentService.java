@@ -24,4 +24,6 @@ public interface AvailableInstrumentService extends CrudService<Long, AvailableI
     void deleteImages(Long instrumentId, Long[] imageIds);
 
     PaginatedResponse<AvailableInstrument> getCart(User customer, Map<String, Object> filterData, Sort sort, PageRequest pageRequest);
+
+    void addToCart(User customer, Long instrumentId);
 }
