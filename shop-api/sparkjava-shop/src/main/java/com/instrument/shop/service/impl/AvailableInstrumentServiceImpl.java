@@ -186,7 +186,7 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
                 .orElseThrow(() -> new EntityNotFoundException("Available instrument", instrumentId));
 
         if (found.isArchived()) {
-            throw new CartException("Requested instrument does not exist.");
+            throw new CartException("Requested instrument does not exist");
         }
 
         if (repository.isInCart(customer.getId(), found.getId())) {
@@ -195,6 +195,28 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
 
         // is there any other solution?
         customer.getCart().add(found);
+        userRepository.save(customer);
+    }
+
+    @Override
+    public void removeFromCart(User customer, Long instrumentId) {
+        if (!customer.isCustomer()) {
+            throw new ForbiddenException();
+        }
+
+        AvailableInstrument found = repository.findByIdAndArchivedFalse(instrumentId)
+                .orElseThrow(() -> new EntityNotFoundException("Available instrument", instrumentId));
+
+        if (found.isArchived()) {
+            throw new CartException("Requested instrument does not exist");
+        }
+
+        if (!repository.isInCart(customer.getId(), found.getId())) {
+            throw new CartException("Requested instrument is not in cart");
+        }
+
+        // is there any other solution?
+        customer.getCart().remove(found);
         userRepository.save(customer);
     }
 }

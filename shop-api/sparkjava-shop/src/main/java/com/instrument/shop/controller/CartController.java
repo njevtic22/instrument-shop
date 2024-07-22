@@ -4,13 +4,14 @@ import com.instrument.shop.core.pagination.PageRequest;
 import com.instrument.shop.core.pagination.PaginatedResponse;
 import com.instrument.shop.core.pagination.PagingFilteringUtil;
 import com.instrument.shop.core.pagination.Sort;
-import com.instrument.shop.dto.cart.AddToCartDto;
+import com.instrument.shop.dto.cart.CartDto;
 import com.instrument.shop.dto.cart.CartItemViewDto;
 import com.instrument.shop.mapper.InstrumentMapper;
 import com.instrument.shop.model.AvailableInstrument;
 import com.instrument.shop.model.User;
 import com.instrument.shop.service.AvailableInstrumentService;
 import com.sparkjava.context.annotation.Authenticated;
+import com.sparkjava.context.annotation.DeleteMapping;
 import com.sparkjava.context.annotation.GetMapping;
 import com.sparkjava.context.annotation.MethodOrder;
 import com.sparkjava.context.annotation.PostMapping;
@@ -19,6 +20,7 @@ import com.sparkjava.context.annotation.QueryParam;
 import com.sparkjava.context.annotation.QueryParamValues;
 import com.sparkjava.context.annotation.RequestBody;
 import com.sparkjava.context.annotation.RequestMapping;
+import com.sparkjava.context.annotation.ResponseStatus;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 
@@ -41,8 +43,8 @@ public class CartController {
     @PostMapping
     @MethodOrder(100)
     @PreAuthorize("CUSTOMER")
-    public void addToCart(@Authenticated User customer, @Valid @RequestBody AddToCartDto cartDto) {
-        service.addToCart(customer, cartDto.getInstrumentId());
+    public void addToCart(@Authenticated User customer, @Valid @RequestBody CartDto toAdd) {
+        service.addToCart(customer, toAdd.getInstrumentId());
     }
 
     @GetMapping
@@ -70,5 +72,13 @@ public class CartController {
                 cart.totalElements(),
                 cart.totalPages()
         );
+    }
+
+    @DeleteMapping
+    @MethodOrder(20)
+    @ResponseStatus(204)
+    @PreAuthorize("CUSTOMER")
+    public void removeFromCart(@Authenticated User customer, @Valid @RequestBody CartDto toRemove) {
+        service.removeFromCart(customer, toRemove.getInstrumentId());
     }
 }
