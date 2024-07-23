@@ -152,7 +152,10 @@ function loadItems() {
 }
 
 function redirect(event, clickedRow) {
-    router.push("/instruments/" + clickedRow.item.productId);
+    router.push({
+        path: `/instruments/${clickedRow.item.productId}`,
+        query: { type: "bought" },
+    });
 }
 </script>
 
