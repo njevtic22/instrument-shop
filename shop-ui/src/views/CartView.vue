@@ -206,6 +206,7 @@ function updateOptions(options) {
 function loadCart() {
     fetchCart(page.value, size.value, sortBy.value, filterData, errorSnack);
 }
+loadCart();
 
 function redirect(id) {
     router.push({
