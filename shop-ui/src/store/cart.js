@@ -28,8 +28,19 @@ function fetchCart(page, size, sort, filter, errorCallback) {
         .catch(errorCallback);
 }
 
+function removeFromCart(instrumentId, successCallback, errorCallback) {
+    axios
+        .delete(cartUrl, {
+            data: {
+                instrumentId,
+            },
+        })
+        .then(successCallback)
+        .catch(errorCallback);
+}
+
 function clear() {
     cart.value = getDefaultState();
 }
 
-export { cart, fetchCart, clear };
+export { cart, fetchCart, removeFromCart, clear };

@@ -71,7 +71,9 @@
         </template>
 
         <template v-slot:item.actions="{ item }">
-            <v-icon size="small"> mdi-close </v-icon>
+            <v-icon @click="deleteItem(item.id)" class="pointer" size="small">
+                mdi-close
+            </v-icon>
         </template>
 
         <template v-slot:bottom>
@@ -104,7 +106,7 @@
 <script setup>
 import { inject, ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import { cart, fetchCart } from "@/store/cart";
+import { cart, fetchCart, removeFromCart } from "@/store/cart";
 import { buyInstruments } from "@/store/boughtInstrument";
 
 const router = useRouter();
@@ -219,7 +221,7 @@ function buy(paid) {
     const payload = formPayload(paid);
 
     const successCallback = () => {
-        snackbar("Purchase successful");
+        snackbar("Purchase successful", 3 * 1000);
         loadCart();
     };
     buyInstruments(payload, successCallback, errorSnack);
@@ -238,7 +240,9 @@ function formPayload(paid) {
             snackbar(
                 "You can't buy more " +
                     cartItem.name +
-                    " instruments than available"
+                    " instruments than available",
+                -1,
+                "red-darken-1"
             );
         }
 
@@ -257,6 +261,14 @@ function validateDigit(event) {
 function openDialog() {
     totalPriceToFixed.value = Number(totalPrice.value.toFixed(2));
     dialog.value = true;
+}
+
+function deleteItem(instrumentId) {
+    const successCallback = () => {
+        snackbar("Instrument removed from cart", 3 * 1000);
+        loadCart();
+    };
+    removeFromCart(instrumentId, successCallback, errorSnack);
 }
 </script>
 
