@@ -62,7 +62,12 @@
                 <template v-slot:append>
                     <v-toolbar-title class="ma-2 pa-2">
                         Total price: {{ totalPrice.toFixed(2) }}
-                        <v-btn variant="elevated" color="primary" class="ml-2">
+                        <v-btn
+                            @click="openDialog"
+                            variant="elevated"
+                            color="primary"
+                            class="ml-2"
+                        >
                             Buy
                         </v-btn>
                     </v-toolbar-title>
@@ -70,6 +75,12 @@
             </v-toolbar>
         </template>
     </v-data-table-server>
+
+    <CartBuyDialog
+        v-model:dialog="dialog"
+        v-model:totalPrice="totalPriceToFixed"
+        @confirmed="buy"
+    ></CartBuyDialog>
 </template>
 
 <script setup>
@@ -80,6 +91,8 @@ import { cart, fetchCart } from "@/store/cart";
 const router = useRouter();
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const dialog = ref(false);
 
 const headers = [
     // {
@@ -125,6 +138,8 @@ const headers = [
         sortable: false,
     },
 ];
+
+const totalPriceToFixed = ref(0);
 
 const totalPrice = computed(() => {
     let totalPrice = 0;
@@ -179,10 +194,19 @@ function redirect(id) {
     });
 }
 
+function buy(paid) {
+    console.log(paid);
+}
+
 function validateDigit(event) {
     if (event.key === " " || isNaN(Number(event.key))) {
         event.preventDefault();
     }
+}
+
+function openDialog() {
+    totalPriceToFixed.value = Number(totalPrice.value.toFixed(2));
+    dialog.value = true;
 }
 </script>
 
