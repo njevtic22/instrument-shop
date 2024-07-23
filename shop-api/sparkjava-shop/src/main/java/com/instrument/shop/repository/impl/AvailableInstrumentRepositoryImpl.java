@@ -164,13 +164,23 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     private String getValidOrderBy(Sort sort, String prefix) {
-        String orderBy = prefix + "." + sort.property() + " " + sort.order().toString();
+        String sortStr = getSortWithPrefix(sort, prefix);
+        return jpqlUtil.getValidOrderBy(sortStr);
+    }
+
+    private String getSortWithPrefix(Sort sort, String prefix) {
+        String correctProperty = sort.property();
+        if (correctProperty.contains("type")) {
+            correctProperty = correctProperty.replaceAll("type", "type.name");
+        }
+
+        String orderBy = prefix + "." + correctProperty + " " + sort.order().toString();
         String orderByNext = "";
 
         if (sort.sortNext() != null) {
-            orderByNext = ", " + getValidOrderBy(sort.sortNext(), prefix);
+            orderByNext = ", " + getSortWithPrefix(sort.sortNext(), prefix);
         }
 
-        return jpqlUtil.getValidOrderBy(orderBy + orderByNext);
+        return orderBy + orderByNext;
     }
 }

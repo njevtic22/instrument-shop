@@ -7,30 +7,41 @@
         :headers="headers"
         :sort-by="sortBy"
         @update:options="updateOptions"
-        @click:row="redirect"
         item-value="id"
         class="elevation-4"
         multi-sort
         hover
+        hide-default-footer
     >
-        <template v-slot:item.images="{ value }">
-            <v-carousel hide-delimiters :show-arrows="false" height="100px">
+        <template v-slot:item.images="{ item, value }">
+            <v-carousel
+                @click="redirect(item.id)"
+                hide-delimiters
+                :show-arrows="false"
+                height="100px"
+            >
                 <v-carousel-item
+                    class="pointer"
                     :key="value[0].id"
                     :src="value[0].url"
                 ></v-carousel-item>
             </v-carousel>
         </template>
 
-        <template v-slot:item.nameTypeMark="{ item }">
-            <div><strong>Name: </strong>{{ item.name }}</div>
-            <div><strong>Type: </strong>{{ item.type }}</div>
-            <div><strong>Mark: </strong>{{ item.mark }}</div>
+        <template v-slot:item.name,type,mark="{ item }">
+            <div @click="redirect(item.id)" class="pointer">
+                <div><strong>Name: </strong>{{ item.name }}</div>
+                <div><strong>Type: </strong>{{ item.type }}</div>
+                <div><strong>Mark: </strong>{{ item.mark }}</div>
+            </div>
         </template>
 
         <template v-slot:item.quantityToBuy="{ item }">
             <v-text-field
                 v-model="item.quantityToBuy"
+                :max="item.quantity"
+                min="1"
+                @keydown="validateDigit"
                 @click="$event.stopPropagation()"
                 class="mt-4"
                 type="number"
@@ -46,13 +57,14 @@
             <v-icon size="small"> mdi-close </v-icon>
         </template>
 
-        <template v-slot:footer.prepend>
+        <template v-slot:bottom>
             <v-toolbar color="white" flat>
-                <v-toolbar-title>Total price</v-toolbar-title>
-
                 <template v-slot:append>
                     <v-toolbar-title class="ma-2 pa-2">
-                        Total price
+                        Total price: {{ totalPrice.toFixed(2) }}
+                        <v-btn variant="elevated" color="primary" class="ml-2">
+                            Buy
+                        </v-btn>
                     </v-toolbar-title>
                 </template>
             </v-toolbar>
@@ -61,7 +73,7 @@
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
+import { inject, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { cart, fetchCart } from "@/store/cart";
 
@@ -77,11 +89,11 @@ const headers = [
     {
         title: "Images",
         key: "images",
+        sortable: false,
     },
     {
         title: "Name, Type, Mark",
-        key: "nameTypeMark",
-        align: "end",
+        key: "name,type,mark",
     },
     {
         title: "In store",
@@ -93,6 +105,7 @@ const headers = [
         key: "quantityToBuy",
         align: "end",
         width: "15%",
+        sortable: false,
     },
     {
         title: "Price",
@@ -103,47 +116,78 @@ const headers = [
         title: "In cart x Price",
         key: "batchPrice",
         align: "end",
+        sortable: false,
     },
     {
         title: "Actions",
         key: "actions",
         align: "end",
+        sortable: false,
     },
 ];
 
+const totalPrice = computed(() => {
+    let totalPrice = 0;
+    cart.value.data.forEach((cartItem) => {
+        totalPrice += cartItem.quantityToBuy * cartItem.price;
+    });
+    return totalPrice;
+});
+
 const page = ref(0);
-const size = ref(5);
+const size = ref(2 ** 31 - 1);
 const sortBy = ref([]);
+let filterData = {};
 
 const sizeOptions = [
-    { value: 5, title: "5" },
-    { value: 10, title: "10" },
-    { value: 25, title: "25" },
-    { value: 50, title: "50" },
     { value: 2 ** 31 - 1, title: "$vuetify.dataFooter.itemsPerPageAll" },
 ];
 
 function updateOptions(options) {
     page.value = options.page - 1;
     size.value = options.itemsPerPage;
-    sortBy.value = options.sortBy;
-    // groupBy.value = options.groupBy;
+    sortBy.value.length = 0;
 
-    console.log(sortBy.value);
+    for (let index = 0; index < options.sortBy.length; index++) {
+        const sort = options.sortBy[index];
+
+        if (sort.key === "name,type,mark") {
+            const keys = sort.key.split(",");
+            for (let j = 0; j < keys.length; j++) {
+                const key = keys[j];
+                sortBy.value.push({
+                    key: key,
+                    order: sort.order,
+                });
+            }
+        } else {
+            sortBy.value.push(sort);
+        }
+    }
 
     loadCart();
 }
 
 function loadCart() {
-    fetchCart(errorSnack);
+    fetchCart(page.value, size.value, sortBy.value, filterData, errorSnack);
 }
 
-function redirect(event, clickedRow) {
+function redirect(id) {
     router.push({
-        path: `/instruments/${clickedRow.item.id}`,
+        path: `/instruments/${id}`,
         query: { type: "available" },
     });
 }
+
+function validateDigit(event) {
+    if (event.key === " " || isNaN(Number(event.key))) {
+        event.preventDefault();
+    }
+}
 </script>
 
-<style scoped></style>
+<style scoped>
+.pointer {
+    cursor: pointer;
+}
+</style>

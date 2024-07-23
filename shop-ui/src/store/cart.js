@@ -1,6 +1,7 @@
 import { ref } from "vue";
 import axios from "axios";
 import { environment } from "@/environment/environment";
+import { formFilter, formSort } from "@/util/page-filter-util";
 
 function getDefaultState() {
     return {
@@ -13,9 +14,12 @@ function getDefaultState() {
 const cart = ref(getDefaultState());
 const cartUrl = `${environment.apiUrl}/carts`;
 
-function fetchCart(errorCallback) {
+function fetchCart(page, size, sort, filter, errorCallback) {
+    const sortStr = formSort(sort);
+    const filterStr = formFilter(filter);
+    const pageUrl = `${cartUrl}?page=${page}&size=${size}&${sortStr}&${filterStr}`;
     axios
-        .get(cartUrl)
+        .get(pageUrl)
         .then((response) => {
             cart.value.data = response.data.data;
             cart.value.totalElements = response.data.totalElements;

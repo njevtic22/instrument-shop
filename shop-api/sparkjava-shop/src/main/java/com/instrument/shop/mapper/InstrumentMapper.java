@@ -84,7 +84,7 @@ public class InstrumentMapper {
                 imagesDto,
                 instrument.getType().getName(),
                 instrument.getQuantity(),
-                0
+                1
         );
     }
 
