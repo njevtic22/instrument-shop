@@ -87,9 +87,11 @@
 import { inject, ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import { cart, fetchCart } from "@/store/cart";
+import { buyInstruments } from "@/store/boughtInstrument";
 
 const router = useRouter();
 
+const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
 const dialog = ref(false);
@@ -195,7 +197,36 @@ function redirect(id) {
 }
 
 function buy(paid) {
-    console.log(paid);
+    const payload = formPayload(paid);
+
+    const successCallback = () => {
+        snackbar("Purchase successful");
+        loadCart();
+    };
+    buyInstruments(payload, successCallback, errorSnack);
+}
+
+function formPayload(paid) {
+    const payload = {
+        paid,
+        instrumentQuantity: {},
+    };
+
+    for (let i = 0; i < cart.value.data.length; i++) {
+        const cartItem = cart.value.data[i];
+
+        if (cartItem.quantityToBuy > cartItem.quantity) {
+            snackbar(
+                "You can't buy more " +
+                    cartItem.name +
+                    " instruments than available"
+            );
+        }
+
+        payload.instrumentQuantity[cartItem.id] = cartItem.quantityToBuy;
+    }
+
+    return payload;
 }
 
 function validateDigit(event) {

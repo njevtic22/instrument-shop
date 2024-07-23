@@ -34,6 +34,10 @@ function fetchBoughtInstrument(id, successCallback, errorCallback) {
     axios.get(url).then(successCallback).catch(errorCallback);
 }
 
+function buyInstruments(payload, successCallback, errorCallback) {
+    axios.post(boughtUrl, payload).then(successCallback).catch(errorCallback);
+}
+
 function clear() {
     boughtInstruments.value = getDefaultState();
 }
@@ -42,5 +46,6 @@ export {
     boughtInstruments,
     fetchBoughtInstruments,
     fetchBoughtInstrument,
+    buyInstruments,
     clear,
 };
