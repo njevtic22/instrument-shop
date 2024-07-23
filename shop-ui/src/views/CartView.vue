@@ -1,5 +1,22 @@
 <template>
+    <div v-if="cart.totalElements === 0">
+        <v-row align="stretch" class="justify-center">
+            <v-col cols="2">
+                <v-img
+                    src="@/assets/shopping-cart.png"
+                    error="Image not found"
+                />
+            </v-col>
+        </v-row>
+        <v-row align="stretch" class="justify-center">
+            <v-col cols="5" class="d-flex justify-center">
+                <h1>Your cart is empty</h1>
+            </v-col>
+        </v-row>
+    </div>
+
     <v-data-table-server
+        v-if="cart.totalElements > 0"
         v-model:items-per-page="size"
         :items="cart.data"
         :items-length="cart.totalElements"
@@ -63,6 +80,7 @@
                     <v-toolbar-title class="ma-2 pa-2">
                         Total price: {{ totalPrice.toFixed(2) }}
                         <v-btn
+                            :disabled="cart.totalElements === 0"
                             @click="openDialog"
                             variant="elevated"
                             color="primary"
