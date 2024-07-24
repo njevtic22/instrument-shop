@@ -2,11 +2,7 @@
     <v-row>
         <v-col cols="9">
             <v-row
-                v-if="
-                    boughtInstruments.data.length === 0 &&
-                    !isReseting &&
-                    page >= 0
-                "
+                v-if="boughtInstruments.data.length === 0 && !loading"
                 class="mx-auto w-25"
             >
                 <v-col>
@@ -79,7 +75,7 @@ function loadMoreInstruments() {
         return;
     }
 
-    fetchBoughtInstruments(page, size, sort, filter, errorSnack);
+    fetchInstruments();
 }
 
 function applyFilter(sortFilter) {
@@ -109,10 +105,21 @@ function resetPage() {
 
     page = 0;
     clear();
-    fetchBoughtInstruments(page, size, sort, filter, errorSnack);
+    fetchInstruments();
 
     setTimeout(() => {
         isReseting.value = false;
+    }, 100);
+}
+
+const loading = ref(false);
+
+function fetchInstruments() {
+    loading.value = true;
+    fetchBoughtInstruments(page, size, sort, filter, errorSnack);
+
+    setTimeout(() => {
+        loading.value = false;
     }, 100);
 }
 
