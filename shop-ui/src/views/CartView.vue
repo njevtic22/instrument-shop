@@ -16,7 +16,7 @@
     </div>
 
     <v-data-table-server
-        v-if="cart.totalElements > 0"
+        v-show="cart.totalElements > 0"
         v-model:items-per-page="size"
         :items="cart.data"
         :items-length="cart.totalElements"
@@ -208,7 +208,6 @@ function updateOptions(options) {
 function loadCart() {
     fetchCart(page.value, size.value, sortBy.value, filterData, errorSnack);
 }
-loadCart();
 
 function redirect(id) {
     router.push({
