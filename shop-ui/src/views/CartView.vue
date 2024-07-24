@@ -60,8 +60,8 @@
                 min="1"
                 @keydown="validateDigit"
                 @click="$event.stopPropagation()"
-                class="mt-4"
                 type="number"
+                hide-details
             >
             </v-text-field>
         </template>
