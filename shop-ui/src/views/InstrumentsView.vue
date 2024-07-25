@@ -1,8 +1,12 @@
 <template>
+    <InstrumentAddDialog v-model="dialog"> </InstrumentAddDialog>
+
     <v-row>
         <v-col cols="9">
             <div v-if="isSalesman()" class="text-right pb-4">
-                <v-btn color="primary">New Instrument</v-btn>
+                <v-btn @click="dialog = true" color="primary">
+                    Add Instrument
+                </v-btn>
             </div>
 
             <v-row
@@ -51,6 +55,8 @@ import { isSalesman } from "@/store/auth";
 import { useIntersectionObserver } from "@vueuse/core";
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const dialog = ref(false);
 
 const instrumentFilter = ref(null);
 

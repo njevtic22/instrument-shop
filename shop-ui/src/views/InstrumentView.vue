@@ -82,10 +82,12 @@ const instrument = ref({
     mark: "",
     description: "",
     price: -1,
-    images: {
-        id: -1,
-        url: "",
-    },
+    images: [
+        {
+            id: -1,
+            url: "",
+        },
+    ],
     type: "",
 
     quantity: -1,
