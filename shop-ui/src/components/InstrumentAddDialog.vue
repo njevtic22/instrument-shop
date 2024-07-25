@@ -1,6 +1,10 @@
 <template>
-    <v-dialog v-model="dialog" width="50%">
-        <v-card prepend-icon="mdi-plus" title="Add new instrument">
+    <v-dialog v-model="dialog" @afterLeave="closeDialog()" width="50%">
+        <v-card
+            :disabled="loading"
+            prepend-icon="mdi-plus"
+            title="Add new instrument"
+        >
             <v-card-text>
                 <v-stepper flat v-model="stepper.step">
                     <v-stepper-header>
@@ -21,6 +25,7 @@
                         <v-stepper-window-item :key="1" :value="1">
                             <InstrumentForm
                                 v-model="instrument"
+                                ref="instrumentForm"
                             ></InstrumentForm>
                         </v-stepper-window-item>
                         <v-stepper-window-item :key="2" :value="2">
@@ -31,6 +36,10 @@
                     <v-stepper-actions :disabled="false">
                         <template v-slot:next>
                             <v-btn
+                                :disabled="
+                                    !instrumentForm || !instrumentForm.isValid
+                                "
+                                :loading="loading"
                                 v-if="stepper.step === 1"
                                 @click="addInstrument"
                                 variant="elevated"
@@ -65,32 +74,54 @@ const errorSnack = inject("defaultErrorSnackbar");
 
 const dialog = defineModel();
 
+const instrumentForm = ref(null);
+
+const loading = ref(false);
+
 const stepper = ref({
     step: 1,
     completedFirst: false,
 });
 
 const instrument = ref({
-    id: -1,
     code: "",
     name: "",
     mark: "",
+    type: null,
+    price: null,
+    quantity: null,
     description: "",
-    price: -1,
-    images: {
+});
+
+const images = ref([
+    {
         id: -1,
         url: "",
     },
-    type: "",
-    quantity: -1,
-});
+]);
 
-function addInstrument() {
+async function addInstrument() {
+    const valid = await instrumentForm.value.validate();
+    if (!valid) {
+        return;
+    }
+
+    loading.value = true;
+
+    console.log({ ...instrument.value });
+
+    loading.value = false;
+
     stepper.value.step++;
     stepper.value.completedFirst = true;
 }
 
 function addImages() {
+    closeDialog();
+}
+
+function closeDialog() {
+    instrumentForm.value.reset();
     dialog.value = false;
     stepper.value.step = 1;
 }
