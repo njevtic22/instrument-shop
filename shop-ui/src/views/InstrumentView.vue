@@ -5,27 +5,33 @@
                 <v-card class="d-flex align-center" :height="height" flat>
                     <div>
                         <v-card-item>
-                            <v-card-title>{{ instrument.name }}</v-card-title>
-                            <v-card-title>
+                            <v-card-title class="data-font-size">
+                                {{ instrument.name }}
+                            </v-card-title>
+                            <v-card-title class="data-font-size">
                                 Price: {{ instrument.price }}
                             </v-card-title>
                         </v-card-item>
                         <v-card-text>
-                            <div>
+                            <div class="data-font-size">
                                 <strong>Type:</strong> {{ instrument.type }}
                             </div>
-                            <div>
+                            <div class="data-font-size">
                                 <strong>Mark:</strong> {{ instrument.mark }}
                             </div>
-                            <div v-if="isAvailable()">
+                            <div v-if="isAvailable()" class="data-font-size">
                                 <strong>Available:</strong>
                                 {{ instrument.quantity }}
                             </div>
-                            <div v-if="isCustomer() && isBought()">
-                                <strong>Owned:</strong> {{ instrument.owned }}
+                            <div
+                                v-if="isCustomer() && isBought()"
+                                class="data-font-size"
+                            >
+                                <strong>Owned:</strong>
+                                {{ instrument.owned }}
                             </div>
                             <br />
-                            <div v-if="isBought()">
+                            <div v-if="isBought()" class="data-font-size">
                                 <strong>Purchased:</strong>
                                 {{ formatDateTime(instrument.purchased) }}
                             </div>
@@ -48,7 +54,9 @@
         <br />
         <v-card flat>
             <v-card-text>
-                {{ instrument.description }}
+                <p class="description-font-size">
+                    {{ instrument.description }}
+                </p>
             </v-card-text>
         </v-card>
     </v-card>
@@ -122,4 +130,12 @@ function isAvailable() {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+.data-font-size {
+    font-size: 1.4em;
+}
+
+.description-font-size {
+    font-size: 1.2em;
+}
+</style>
