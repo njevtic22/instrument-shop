@@ -1,6 +1,10 @@
 <template>
     <v-row>
         <v-col cols="9">
+            <div v-if="isSalesman()" class="text-right pb-4">
+                <v-btn color="primary">New Instrument</v-btn>
+            </div>
+
             <v-row
                 v-if="availableInstruments.data.length === 0 && !loading"
                 class="mx-auto w-25"
@@ -43,6 +47,7 @@ import {
     fetchAvailableInstruments,
     clear,
 } from "@/store/availableInstrument";
+import { isSalesman } from "@/store/auth";
 import { useIntersectionObserver } from "@vueuse/core";
 
 const errorSnack = inject("defaultErrorSnackbar");
