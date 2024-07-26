@@ -11,7 +11,23 @@
                     label="Upload instrument images"
                     accept="image/jpeg, image/jpg, image/png"
                     multiple
-                ></v-file-input>
+                >
+                    <template v-slot:selection="{ fileNames }">
+                        <template
+                            v-for="(fileName, index) in fileNames"
+                            :key="fileName"
+                        >
+                            <span v-if="index < 2"> {{ fileName }},&nbsp;</span>
+
+                            <span
+                                v-else-if="index === 2"
+                                class="text-overline text-grey-darken-3 mx-2"
+                            >
+                                +{{ images.length - 2 }} File(s)
+                            </span>
+                        </template>
+                    </template>
+                </v-file-input>
             </v-col>
         </v-row>
         <v-row class="pa-2">

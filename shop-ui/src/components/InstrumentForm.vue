@@ -21,7 +21,7 @@
                 <v-select
                     v-model="instrument.typeId"
                     :rules="[rules.required]"
-                    :items="types.data"
+                    :items="types"
                     item-title="name"
                     item-value="id"
                     label="Type"
@@ -74,17 +74,9 @@
 </template>
 
 <script setup>
-import { ref, defineModel, computed, defineExpose, inject } from "vue";
-import { types, fetchTypes } from "@/store/instrumentType";
+import { ref, defineModel, computed, defineExpose } from "vue";
 
-const errorSnack = inject("defaultErrorSnackbar");
-
-const page = 0;
-const size = 2 ** 31 - 1;
-const sort = [];
-const filterData = {};
-
-fetchTypes(page, size, sort, filterData, errorSnack);
+defineProps(["types"]);
 
 const form = ref(null);
 const instrument = defineModel();

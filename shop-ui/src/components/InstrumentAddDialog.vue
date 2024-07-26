@@ -25,6 +25,7 @@
                         <v-stepper-window-item :key="1" :value="1">
                             <InstrumentForm
                                 v-model="instrument"
+                                :types="types.data"
                                 ref="instrumentForm"
                             ></InstrumentForm>
                         </v-stepper-window-item>
@@ -83,6 +84,7 @@
 import { ref, defineModel, inject } from "vue";
 import { addAvailableInstrument, addImages } from "@/store/availableInstrument";
 import { uploadImages } from "@/store/image";
+import { types, fetchTypes } from "@/store/instrumentType";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
@@ -100,6 +102,12 @@ const stepper = ref({
     step: 1,
     completedFirst: false,
 });
+
+const page = 0;
+const size = 2 ** 31 - 1;
+const sort = [{ key: "name", order: "asc" }];
+const filterData = {};
+fetchTypes(page, size, sort, filterData, errorSnack);
 
 const instrument = ref({
     code: "",

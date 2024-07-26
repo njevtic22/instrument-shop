@@ -1,4 +1,9 @@
 <template>
+    <InstrumentEditDialog
+        v-model="dialog"
+        :instrument="instrument"
+    ></InstrumentEditDialog>
+
     <v-card elevation="4">
         <v-row>
             <v-col cols="3">
@@ -35,6 +40,13 @@
                                 <strong>Purchased:</strong>
                                 {{ formatDateTime(instrument.purchased) }}
                             </div>
+                            <v-btn
+                                v-if="showButton()"
+                                @click="dialog = true"
+                                color="primary"
+                            >
+                                Edit instrument
+                            </v-btn>
                         </v-card-text>
                     </div>
                 </v-card>
@@ -65,7 +77,7 @@
 <script setup>
 import { inject, ref, computed } from "vue";
 import { useRoute } from "vue-router";
-import { isCustomer } from "@/store/auth";
+import { isCustomer, isSalesman } from "@/store/auth";
 import { fetchAvailableInstrument } from "@/store/availableInstrument";
 import { fetchBoughtInstrument } from "@/store/boughtInstrument";
 import { formatDateTime } from "@/util/date";
@@ -74,6 +86,8 @@ const route = useRoute();
 const errorSnack = inject("defaultErrorSnackbar");
 
 const height = ref("450px");
+
+const dialog = ref(false);
 
 const instrument = ref({
     id: -1,
@@ -107,6 +121,10 @@ const images = computed(() => {
     }
     return instrument.value.images;
 });
+
+function showButton() {
+    return isSalesman() && isAvailable();
+}
 
 function fetchInstrument() {
     if (route.query.type === "available") {
