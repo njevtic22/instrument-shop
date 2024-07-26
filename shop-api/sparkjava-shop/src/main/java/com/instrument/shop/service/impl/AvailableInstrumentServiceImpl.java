@@ -139,8 +139,8 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
 
     @Override
     public void validateDescription(String description) {
-        if (description.length() > 1000) {
-            throw new PropertyLengthException("Description", 1000);
+        if (description.length() > 2000) {
+            throw new PropertyLengthException("Description", 2000);
         }
     }
 

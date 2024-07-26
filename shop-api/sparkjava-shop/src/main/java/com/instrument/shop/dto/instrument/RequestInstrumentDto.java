@@ -14,7 +14,7 @@ public abstract class RequestInstrumentDto {
     @NotBlank(message = "Mark must not be blank")
     private final String mark;
 
-    @Size(min = 1, max = 1000, message = "Description must be between 1 and 1000 characters long")
+    @Size(min = 1, max = 2000, message = "Description must be between 1 and 1000 characters long")
     private final String description;
 
     @Positive(message = "Price must be positive float")
