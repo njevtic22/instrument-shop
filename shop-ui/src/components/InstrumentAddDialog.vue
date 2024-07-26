@@ -68,9 +68,12 @@
 
 <script setup>
 import { ref, defineModel, inject } from "vue";
+import { addAvailableInstrument } from "@/store/availableInstrument";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
+
+const emit = defineEmits(["instrument-added"]);
 
 const dialog = defineModel();
 
@@ -87,7 +90,7 @@ const instrument = ref({
     code: "",
     name: "",
     mark: "",
-    type: null,
+    typeId: null,
     price: null,
     quantity: null,
     description: "",
@@ -108,12 +111,22 @@ async function addInstrument() {
 
     loading.value = true;
 
-    console.log({ ...instrument.value });
+    const newInstrument = { ...instrument.value };
 
-    loading.value = false;
+    const successCallback = () => {
+        snackbar("Instrument added", 3 * 1000);
+        emit("instrument-added", newInstrument);
 
-    stepper.value.step++;
-    stepper.value.completedFirst = true;
+        loading.value = false;
+
+        stepper.value.step++;
+        stepper.value.completedFirst = true;
+    };
+    const errorCallback = (error) => {
+        errorSnack(error);
+        loading.value = false;
+    };
+    addAvailableInstrument(newInstrument, successCallback, errorCallback);
 }
 
 function addImages() {

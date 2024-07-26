@@ -34,6 +34,13 @@ function fetchAvailableInstrument(id, successCallback, errorCallback) {
     axios.get(url).then(successCallback).catch(errorCallback);
 }
 
+function addAvailableInstrument(newInstrument, successCallback, errorCallback) {
+    axios
+        .post(availableUrl, newInstrument)
+        .then(successCallback)
+        .catch(errorCallback);
+}
+
 function clear() {
     availableInstruments.value = getDefaultState();
 }
@@ -42,5 +49,6 @@ export {
     availableInstruments,
     fetchAvailableInstruments,
     fetchAvailableInstrument,
+    addAvailableInstrument,
     clear,
 };

@@ -25,7 +25,25 @@ const drawer = ref(true);
 const theSnack = ref(null);
 
 function defaultErrorSnackbar(error) {
-    theSnack.value.show(error.response.data.message, -1, "red-darken-1", "");
+    let errorMessage = error.response.data.message;
+    if (error.response.data.message === "Invalid field(s)") {
+        errorMessage = "";
+        for (let i = 0; i < error.response.data.details.length; i++) {
+            const detail = error.response.data.details[i];
+
+            for (let j = 0; j < detail.messages.length; j++) {
+                const message = detail.messages[j];
+
+                let suffix = ". ";
+                if (message.endsWith(".")) {
+                    suffix = " ";
+                }
+
+                errorMessage += message + suffix;
+            }
+        }
+    }
+    theSnack.value.show(errorMessage, -1, "red-darken-1", "");
 }
 
 axios.defaults.headers.common["Authorization"] =

@@ -19,10 +19,11 @@
         <v-row>
             <v-col>
                 <v-select
-                    v-model="instrument.type"
+                    v-model="instrument.typeId"
                     :rules="[rules.required]"
                     :items="types.data"
-                    :item-props="itemProps"
+                    item-title="name"
+                    item-value="id"
                     label="Type"
                     clearable
                 >
@@ -64,13 +65,12 @@
                     v-model="instrument.description"
                     :rules="[rules.required]"
                     label="Description"
-                    maxlength="50"
+                    maxlength="2000"
                     counter
                 ></v-textarea>
             </v-col>
         </v-row>
     </v-form>
-    {{ instrument }}
 </template>
 
 <script setup>
@@ -92,13 +92,6 @@ const instrument = defineModel();
 const rules = {
     required: (value) => Boolean(value) || "Required",
 };
-
-function itemProps(type) {
-    return {
-        title: type.name,
-        value: type.id,
-    };
-}
 
 function validateDigit(event) {
     if (event.key === "Backspace" || event.key === ".") {
