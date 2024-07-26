@@ -7,7 +7,7 @@
             height="250px"
         >
             <v-carousel-item
-                v-for="image in instrument.images"
+                v-for="image in images"
                 :key="image.id"
                 :src="image.url"
             >
@@ -38,6 +38,7 @@
 </template>
 
 <script setup>
+import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { isCustomer } from "@/store/auth";
 import { formatDateTime } from "@/util/date";
@@ -45,6 +46,18 @@ import { formatDateTime } from "@/util/date";
 const router = useRouter();
 
 const props = defineProps(["instrument"]);
+
+const images = computed(() => {
+    if (props.instrument.images.length === 0) {
+        return [
+            {
+                id: -1,
+                url: new URL("@/assets/no-image.png", import.meta.url).href,
+            },
+        ];
+    }
+    return props.instrument.images;
+});
 
 function redirect(instrumentId) {
     router.push({

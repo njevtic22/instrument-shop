@@ -42,7 +42,7 @@
             <v-col cols="9">
                 <v-carousel :height="height" show-arrows="hover">
                     <v-carousel-item
-                        v-for="image in instrument.images"
+                        v-for="image in images"
                         :key="image.id"
                         :src="image.url"
                     >
@@ -63,7 +63,7 @@
 </template>
 
 <script setup>
-import { inject, ref } from "vue";
+import { inject, ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { isCustomer } from "@/store/auth";
 import { fetchAvailableInstrument } from "@/store/availableInstrument";
@@ -94,6 +94,18 @@ const instrument = ref({
 
     owned: -1,
     purchased: [0, 0, 0, 0, 0, 0, 0],
+});
+
+const images = computed(() => {
+    if (instrument.value.images.length === 0) {
+        return [
+            {
+                id: -1,
+                url: new URL("@/assets/no-image.png", import.meta.url).href,
+            },
+        ];
+    }
+    return instrument.value.images;
 });
 
 function fetchInstrument() {
