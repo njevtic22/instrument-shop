@@ -14,6 +14,7 @@ public class ConfigController {
     public void configureCors(Response response) {
         response.header("Access-Control-Allow-Origin", "http://localhost:3000");
         response.header("Access-Control-Request-Method", "GET,POST,PUT,DELETE,OPTIONS");
+        response.header("Access-Control-Expose-Headers", "location");
 //        response.header("Access-Control-Allow-Headers", headers);
 //        response.type("application/json");
     }

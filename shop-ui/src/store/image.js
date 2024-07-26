@@ -3,9 +3,12 @@ import { environment } from "@/environment/environment";
 
 const imageUrl = `${environment.apiUrl}/images`;
 
-function uploadImage(newImage, successCallback, errorCallback) {
+function uploadImages(newImages, successCallback, errorCallback) {
     const multipartData = new FormData();
-    multipartData.append("images", newImage);
+    for (let i = 0; i < newImages.length; i++) {
+        const image = newImages[i];
+        multipartData.append("images", image);
+    }
 
     axios
         .post(imageUrl, multipartData, {
@@ -17,4 +20,4 @@ function uploadImage(newImage, successCallback, errorCallback) {
         .catch(errorCallback);
 }
 
-export { uploadImage };
+export { uploadImages };

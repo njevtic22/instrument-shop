@@ -29,7 +29,10 @@
                             ></InstrumentForm>
                         </v-stepper-window-item>
                         <v-stepper-window-item :key="2" :value="2">
-                            Add images
+                            <InstrumentAddImagesForm
+                                v-model="images"
+                                ref="imagesForm"
+                            ></InstrumentAddImagesForm>
                         </v-stepper-window-item>
                     </v-stepper-window>
 
@@ -48,12 +51,22 @@
                                 Save and next
                             </v-btn>
                             <v-btn
+                                :disabled="!imagesForm || !imagesForm.isValid"
                                 v-if="stepper.step === 2"
-                                @click="addImages"
+                                :loading="loading"
+                                @click="addImagesToUploadedInstrument"
                                 variant="elevated"
                                 color="primary"
                             >
                                 Save and close
+                            </v-btn>
+                            <v-btn
+                                @click="closeDialog"
+                                class="ml-2"
+                                variant="elevated"
+                            >
+                                <span v-if="stepper.step === 1">Cancel</span>
+                                <span v-if="stepper.step === 2">Skip</span>
                             </v-btn>
                         </template>
                         <template v-slot:prev>
@@ -68,16 +81,18 @@
 
 <script setup>
 import { ref, defineModel, inject } from "vue";
-import { addAvailableInstrument } from "@/store/availableInstrument";
+import { addAvailableInstrument, addImages } from "@/store/availableInstrument";
+import { uploadImages } from "@/store/image";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
-const emit = defineEmits(["instrument-added"]);
+const emit = defineEmits(["instrument-added", "images-added"]);
 
 const dialog = defineModel();
 
 const instrumentForm = ref(null);
+const imagesForm = ref(null);
 
 const loading = ref(false);
 
@@ -96,12 +111,9 @@ const instrument = ref({
     description: "",
 });
 
-const images = ref([
-    {
-        id: -1,
-        url: "",
-    },
-]);
+let uploadedId = -1;
+
+const images = ref([]);
 
 async function addInstrument() {
     const valid = await instrumentForm.value.validate();
@@ -113,7 +125,10 @@ async function addInstrument() {
 
     const newInstrument = { ...instrument.value };
 
-    const successCallback = () => {
+    const successCallback = (response) => {
+        let index = response.headers.location.lastIndexOf("/");
+        uploadedId = Number(response.headers.location.substring(index + 1));
+
         snackbar("Instrument added", 3 * 1000);
         emit("instrument-added", newInstrument);
 
@@ -129,12 +144,46 @@ async function addInstrument() {
     addAvailableInstrument(newInstrument, successCallback, errorCallback);
 }
 
-function addImages() {
-    closeDialog();
+async function addImagesToUploadedInstrument() {
+    if (uploadedId === -1 || isNaN(uploadedId)) {
+        console.error("Instrument is not uploaded");
+        return;
+    }
+
+    const valid = await imagesForm.value.validate();
+    if (!valid) {
+        return;
+    }
+
+    const toUpload = [...images.value];
+
+    const successCallback = (response) => {
+        console.log("successCallback");
+        const imageIds = response.data.map((image) => image.id);
+
+        const successCallback2 = () => {
+            console.log("successCallback 2");
+            emit("images-added");
+            loading.value = false;
+            closeDialog();
+        };
+
+        addImages(uploadedId, imageIds, successCallback2, errorSnack);
+    };
+
+    const errorCallback = (error) => {
+        console.log("errorCallback");
+        errorSnack(error);
+        loading.value = false;
+    };
+    loading.value = true;
+    console.log("uploadImages");
+    uploadImages(toUpload, successCallback, errorCallback);
 }
 
 function closeDialog() {
     instrumentForm.value.reset();
+    imagesForm.value?.reset();
     dialog.value = false;
     stepper.value.step = 1;
 }

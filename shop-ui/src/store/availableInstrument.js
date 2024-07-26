@@ -41,6 +41,27 @@ function addAvailableInstrument(newInstrument, successCallback, errorCallback) {
         .catch(errorCallback);
 }
 
+function addImages(instrumentId, imageIds, successCallback, errorCallback) {
+    const imagesQuery = formImageIdsQuery(imageIds);
+    const url = `${availableUrl}/${instrumentId}/images?${imagesQuery}`;
+    axios.put(url).then(successCallback).catch(errorCallback);
+}
+
+function formImageIdsQuery(imageIds) {
+    let query = "";
+    for (let i = 0; i < imageIds.length; i++) {
+        const imageId = imageIds[i];
+
+        query += "imageIds=" + imageId + "&";
+    }
+
+    if (query.length > 0) {
+        query = query.substring(0, query.length - 1);
+    }
+
+    return query;
+}
+
 function clear() {
     availableInstruments.value = getDefaultState();
 }
@@ -50,5 +71,6 @@ export {
     fetchAvailableInstruments,
     fetchAvailableInstrument,
     addAvailableInstrument,
+    addImages,
     clear,
 };

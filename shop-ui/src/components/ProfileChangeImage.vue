@@ -40,7 +40,7 @@
 
 <script setup>
 import { ref, computed, inject } from "vue";
-import { uploadImage } from "@/store/image";
+import { uploadImages } from "@/store/image";
 import {
     profileState,
     fetchProfile,
@@ -78,7 +78,7 @@ const rules = {
 };
 
 function upload() {
-    const toUpload = images.value[0];
+    const toUpload = [...images.value];
 
     const successCallback = (response) => {
         const uploaded = response.data[0];
@@ -98,7 +98,7 @@ function upload() {
     };
 
     loading.value = true;
-    uploadImage(toUpload, successCallback, errorCallback);
+    uploadImages(toUpload, successCallback, errorCallback);
 }
 
 function deleteImage() {

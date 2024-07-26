@@ -1,5 +1,10 @@
 <template>
-    <InstrumentAddDialog v-model="dialog"> </InstrumentAddDialog>
+    <InstrumentAddDialog
+        v-model="dialog"
+        @instrument-added="resetPage"
+        @images-added="resetPage"
+    >
+    </InstrumentAddDialog>
 
     <v-row>
         <v-col cols="9">
@@ -120,7 +125,7 @@ function resetPage() {
 
     setTimeout(() => {
         isReseting.value = false;
-    }, 100);
+    }, 500);
 }
 
 const loading = ref(false);
@@ -131,7 +136,7 @@ function fetchInstruments() {
 
     setTimeout(() => {
         loading.value = false;
-    }, 100);
+    }, 500);
 }
 
 useIntersectionObserver(

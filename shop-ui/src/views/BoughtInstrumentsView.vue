@@ -109,7 +109,7 @@ function resetPage() {
 
     setTimeout(() => {
         isReseting.value = false;
-    }, 100);
+    }, 500);
 }
 
 const loading = ref(false);
@@ -120,7 +120,7 @@ function fetchInstruments() {
 
     setTimeout(() => {
         loading.value = false;
-    }, 100);
+    }, 500);
 }
 
 useIntersectionObserver(
