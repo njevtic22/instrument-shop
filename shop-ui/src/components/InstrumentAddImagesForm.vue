@@ -35,10 +35,12 @@
                 v-for="(image, index) in imagesPreview"
                 :key="index"
                 cols="12"
-                md="3"
+                sm="6"
+                md="4"
+                lg="3"
             >
                 <v-card class="card-image" flat>
-                    <v-img :src="image" aspect-ratio="1"></v-img>
+                    <v-img :src="image"></v-img>
                     <v-btn
                         icon
                         size="x-small"

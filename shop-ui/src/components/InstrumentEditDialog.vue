@@ -1,10 +1,5 @@
 <template>
-    <v-dialog
-        scrollable
-        v-model="dialog"
-        @afterLeave="closeDialog()"
-        width="50%"
-    >
+    <v-dialog v-model="dialog" @afterLeave="closeDialog()" width="50%">
         <v-card
             :disabled="loading"
             prepend-icon="mdi-pencil"
@@ -76,7 +71,20 @@
                         </div>
                     </v-tabs-window-item>
                     <v-tabs-window-item value="Delete images">
-                        Delete images
+                        <InstrumentDeleteImages
+                            v-model="images"
+                            ref="deleteImagesRef"
+                        >
+                        </InstrumentDeleteImages>
+                        <div class="text-center">
+                            <v-btn
+                                @click="deleteImages"
+                                class="ma-2"
+                                color="primary"
+                            >
+                                Delete marked
+                            </v-btn>
+                        </div>
                     </v-tabs-window-item>
                 </v-tabs-window>
             </v-card-text>
@@ -96,6 +104,7 @@ const props = defineProps(["instrument"]);
 
 const instrumentForm = ref(null);
 const imagesForm = ref(null);
+const deleteImagesRef = ref(null);
 
 const page = 0;
 const size = 2 ** 31 - 1;
@@ -136,10 +145,7 @@ const tab = ref("Data");
 watch(
     () => dialog.value,
     (newValue) => {
-        if (newValue) {
-            // Dialog is opened
-            resetEdit();
-        }
+        resetEdit();
     }
 );
 
@@ -155,6 +161,9 @@ function resetEdit() {
     instrumentToEdit.value.typeId = getTypeId(props.instrument.type);
 
     images.value = props.instrument.images;
+    deleteImagesRef.value?.reset();
+
+    imagesToAdd.value.length = 0;
 }
 
 function getTypeId(typeName) {
@@ -173,6 +182,19 @@ function updateData() {
 
 function updateImages() {
     console.log([...imagesToAdd.value]);
+}
+
+function deleteImages() {
+    let imagesToDelete = [];
+    for (let i = 0; i < images.value.length; i++) {
+        const image = images.value[i];
+
+        if (image.markedForDeletion) {
+            imagesToDelete.push(image.id);
+        }
+    }
+
+    console.log(imagesToDelete);
 }
 
 function closeDialog() {
