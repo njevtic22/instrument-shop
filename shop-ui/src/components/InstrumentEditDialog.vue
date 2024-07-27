@@ -81,7 +81,9 @@
                         </InstrumentDeleteImages>
                         <div class="text-center">
                             <v-btn
-                                @click="deleteImages"
+                                :disabled="!isMarked"
+                                :loading="loading"
+                                @click="deleteMarkedImages"
                                 class="ma-2"
                                 color="primary"
                             >
@@ -100,6 +102,7 @@ import { ref, defineModel, inject, watch, computed } from "vue";
 import { types, fetchTypes } from "@/store/instrumentType";
 import {
     addImages,
+    deleteImages,
     updateAvailableInstrument,
 } from "@/store/availableInstrument";
 import { uploadImages } from "@/store/image";
@@ -122,6 +125,10 @@ const isInstrumentFormValid = computed(() => {
 
 const isImagesFormValid = computed(() => {
     return Boolean(imagesForm.value?.isValid);
+});
+
+const isMarked = computed(() => {
+    return Boolean(deleteImagesRef.value?.isMarked);
 });
 
 const page = 0;
@@ -241,17 +248,34 @@ async function updateImages() {
     uploadImages(toUpload, successCallback, errorCallback);
 }
 
-function deleteImages() {
-    let imagesToDelete = [];
-    for (let i = 0; i < images.value.length; i++) {
-        const image = images.value[i];
+function deleteMarkedImages() {
+    loading.value = true;
 
-        if (image.markedForDeletion) {
-            imagesToDelete.push(image.id);
-        }
-    }
+    const deleteIds = images.value
+        .map((image) => {
+            if (image.markedForDeletion) {
+                return image.id;
+            }
+        })
+        .filter((id) => Boolean(id));
 
-    console.log(imagesToDelete);
+    const successCallback = () => {
+        emit("instrument-updated");
+        loading.value = false;
+        closeDialog();
+    };
+
+    const errorCallback = (error) => {
+        errorSnack(error);
+        loading.value = false;
+    };
+
+    deleteImages(
+        props.instrument.id,
+        deleteIds,
+        successCallback,
+        errorCallback
+    );
 }
 
 function closeDialog() {

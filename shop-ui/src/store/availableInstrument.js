@@ -52,6 +52,12 @@ function addImages(instrumentId, imageIds, successCallback, errorCallback) {
     axios.put(url).then(successCallback).catch(errorCallback);
 }
 
+function deleteImages(instrumentId, imageIds, successCallback, errorCallback) {
+    const imagesQuery = formImageIdsQuery(imageIds);
+    const url = `${availableUrl}/${instrumentId}/images?${imagesQuery}`;
+    axios.delete(url).then(successCallback).catch(errorCallback);
+}
+
 function formImageIdsQuery(imageIds) {
     let query = "";
     for (let i = 0; i < imageIds.length; i++) {
@@ -78,5 +84,6 @@ export {
     addAvailableInstrument,
     updateAvailableInstrument,
     addImages,
+    deleteImages,
     clear,
 };

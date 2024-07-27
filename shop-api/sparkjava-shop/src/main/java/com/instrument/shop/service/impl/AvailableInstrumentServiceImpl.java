@@ -22,10 +22,10 @@ import jakarta.inject.Singleton;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 @Singleton
 public class AvailableInstrumentServiceImpl implements AvailableInstrumentService {
@@ -158,20 +158,14 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
 
     @Override
     public void deleteImages(Long instrumentId, Long[] imageIds) {
+        Set<Long> idsSet = Set.of(imageIds);
+
         AvailableInstrument found = getById(instrumentId);
         List<Image> images = found.getImages();
-        HashMap<Long, Integer> indexes = new HashMap<>();
-        for (int i = 0; i < images.size(); i++) {
-            Image image = images.get(i);
-            indexes.put(image.getId(), i);
-        }
+        images.removeIf(image -> idsSet.contains(image.getId()));
 
         for (Long imageId : imageIds) {
-            Integer index = indexes.get(imageId);
-            if (index != null) {
-                images.remove(index.intValue());
-                imageService.delete(imageId);
-            }
+            imageService.delete(imageId);
         }
 
         repository.save(found);

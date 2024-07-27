@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { defineModel, defineExpose } from "vue";
+import { defineModel, defineExpose, computed } from "vue";
 
 const images = defineModel();
 
@@ -45,6 +45,10 @@ function toggleDelete(index) {
     images.value[index].reveal = !images.value[index].reveal;
 }
 
+const isMarked = computed(() => {
+    return images.value.some((image) => image.markedForDeletion);
+});
+
 function reset() {
     images.value.forEach((image) => {
         image.markedForDeletion = false;
@@ -53,6 +57,7 @@ function reset() {
 }
 
 defineExpose({
+    isMarked,
     reset,
 });
 </script>
