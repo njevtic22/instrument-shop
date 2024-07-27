@@ -2,6 +2,7 @@
     <InstrumentEditDialog
         v-model="dialog"
         :instrument="instrument"
+        @instrument-updated="fetchInstrument"
     ></InstrumentEditDialog>
 
     <v-card elevation="4">

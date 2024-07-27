@@ -95,12 +95,15 @@
 <script setup>
 import { ref, defineModel, inject, watch } from "vue";
 import { types, fetchTypes } from "@/store/instrumentType";
+import { updateAvailableInstrument } from "@/store/availableInstrument";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
 const dialog = defineModel();
 const props = defineProps(["instrument"]);
+
+const emit = defineEmits(["instrument-updated"]);
 
 const instrumentForm = ref(null);
 const imagesForm = ref(null);
@@ -177,7 +180,15 @@ function getTypeId(typeName) {
 }
 
 function updateData() {
-    console.log({ ...instrumentToEdit.value });
+    const changes = { ...instrumentToEdit.value };
+
+    const successCallback = () => {
+        snackbar("Instrument updated", 3000);
+        emit("instrument-updated");
+        closeDialog();
+    };
+
+    updateAvailableInstrument(changes, successCallback, errorSnack);
 }
 
 function updateImages() {

@@ -41,6 +41,11 @@ function addAvailableInstrument(newInstrument, successCallback, errorCallback) {
         .catch(errorCallback);
 }
 
+function updateAvailableInstrument(changes, successCallback, errorCallback) {
+    const url = `${availableUrl}/${changes.id}`;
+    axios.put(url, changes).then(successCallback).catch(errorCallback);
+}
+
 function addImages(instrumentId, imageIds, successCallback, errorCallback) {
     const imagesQuery = formImageIdsQuery(imageIds);
     const url = `${availableUrl}/${instrumentId}/images?${imagesQuery}`;
@@ -71,6 +76,7 @@ export {
     fetchAvailableInstruments,
     fetchAvailableInstrument,
     addAvailableInstrument,
+    updateAvailableInstrument,
     addImages,
     clear,
 };
