@@ -90,6 +90,7 @@ const imagesPreview = computed(() => {
 
 function removeImage(index) {
     images.value.splice(index, 1);
+    form.value.validate();
 }
 
 async function validate() {

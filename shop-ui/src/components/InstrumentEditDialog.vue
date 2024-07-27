@@ -46,6 +46,7 @@
                         ></InstrumentForm>
                         <div class="text-center">
                             <v-btn
+                                :disabled="!isInstrumentFormValid"
                                 @click="updateData"
                                 class="ma-2"
                                 color="primary"
@@ -62,6 +63,8 @@
                         </InstrumentAddImagesForm>
                         <div class="text-center">
                             <v-btn
+                                :disabled="!isImagesFormValid"
+                                :loading="loading"
                                 @click="updateImages"
                                 class="ma-2"
                                 color="primary"
@@ -93,9 +96,13 @@
 </template>
 
 <script setup>
-import { ref, defineModel, inject, watch } from "vue";
+import { ref, defineModel, inject, watch, computed } from "vue";
 import { types, fetchTypes } from "@/store/instrumentType";
-import { updateAvailableInstrument } from "@/store/availableInstrument";
+import {
+    addImages,
+    updateAvailableInstrument,
+} from "@/store/availableInstrument";
+import { uploadImages } from "@/store/image";
 
 const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
@@ -108,6 +115,14 @@ const emit = defineEmits(["instrument-updated"]);
 const instrumentForm = ref(null);
 const imagesForm = ref(null);
 const deleteImagesRef = ref(null);
+
+const isInstrumentFormValid = computed(() => {
+    return Boolean(instrumentForm.value?.isValid);
+});
+
+const isImagesFormValid = computed(() => {
+    return Boolean(imagesForm.value?.isValid);
+});
 
 const page = 0;
 const size = 2 ** 31 - 1;
@@ -167,6 +182,7 @@ function resetEdit() {
     deleteImagesRef.value?.reset();
 
     imagesToAdd.value.length = 0;
+    imagesForm.value?.reset();
 }
 
 function getTypeId(typeName) {
@@ -179,7 +195,12 @@ function getTypeId(typeName) {
     }
 }
 
-function updateData() {
+async function updateData() {
+    const valid = await instrumentForm.value.validate();
+    if (!valid) {
+        return;
+    }
+
     const changes = { ...instrumentToEdit.value };
 
     const successCallback = () => {
@@ -191,8 +212,33 @@ function updateData() {
     updateAvailableInstrument(changes, successCallback, errorSnack);
 }
 
-function updateImages() {
-    console.log([...imagesToAdd.value]);
+async function updateImages() {
+    const valid = await imagesForm.value.validate();
+    if (!valid) {
+        return;
+    }
+
+    loading.value = true;
+
+    const toUpload = [...imagesToAdd.value];
+
+    const successCallback = (response) => {
+        const imageIds = response.data.map((image) => image.id);
+
+        const successCallback2 = () => {
+            emit("instrument-updated");
+            loading.value = false;
+            closeDialog();
+        };
+
+        addImages(props.instrument.id, imageIds, successCallback2, errorSnack);
+    };
+
+    const errorCallback = (error) => {
+        errorSnack(error);
+        loading.value = false;
+    };
+    uploadImages(toUpload, successCallback, errorCallback);
 }
 
 function deleteImages() {
