@@ -2,6 +2,7 @@ package com.instrument.shop.dto.instrument;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public abstract class RequestInstrumentDto {
@@ -20,7 +21,7 @@ public abstract class RequestInstrumentDto {
     @Positive(message = "Price must be positive float")
     private final float price;
 
-    @Positive(message = "Quantity must be positive int")
+    @PositiveOrZero(message = "Quantity must be positive int or zero")
     private final int quantity;
 
     @Positive(message = "Type id must be positive long")

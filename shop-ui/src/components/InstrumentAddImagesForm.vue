@@ -56,7 +56,7 @@
 </template>
 
 <script setup>
-import { ref, defineModel, computed, defineExpose } from "vue";
+import { ref, defineModel, computed } from "vue";
 
 const images = defineModel();
 const form = ref(null);

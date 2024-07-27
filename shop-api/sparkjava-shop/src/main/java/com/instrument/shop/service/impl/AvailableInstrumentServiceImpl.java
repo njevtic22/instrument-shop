@@ -105,7 +105,16 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
                 existing.getPotentialCustomers()
         );
 
-        return repository.save(updated);
+        AvailableInstrument saved = repository.save(updated);
+        if (updated.getQuantity() == 0) {
+            // Is there better way?
+            for (User customer : saved.getPotentialCustomers()) {
+                customer.getCart().remove(saved);
+                userRepository.save(customer);
+            }
+        }
+
+        return saved;
     }
 
     @Override

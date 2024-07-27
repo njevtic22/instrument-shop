@@ -34,7 +34,7 @@
 </template>
 
 <script setup>
-import { defineModel, defineExpose, computed } from "vue";
+import { defineModel, computed } from "vue";
 
 const images = defineModel();
 
