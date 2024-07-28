@@ -28,8 +28,13 @@
                                 <strong>Mark:</strong> {{ instrument.mark }}
                             </div>
                             <div v-if="isAvailable()" class="data-font-size">
-                                <strong>Available:</strong>
-                                {{ instrument.quantity }}
+                                <div v-if="instrument.quantity > 0">
+                                    <strong>Available:</strong>
+                                    {{ instrument.quantity }}
+                                </div>
+                                <div v-else>
+                                    <strong>Not available</strong>
+                                </div>
                             </div>
                             <div
                                 v-if="isCustomer() && isBought()"
@@ -43,8 +48,9 @@
                                 <strong>Purchased:</strong>
                                 {{ formatDateTime(instrument.purchased) }}
                             </div>
+
                             <v-btn
-                                v-if="showButton()"
+                                v-if="isSalesman() && isAvailable()"
                                 @click="dialog = true"
                                 color="primary"
                                 block
@@ -52,7 +58,7 @@
                                 Edit instrument
                             </v-btn>
                             <v-btn
-                                v-if="showButton()"
+                                v-if="isSalesman() && isAvailable()"
                                 @click="openConfirmDialog"
                                 class="mt-2"
                                 variant="outlined"
@@ -60,6 +66,19 @@
                                 block
                             >
                                 Delete instrument
+                            </v-btn>
+
+                            <v-btn
+                                v-if="
+                                    isCustomer() &&
+                                    isAvailable() &&
+                                    instrument.quantity > 0
+                                "
+                                @click="addInstrumentToCart"
+                                color="primary"
+                                block
+                            >
+                                Add to cart
                             </v-btn>
                         </v-card-text>
                     </div>
@@ -97,6 +116,7 @@ import {
     fetchAvailableInstrument,
 } from "@/store/availableInstrument";
 import { fetchBoughtInstrument } from "@/store/boughtInstrument";
+import { addToCart } from "@/store/cart";
 import { formatDateTime } from "@/util/date";
 
 const route = useRoute();
@@ -142,10 +162,6 @@ const images = computed(() => {
     return instrument.value.images;
 });
 
-function showButton() {
-    return isSalesman() && isAvailable();
-}
-
 function fetchInstrument() {
     if (route.query.type === "available") {
         fetchA();
@@ -181,6 +197,13 @@ function fetchB() {
         router.push(path);
     };
     fetchBoughtInstrument(route.params.id, successCallback, errorCallback);
+}
+
+function addInstrumentToCart() {
+    const successCallback = () => {
+        snackbar("Instrument added to cart", 3000);
+    };
+    addToCart(instrument.value.id, successCallback, errorSnack);
 }
 
 async function openConfirmDialog() {
