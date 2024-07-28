@@ -198,6 +198,10 @@ public class AvailableInstrumentServiceImpl implements AvailableInstrumentServic
             throw new CartException("Requested instrument does not exist");
         }
 
+        if (found.getQuantity() == 0) {
+            throw new CartException("Requested instrument is not available in store");
+        }
+
         if (repository.isInCart(customer.getId(), found.getId())) {
             return;
         }
