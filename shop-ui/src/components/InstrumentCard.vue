@@ -84,9 +84,13 @@ const images = computed(() => {
 });
 
 function redirect(instrumentId) {
+    let type =
+        isAvailable() || props.instrument.quantity === 0
+            ? "available"
+            : "bought";
     router.push({
         path: `/instruments/${instrumentId}`,
-        query: { type: isAvailable() ? "available" : "bought" },
+        query: { type },
     });
 }
 
