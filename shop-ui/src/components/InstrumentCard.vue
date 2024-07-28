@@ -22,29 +22,53 @@
         </v-card-item>
 
         <v-card-text>
-            <!-- Id {{ instrument.id }}
-                            <br /> -->
-            <div v-if="isAvailable()">Available: {{ instrument.quantity }}</div>
-            <div v-if="isCustomer() && isBought()">
-                Owned: {{ instrument.owned }}
-            </div>
-            Code: {{ instrument.code }}
-            <br />
-            <div v-if="isBought()">
-                Purchased: {{ formatDateTime(instrument.purchased) }}
-            </div>
+            <v-row>
+                <v-col>
+                    <div v-if="isAvailable()">
+                        Available: {{ instrument.quantity }}
+                    </div>
+                    <div v-else>Not available</div>
+
+                    <div v-if="isCustomer() && isBought()">
+                        Owned: {{ instrument.owned }}
+                    </div>
+                    Code: {{ instrument.code }}
+                    <br />
+                    <div v-if="isBought()">
+                        Purchased: {{ formatDateTime(instrument.purchased) }}
+                    </div>
+                </v-col>
+                <div
+                    v-if="isCustomer() && isAvailable()"
+                    class="d-flex align-end"
+                >
+                    <v-btn
+                        @click="addInstrumentToCart($event, instrument)"
+                        color="primary"
+                        class="ma-2"
+                        icon
+                    >
+                        <v-tooltip activator="parent" location="top">
+                            Add to cart
+                        </v-tooltip>
+                        <v-icon>mdi-cart-arrow-down</v-icon>
+                    </v-btn>
+                </div>
+            </v-row>
         </v-card-text>
     </v-card>
 </template>
 
 <script setup>
-import { computed } from "vue";
+import { computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import { isCustomer } from "@/store/auth";
 import { formatDateTime } from "@/util/date";
+import { addToCart } from "@/store/cart";
 
+const snackbar = inject("snackbar");
+const errorSnack = inject("defaultErrorSnackbar");
 const router = useRouter();
-
 const props = defineProps(["instrument"]);
 
 const images = computed(() => {
@@ -64,6 +88,15 @@ function redirect(instrumentId) {
         path: `/instruments/${instrumentId}`,
         query: { type: isAvailable() ? "available" : "bought" },
     });
+}
+
+function addInstrumentToCart(event, instrument) {
+    event.stopPropagation();
+
+    const successCallback = () => {
+        snackbar("Instrument added to cart", 3000);
+    };
+    addToCart(instrument.id, successCallback, errorSnack);
 }
 
 function handleClick(event) {
