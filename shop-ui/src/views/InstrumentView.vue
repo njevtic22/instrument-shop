@@ -163,14 +163,24 @@ function fetchA() {
     const successCallback = (response) => {
         instrument.value = response.data;
     };
-    fetchAvailableInstrument(route.params.id, successCallback, errorSnack);
+    const errorCallback = (error) => {
+        errorSnack(error);
+        let path = error.response.status === 404 ? "/not-found" : "/";
+        router.push(path);
+    };
+    fetchAvailableInstrument(route.params.id, successCallback, errorCallback);
 }
 
 function fetchB() {
     const successCallback = (response) => {
         instrument.value = response.data;
     };
-    fetchBoughtInstrument(route.params.id, successCallback, errorSnack);
+    const errorCallback = (error) => {
+        errorSnack(error);
+        let path = error.response.status === 404 ? "/not-found" : "/";
+        router.push(path);
+    };
+    fetchBoughtInstrument(route.params.id, successCallback, errorCallback);
 }
 
 async function openConfirmDialog() {
