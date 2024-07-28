@@ -5,6 +5,8 @@
         @instrument-updated="fetchInstrument"
     ></InstrumentEditDialog>
 
+    <ConfirmationDialog width="30%" ref="confirm"></ConfirmationDialog>
+
     <v-card elevation="4">
         <v-row>
             <v-col cols="3">
@@ -45,8 +47,19 @@
                                 v-if="showButton()"
                                 @click="dialog = true"
                                 color="primary"
+                                block
                             >
                                 Edit instrument
+                            </v-btn>
+                            <v-btn
+                                v-if="showButton()"
+                                @click="openConfirmDialog"
+                                class="mt-2"
+                                variant="outlined"
+                                color="primary"
+                                block
+                            >
+                                Delete instrument
                             </v-btn>
                         </v-card-text>
                     </div>
@@ -77,18 +90,24 @@
 
 <script setup>
 import { inject, ref, computed } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { isCustomer, isSalesman } from "@/store/auth";
-import { fetchAvailableInstrument } from "@/store/availableInstrument";
+import {
+    deleteAvailableInstrument,
+    fetchAvailableInstrument,
+} from "@/store/availableInstrument";
 import { fetchBoughtInstrument } from "@/store/boughtInstrument";
 import { formatDateTime } from "@/util/date";
 
 const route = useRoute();
+const router = useRouter();
+const snackbar = inject("snackbar");
 const errorSnack = inject("defaultErrorSnackbar");
 
 const height = ref("450px");
 
 const dialog = ref(false);
+const confirm = ref(null);
 
 const instrument = ref({
     id: -1,
@@ -152,6 +171,27 @@ function fetchB() {
         instrument.value = response.data;
     };
     fetchBoughtInstrument(route.params.id, successCallback, errorSnack);
+}
+
+async function openConfirmDialog() {
+    const confirmed = await confirm.value.open(
+        "Are you sure you want to permanently delete instrument with name " +
+            instrument.value.name +
+            "?",
+        "Delete instrument"
+    );
+
+    if (confirmed) {
+        const successCallback = () => {
+            snackbar("Instrument deleted", 3 * 1000);
+            router.push("/");
+        };
+        deleteAvailableInstrument(
+            instrument.value.id,
+            successCallback,
+            errorSnack
+        );
+    }
 }
 
 function isBought() {
