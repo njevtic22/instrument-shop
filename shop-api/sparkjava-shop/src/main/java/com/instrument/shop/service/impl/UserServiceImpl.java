@@ -16,6 +16,7 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -158,6 +159,11 @@ public class UserServiceImpl implements UserService {
     public User clearCart(User customer) {
         customer.getCart().clear();
         return repository.save(customer);
+    }
+
+    @Override
+    public List<User> saveAll(Iterable<User> users) {
+        return repository.saveAll(users);
     }
 
     private void validatePasswordMatch(User existingUser, String oldPassword, String newPassword, String repeatedPassword) {
