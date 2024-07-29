@@ -27,7 +27,9 @@
                     <div v-if="isAvailable()">
                         Available: {{ instrument.quantity }}
                     </div>
-                    <div v-else>Not available</div>
+                    <div v-else-if="instrument.quantity === 0">
+                        Not available
+                    </div>
 
                     <div v-if="isCustomer() && isBought()">
                         Owned: {{ instrument.owned }}
