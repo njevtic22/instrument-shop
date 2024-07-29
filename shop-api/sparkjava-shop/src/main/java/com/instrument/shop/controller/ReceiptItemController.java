@@ -39,7 +39,7 @@ public class ReceiptItemController {
     public PaginatedResponse<ReceiptItemViewDto> getAll(
             @PathParam("receiptId") Long receiptId,
             @QueryParamValues(value = "filter", required = false) String[] filterParams,
-            @QueryParamValues(value = "sort", required = false) String[] sortStr,
+            @QueryParamValues(value = "sort", defaultValue = {"id,asc"}) String[] sortStr,
             @QueryParam(value = "page", defaultValue = "0") int page,
             @QueryParam(value = "size", defaultValue = "20") int size
     ) {
