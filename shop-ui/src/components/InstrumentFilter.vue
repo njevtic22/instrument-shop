@@ -28,6 +28,7 @@
                     v-model="filterData.purchasedStart"
                     label="Purchased from"
                     bgColor="white"
+                    hideDetails
                 >
                 </CustomDateInput>
             </v-col>
@@ -37,6 +38,7 @@
                     v-model="filterData.purchasedEnd"
                     label="Purchased to"
                     bgColor="white"
+                    hideDetails
                 >
                 </CustomDateInput>
             </v-col>
@@ -50,6 +52,7 @@
                     label="Minimum price"
                     bg-color="white"
                     type="number"
+                    hideDetails
                 ></v-text-field>
             </v-col>
             <v-col>
@@ -59,6 +62,7 @@
                     label="Maxim price"
                     bg-color="white"
                     type="number"
+                    hideDetails
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -287,13 +291,16 @@ function updateSortItems(selected) {
 
 function applyFilter() {
     let filter = { ...filterData.value };
-    filter.purchasedStart = filter.purchasedStart
-        ? toEpochMilli(filter.purchasedStart)
-        : null;
 
-    filter.purchasedEnd = filter.purchasedEnd
-        ? toEpochMilli(filter.purchasedEnd)
-        : null;
+    if (filter.purchasedStart) {
+        filter.purchasedStart.setHours(0, 0, 1);
+        filter.purchasedStart = toEpochMilli(filter.purchasedStart);
+    }
+
+    if (filter.purchasedEnd) {
+        filter.purchasedEnd.setHours(23, 59, 59);
+        filter.purchasedEnd = toEpochMilli(filter.purchasedEnd);
+    }
 
     let sortFilter = {
         filter: filter,

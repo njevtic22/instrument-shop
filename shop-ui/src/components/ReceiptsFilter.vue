@@ -99,6 +99,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { toEpochMilli } from "@/util/date";
 
 const emit = defineEmits(["filter"]);
 
@@ -125,7 +126,19 @@ function validateDigit(event) {
 }
 
 function emitFilter() {
-    emit("filter", { ...filter.value });
+    let newFilter = { ...filter.value };
+
+    if (newFilter.issuedAtStart) {
+        newFilter.issuedAtStart.setHours(0, 0, 1);
+        newFilter.issuedAtStart = toEpochMilli(newFilter.issuedAtStart);
+    }
+
+    if (newFilter.issuedAtEnd) {
+        newFilter.issuedAtEnd.setHours(23, 59, 59);
+        newFilter.issuedAtEnd = toEpochMilli(newFilter.issuedAtEnd);
+    }
+
+    emit("filter", newFilter);
 }
 </script>
 

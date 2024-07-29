@@ -34,7 +34,7 @@
 import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import { receipts, fetchReceipts, fetchProfit } from "@/store/receipt";
-import { formatDateTime, toEpochMilli } from "@/util/date";
+import { formatDateTime } from "@/util/date";
 
 const router = useRouter();
 
@@ -103,13 +103,6 @@ const sizeOptions = [
 ];
 
 function filter(newFilter) {
-    newFilter.issuedAtStart = newFilter.issuedAtStart
-        ? toEpochMilli(newFilter.issuedAtStart)
-        : null;
-    newFilter.issuedAtEnd = newFilter.issuedAtEnd
-        ? toEpochMilli(newFilter.issuedAtEnd)
-        : null;
-
     filterData = newFilter;
     loadProfit();
     loadReceipts();
