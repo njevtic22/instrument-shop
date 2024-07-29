@@ -24,97 +24,21 @@
 
         <v-row v-if="mode === Modes.BOUGHT">
             <v-col>
-                <v-menu v-model="menu1" :close-on-content-click="false">
-                    <template v-slot:activator="{ props }">
-                        <v-text-field
-                            v-model="formattedStart"
-                            v-bind="props"
-                            label="Purchased from"
-                            bg-color="white"
-                            readonly
-                            clearable
-                        ></v-text-field>
-                    </template>
-                    <v-date-picker
-                        v-model="picker.start"
-                        :firstDayOfWeek="1"
-                        hide-header
-                    >
-                        <template v-slot:actions>
-                            <v-btn
-                                :disabled="
-                                    picker.start === filterData.purchasedStart
-                                "
-                                @click="
-                                    picker.start = filterData.purchasedStart
-                                "
-                                style="margin-top: -40px"
-                                variant="text"
-                            >
-                                Cancel
-                            </v-btn>
-                            <v-btn
-                                :disabled="
-                                    picker.start === filterData.purchasedStart
-                                "
-                                @click="
-                                    filterData.purchasedStart = picker.start;
-                                    menu1 = false;
-                                "
-                                style="margin-top: -40px"
-                                variant="text"
-                            >
-                                Ok
-                            </v-btn>
-                        </template>
-                    </v-date-picker>
-                </v-menu>
+                <CustomDateInput
+                    v-model="filterData.purchasedStart"
+                    label="Purchased from"
+                    bgColor="white"
+                >
+                </CustomDateInput>
             </v-col>
 
             <v-col>
-                <v-menu v-model="menu2" :close-on-content-click="false">
-                    <template v-slot:activator="{ props }">
-                        <v-text-field
-                            v-model="formattedEnd"
-                            v-bind="props"
-                            label="Purchased to"
-                            bg-color="white"
-                            readonly
-                            clearable
-                        ></v-text-field>
-                    </template>
-                    <v-date-picker
-                        v-model="picker.end"
-                        :firstDayOfWeek="1"
-                        hide-header
-                    >
-                        <template v-slot:actions>
-                            <v-btn
-                                :disabled="
-                                    picker.end === filterData.purchasedEnd
-                                "
-                                @click="picker.end = filterData.purchasedEnd"
-                                style="margin-top: -40px"
-                                variant="text"
-                            >
-                                Cancel
-                            </v-btn>
-                            <v-btn
-                                :disabled="
-                                    picker.end === filterData.purchasedEnd
-                                "
-                                @click="
-                                    filterData.purchasedEnd = picker.end;
-                                    menu2 = false;
-                                "
-                                style="margin-top: -40px"
-                                variant="text"
-                            >
-                                Ok
-                            </v-btn>
-                        </template>
-                    </v-date-picker>
-                </v-menu>
+                <CustomDateInput
+                    v-model="filterData.purchasedEnd"
+                    label="Purchased to"
+                    bgColor="white"
+                >
+                </CustomDateInput>
             </v-col>
         </v-row>
 
@@ -180,38 +104,6 @@ import { ref, computed } from "vue";
 import { toEpochMilli } from "@/util/date";
 
 const emit = defineEmits(["filter", "clear"]);
-
-const menu1 = ref(false);
-const menu2 = ref(false);
-
-const picker = ref({
-    start: null,
-    end: null,
-});
-
-const formattedStart = computed({
-    get() {
-        return picker.value.start
-            ? new Date(picker.value.start).toLocaleDateString("sr-RS")
-            : "";
-    },
-    set(newValue) {
-        picker.value.start = newValue;
-        filterData.value.purchasedStart = newValue;
-    },
-});
-
-const formattedEnd = computed({
-    get() {
-        return picker.value.end
-            ? new Date(picker.value.end).toLocaleDateString("sr-RS")
-            : "";
-    },
-    set(newValue) {
-        picker.value.end = newValue;
-        filterData.value.purchasedEnd = newValue;
-    },
-});
 
 const filterData = ref({
     name: "",
@@ -412,12 +304,6 @@ function applyFilter() {
 }
 
 function clearFilter() {
-    menu1.value = false;
-    menu2.value = false;
-
-    picker.value.start = null;
-    picker.value.end = null;
-
     filterData.value.name = "";
     filterData.value.type = "";
     filterData.value.mark = "";
