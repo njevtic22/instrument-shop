@@ -1,5 +1,6 @@
 package com.instrument.shop.mapper;
 
+import com.instrument.shop.dto.cart.CartItemViewDto;
 import com.instrument.shop.dto.image.ImageViewDto;
 import com.instrument.shop.dto.instrument.AddInstrumentDto;
 import com.instrument.shop.dto.instrument.AvailableViewDto;
@@ -67,6 +68,23 @@ public class InstrumentMapper {
                 imagesDto,
                 instrument.getType().getName(),
                 instrument.getQuantity()
+        );
+    }
+
+    public CartItemViewDto toCartItemViewDto(AvailableInstrument instrument) {
+        List<ImageViewDto> imagesDto = getImageDto(instrument.getImages());
+
+        return new CartItemViewDto(
+                instrument.getId(),
+                instrument.getCode(),
+                instrument.getName(),
+                instrument.getMark(),
+                instrument.getDescription(),
+                instrument.getPrice(),
+                imagesDto,
+                instrument.getType().getName(),
+                instrument.getQuantity(),
+                1
         );
     }
 

@@ -1,12 +1,21 @@
 <template>
+    <InstrumentAddDialog
+        v-model="dialog"
+        @instrument-added="resetPage"
+        @images-added="resetPage"
+    >
+    </InstrumentAddDialog>
+
     <v-row>
         <v-col cols="9">
+            <div v-if="isSalesman()" class="text-right pb-4">
+                <v-btn @click="dialog = true" color="primary">
+                    Add Instrument
+                </v-btn>
+            </div>
+
             <v-row
-                v-if="
-                    availableInstruments.data.length === 0 &&
-                    !isReseting &&
-                    page >= 0
-                "
+                v-if="availableInstruments.data.length === 0 && !loading"
                 class="mx-auto w-25"
             >
                 <v-col>
@@ -47,9 +56,12 @@ import {
     fetchAvailableInstruments,
     clear,
 } from "@/store/availableInstrument";
+import { isSalesman } from "@/store/auth";
 import { useIntersectionObserver } from "@vueuse/core";
 
 const errorSnack = inject("defaultErrorSnackbar");
+
+const dialog = ref(false);
 
 const instrumentFilter = ref(null);
 
@@ -79,7 +91,7 @@ function loadMoreInstruments() {
         return;
     }
 
-    fetchAvailableInstruments(page, size, sort, filter, errorSnack);
+    fetchInstruments();
 }
 
 function applyFilter(sortFilter) {
@@ -109,11 +121,22 @@ function resetPage() {
 
     page = 0;
     clear();
-    fetchAvailableInstruments(page, size, sort, filter, errorSnack);
+    fetchInstruments();
 
     setTimeout(() => {
         isReseting.value = false;
-    }, 100);
+    }, 500);
+}
+
+const loading = ref(false);
+
+function fetchInstruments() {
+    loading.value = true;
+    fetchAvailableInstruments(page, size, sort, filter, errorSnack);
+
+    setTimeout(() => {
+        loading.value = false;
+    }, 500);
 }
 
 useIntersectionObserver(

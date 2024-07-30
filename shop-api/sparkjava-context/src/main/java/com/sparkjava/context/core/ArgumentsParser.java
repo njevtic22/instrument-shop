@@ -148,7 +148,7 @@ public abstract class ArgumentsParser {
 
         Object[] parsedQueries = getArray(paramType, queryValues.length);
         for (int i = 0; i < queryValues.length; i++) {
-            parsedQueries[i] = parser.parse(queryValues[i].strip(), paramType.componentType());
+            parsedQueries[i] = parser.parse(queryValues[i].trim(), paramType.getComponentType());
         }
 
         Object finalQueries = parsedQueries;
@@ -176,7 +176,7 @@ public abstract class ArgumentsParser {
 
     private Object parseRequestBody(RequestBody rb, Request request, Class<?> paramType, boolean validateBody) throws Exception {
         String body = request.body();
-        if (body.isBlank() && rb.required()) {
+        if (body.trim().isEmpty() && rb.required()) {
             throw new BadRequestException(new IllegalArgumentException("Required request body is not present"));
         }
 
@@ -230,7 +230,7 @@ public abstract class ArgumentsParser {
             return allParts;
         }
 
-        HashSet<String> requiredParts = new HashSet<>(List.of(mpv.value()));
+        HashSet<String> requiredParts = new HashSet<>(Arrays.asList(mpv.value()));
         ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
 
         if (filteredParts.isEmpty() && mpv.requiredNonEmpty()) {
@@ -265,7 +265,7 @@ public abstract class ArgumentsParser {
             return readPartAsText(mptv, allParts);
         }
 
-        HashSet<String> requiredParts = new HashSet<>(List.of(mptv.value()));
+        HashSet<String> requiredParts = new HashSet<>(Arrays.asList(mptv.value()));
         ArrayList<Part> filteredParts = allParts.stream().filter(part -> requiredParts.contains(part.getName())).collect(Collectors.toCollection(ArrayList::new));
 
         return readPartAsText(mptv, filteredParts);

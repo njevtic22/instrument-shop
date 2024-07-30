@@ -44,24 +44,25 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class SparkJavaContext {
     private final Logger logger = LoggerFactory.getLogger(SparkJavaContext.class.getName());
 
-    private final Set<Class<? extends Annotation>> endpointMappings = Set.of(
+    private final Set<Class<? extends Annotation>> endpointMappings = Stream.of(
             GetMapping.class,
             PostMapping.class,
             PutMapping.class,
             DeleteMapping.class,
             OptionsMapping.class
-    );
+    ).collect(Collectors.toSet());
 
-    private final Set<Class<? extends Annotation>> filterMappings = Set.of(
+    private final Set<Class<? extends Annotation>> filterMappings = Stream.of(
             AfterMapping.class,
             AfterAfterMapping.class,
             BeforeMapping.class
-    );
+    ).collect(Collectors.toSet());
 
     private final AnnotationFinder annotationFinder = new AnnotationFinder();
 
@@ -106,7 +107,7 @@ public class SparkJavaContext {
             Class<?> controllerClass = controller.getClass();
 
             Optional<RequestMapping> controllerMapping = annotationFinder.findOnClass(controllerClass, RequestMapping.class);
-            if (controllerMapping.isEmpty()) {
+            if (!controllerMapping.isPresent()) {
                 throw new MissingAnnotationException(RequestMapping.class.getSimpleName(), controllerClass.getSimpleName());
             }
 
@@ -131,65 +132,65 @@ public class SparkJavaContext {
     private void mapRouteToMethod(Object controller, RequestMapping controllerMapping, Method mappedMethod, Annotation endpointMapping) {
         String sparkMethodName = null;
         String methodPath = null;
-        String consumes = !controllerMapping.consumes().isBlank() ? controllerMapping.consumes() : contentType;
-        String produces = !controllerMapping.produces().isBlank() ? controllerMapping.produces() : contentType;
+        String consumes = !controllerMapping.consumes().trim().isEmpty() ? controllerMapping.consumes() : contentType;
+        String produces = !controllerMapping.produces().trim().isEmpty() ? controllerMapping.produces() : contentType;
 
         switch (endpointMapping.annotationType().getSimpleName()) {
-            case "GetMapping" -> {
+            case "GetMapping":
                 GetMapping getMapping = (GetMapping) endpointMapping;
                 methodPath = controllerMapping.value() + getMapping.value();
                 sparkMethodName = "get";
-                if (!getMapping.consumes().isBlank()) {
+                if (!getMapping.consumes().trim().isEmpty()) {
                     consumes = getMapping.consumes();
                 }
-                if (!getMapping.produces().isBlank()) {
+                if (!getMapping.produces().trim().isEmpty()) {
                     produces = getMapping.produces();
                 }
-            }
-            case "PostMapping" -> {
+            break;
+            case "PostMapping":
                 PostMapping postMapping = (PostMapping) endpointMapping;
                 methodPath = controllerMapping.value() + postMapping.value();
                 sparkMethodName = "post";
-                if (!postMapping.consumes().isBlank()) {
+                if (!postMapping.consumes().trim().isEmpty()) {
                     consumes = postMapping.consumes();
                 }
-                if (!postMapping.produces().isBlank()) {
+                if (!postMapping.produces().trim().isEmpty()) {
                     produces = postMapping.produces();
                 }
-            }
-            case "PutMapping" -> {
+            break;
+            case "PutMapping":
                 PutMapping putMapping = (PutMapping) endpointMapping;
                 methodPath = controllerMapping.value() + putMapping.value();
                 sparkMethodName = "put";
-                if (!putMapping.consumes().isBlank()) {
+                if (!putMapping.consumes().trim().isEmpty()) {
                     consumes = putMapping.consumes();
                 }
-                if (!putMapping.produces().isBlank()) {
+                if (!putMapping.produces().trim().isEmpty()) {
                     produces = putMapping.produces();
                 }
-            }
-            case "DeleteMapping" -> {
+            break;
+            case "DeleteMapping":
                 DeleteMapping deleteMapping = (DeleteMapping) endpointMapping;
                 methodPath = controllerMapping.value() + deleteMapping.value();
                 sparkMethodName = "delete";
-                if (!deleteMapping.consumes().isBlank()) {
+                if (!deleteMapping.consumes().trim().isEmpty()) {
                     consumes = deleteMapping.consumes();
                 }
-                if (!deleteMapping.produces().isBlank()) {
+                if (!deleteMapping.produces().trim().isEmpty()) {
                     produces = deleteMapping.produces();
                 }
-            }
-            case "OptionsMapping" -> {
+            break;
+            case "OptionsMapping":
                 OptionsMapping optionsMapping = (OptionsMapping) endpointMapping;
                 methodPath = controllerMapping.value() + optionsMapping.value();
                 sparkMethodName = "options";
-                if (!optionsMapping.consumes().isBlank()) {
+                if (!optionsMapping.consumes().trim().isEmpty()) {
                     consumes = optionsMapping.consumes();
                 }
-                if (!optionsMapping.produces().isBlank()) {
+                if (!optionsMapping.produces().trim().isEmpty()) {
                     produces = optionsMapping.produces();
                 }
-            }
+            break;
         }
 
         int status = Optional.ofNullable(mappedMethod.getAnnotation(ResponseStatus.class))
@@ -213,21 +214,21 @@ public class SparkJavaContext {
         String methodPath = null;
 
         switch (filterMapping.annotationType().getSimpleName()) {
-            case "BeforeMapping" -> {
+            case "BeforeMapping":
                 BeforeMapping beforeMapping = (BeforeMapping) filterMapping;
                 methodPath = controllerMapping.value() + beforeMapping.value();
                 sparkMethodName = "before";
-            }
-            case "AfterMapping" -> {
+            break;
+            case "AfterMapping":
                 AfterMapping afterMapping = (AfterMapping) filterMapping;
                 methodPath = controllerMapping.value() + afterMapping.value();
                 sparkMethodName = "after";
-            }
-            case "AfterAfterMapping" -> {
+            break;
+            case "AfterAfterMapping":
                 AfterAfterMapping afterAfterMapping = (AfterAfterMapping) filterMapping;
                 methodPath = controllerMapping.value() + afterAfterMapping.value();
                 sparkMethodName = "afterAfter";
-            }
+            break;
         }
 
         Filter filter = new ContextFilter(mappedMethod, controller, reqTransformer, validator, authenticator);
@@ -251,7 +252,7 @@ public class SparkJavaContext {
 
         Class<?> handlerClass = objectHandler.getClass();
         Optional<ExceptionHandler> exceptionMapping = annotationFinder.findOnClass(handlerClass, ExceptionHandler.class);
-        if (exceptionMapping.isEmpty()) {
+        if (!exceptionMapping.isPresent()) {
             throw new MissingAnnotationException(ExceptionHandler.class.getSimpleName(), handlerClass.getSimpleName());
         }
 
@@ -266,8 +267,8 @@ public class SparkJavaContext {
     }
 
     private void mapHandlerToMethod(Class<?> objectHandlerClass, Object objectHandler, ExceptionHandler exceptionMapping, Method methodHandler, Exceptions exceptions) {
-        String produces = !exceptionMapping.produces().isBlank() ? exceptionMapping.produces() : contentType;
-        if (!exceptions.produces().isBlank()) {
+        String produces = !exceptionMapping.produces().trim().isEmpty() ? exceptionMapping.produces() : contentType;
+        if (!exceptions.produces().trim().isEmpty()) {
             produces = exceptions.produces();
         }
 
@@ -323,13 +324,13 @@ public class SparkJavaContext {
     private List<String> getParameterTypeNames(Method method) {
         return Stream.of(method.getParameterTypes())
                 .map(Class::getSimpleName)
-                .toList();
+                .collect(Collectors.toList());
     }
 
     private String exceptionsToString(Class<? extends Exception>[] exceptions) {
         List<String> exceptionsList = Stream.of(exceptions)
                 .map(e -> e.getSimpleName() + ".class")
-                .toList();
+                .collect(Collectors.toList());
 
         return "@Exceptions({\n\t" + String.join(",\n\t", exceptionsList) + "\n})";
     }

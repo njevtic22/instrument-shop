@@ -87,6 +87,16 @@ const items = ref([
         },
     },
     {
+        name: "Cart",
+        icon: "mdi-cart",
+        redirect() {
+            router.push("/cart");
+        },
+        getActive() {
+            return currentRole.value === Role.CUSTOMER;
+        },
+    },
+    {
         name: "Instrument types",
         icon: "mdi-guitar-pick",
         redirect() {

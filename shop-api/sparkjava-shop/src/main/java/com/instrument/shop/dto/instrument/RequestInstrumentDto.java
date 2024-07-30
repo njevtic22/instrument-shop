@@ -2,6 +2,7 @@ package com.instrument.shop.dto.instrument;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public abstract class RequestInstrumentDto {
@@ -14,13 +15,13 @@ public abstract class RequestInstrumentDto {
     @NotBlank(message = "Mark must not be blank")
     private final String mark;
 
-    @Size(min = 1, max = 1000, message = "Description must be between 1 and 1000 characters long")
+    @Size(min = 1, max = 2000, message = "Description must be between 1 and 1000 characters long")
     private final String description;
 
     @Positive(message = "Price must be positive float")
     private final float price;
 
-    @Positive(message = "Quantity must be positive int")
+    @PositiveOrZero(message = "Quantity must be positive int or zero")
     private final int quantity;
 
     @Positive(message = "Type id must be positive long")

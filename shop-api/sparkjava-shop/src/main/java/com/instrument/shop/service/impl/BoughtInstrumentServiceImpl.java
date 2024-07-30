@@ -61,6 +61,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
         ArrayList<ReceiptItem> items = new ArrayList<>(cart.size());
         ArrayList<BoughtInstrument> boughtInstruments = new ArrayList<>(cart.size());
         ArrayList<AvailableInstrument> changedAvailables = new ArrayList<>(cart.size());
+        ArrayList<User> potentialCustomers = new ArrayList<>(10);
 
         LocalDateTime now = LocalDateTime.now();
         float totalPrice = 0;
@@ -94,6 +95,18 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
                     null
             );
             items.add(item);
+
+            if (available.getQuantity() == 0) {
+                for (User potentialCustomer : available.getPotentialCustomers()) {
+                    if (potentialCustomer.equals(customer)) {
+                        continue;
+                    }
+                    boolean removed = potentialCustomer.getCart().remove(available);
+                    if (removed) {
+                        potentialCustomers.add(potentialCustomer);
+                    }
+                }
+            }
         }
 
         if (totalPrice >= paid) {
@@ -118,6 +131,7 @@ public class BoughtInstrumentServiceImpl implements BoughtInstrumentService {
                 .toList();
 
         userService.clearCart(customer);
+        userService.saveAll(potentialCustomers);
         imageService.saveAll(images);
         repository.saveAll(boughtInstruments);
         availableService.saveAll(changedAvailables);

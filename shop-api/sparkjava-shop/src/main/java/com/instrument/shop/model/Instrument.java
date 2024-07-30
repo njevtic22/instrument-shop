@@ -28,7 +28,7 @@ public abstract class Instrument implements DatabaseEntity {
     @Column(nullable = false)
     private String mark;
 
-    @Column(nullable = false, length = 1000)
+    @Column(nullable = false, length = 2000)
     private String description;
 
     @Column(nullable = false)

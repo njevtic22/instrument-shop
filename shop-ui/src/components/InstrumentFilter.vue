@@ -21,28 +21,29 @@
             label="Code"
             bg-color="white"
         ></v-text-field>
+
         <v-row v-if="mode === Modes.BOUGHT">
             <v-col>
-                <v-date-input
+                <CustomDateInput
                     v-model="filterData.purchasedStart"
-                    @keydown="$event.preventDefault()"
-                    @click:clear="filterData.purchasedStart = null"
-                    label="Date from"
-                    bg-color="white"
-                    clearable
-                ></v-date-input>
+                    label="Purchased from"
+                    bgColor="white"
+                    hideDetails
+                >
+                </CustomDateInput>
             </v-col>
+
             <v-col>
-                <v-date-input
+                <CustomDateInput
                     v-model="filterData.purchasedEnd"
-                    @keydown="$event.preventDefault()"
-                    @click:clear="filterData.purchasedEnd = null"
-                    label="Date to"
-                    bg-color="white"
-                    clearable
-                ></v-date-input>
+                    label="Purchased to"
+                    bgColor="white"
+                    hideDetails
+                >
+                </CustomDateInput>
             </v-col>
         </v-row>
+
         <v-row v-if="mode === Modes.AVAILABLE">
             <v-col>
                 <v-text-field
@@ -51,6 +52,7 @@
                     label="Minimum price"
                     bg-color="white"
                     type="number"
+                    hideDetails
                 ></v-text-field>
             </v-col>
             <v-col>
@@ -60,6 +62,7 @@
                     label="Maxim price"
                     bg-color="white"
                     type="number"
+                    hideDetails
                 ></v-text-field>
             </v-col>
         </v-row>
@@ -288,13 +291,16 @@ function updateSortItems(selected) {
 
 function applyFilter() {
     let filter = { ...filterData.value };
-    filter.purchasedStart = filter.purchasedStart
-        ? toEpochMilli(filter.purchasedStart)
-        : null;
 
-    filter.purchasedEnd = filter.purchasedEnd
-        ? toEpochMilli(filter.purchasedEnd)
-        : null;
+    if (filter.purchasedStart) {
+        filter.purchasedStart.setHours(0, 0, 1);
+        filter.purchasedStart = toEpochMilli(filter.purchasedStart);
+    }
+
+    if (filter.purchasedEnd) {
+        filter.purchasedEnd.setHours(23, 59, 59);
+        filter.purchasedEnd = toEpochMilli(filter.purchasedEnd);
+    }
 
     let sortFilter = {
         filter: filter,

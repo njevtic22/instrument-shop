@@ -13,6 +13,8 @@ import spark.Route;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class ContextRoute extends ArgumentsParser implements Route {
     private final int responseStatus;
@@ -90,7 +92,8 @@ public class ContextRoute extends ArgumentsParser implements Route {
             if (authorizer == null) {
                 throw new InternalServerException(new NullPointerException("Authorizer is not set"));
             }
-            authorizer.validateAuthorization(request, Set.of(pa.value()));
+            Set<String> roles = Stream.of(pa.value()).collect(Collectors.toSet());
+            authorizer.validateAuthorization(request, roles);
         }
     }
 }

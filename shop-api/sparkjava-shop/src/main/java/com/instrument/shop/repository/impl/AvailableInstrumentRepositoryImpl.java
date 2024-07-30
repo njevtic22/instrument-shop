@@ -11,6 +11,8 @@ import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.TypedQuery;
 
 import java.util.List;
 import java.util.Map;
@@ -94,6 +96,52 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
     }
 
     @Override
+    public PaginatedResponse<AvailableInstrument> findCartByArchivedFalse(Long customerId, Map<String, Object> filterData, Sort sort, PageRequest pageRequest) {
+        String filterPart = jpqlUtil.getValidAInstrumentFilter(filterData, "i");
+        String orderBy = getValidOrderBy(sort, "i");
+        String jpq = "select i from AvailableInstrument i join i.potentialCustomers c where i.archived = false and c.id = :customerId" + filterPart + orderBy;
+        String countQuery = "select count(*) from AvailableInstrument i join i.potentialCustomers c where i.archived = false and c.id = :customerId" + filterPart;
+
+        filterData.put("customerId", customerId);
+        EntityManager em = emf.createEntityManager();
+        PaginatedResponse<AvailableInstrument> cart = repoUtil.findAll(
+                em,
+                jpq,
+                countQuery,
+                AvailableInstrument.class,
+                true,
+                filterData,
+                pageRequest
+        );
+//        em.close();
+        return cart;
+    }
+
+    @Override
+    public boolean isInCart(Long customerId, Long instrumentId) {
+        String jpq = "select case when (count(*) = 1) then true else false end from AvailableInstrument i join i.potentialCustomers c where i.id = ?1 and c.id = ?2";
+
+        boolean exists = false;
+        EntityManager em = emf.createEntityManager();
+        EntityTransaction tr = em.getTransaction();
+        try {
+            tr.begin();
+            TypedQuery<Boolean> existsQuery = em.createQuery(jpq, boolean.class);
+            existsQuery.setParameter(1, instrumentId);
+            existsQuery.setParameter(2, customerId);
+            exists = existsQuery.getSingleResult();
+            tr.commit();
+
+        } catch (RuntimeException ex) {
+            if (tr.isActive()) {
+                tr.rollback();
+            }
+            throw ex;
+        }
+        return exists;
+    }
+
+    @Override
     public int archive(AvailableInstrument instrument) {
         return archiveById(instrument.getId());
     }
@@ -113,5 +161,26 @@ public class AvailableInstrumentRepositoryImpl implements AvailableInstrumentRep
             sortStr = sortStr.replaceAll("type", "type.name");
         }
         return jpqlUtil.getValidOrderBy(sortStr);
+    }
+
+    private String getValidOrderBy(Sort sort, String prefix) {
+        String sortStr = getSortWithPrefix(sort, prefix);
+        return jpqlUtil.getValidOrderBy(sortStr);
+    }
+
+    private String getSortWithPrefix(Sort sort, String prefix) {
+        String correctProperty = sort.property();
+        if (correctProperty.contains("type")) {
+            correctProperty = correctProperty.replaceAll("type", "type.name");
+        }
+
+        String orderBy = prefix + "." + correctProperty + " " + sort.order().toString();
+        String orderByNext = "";
+
+        if (sort.sortNext() != null) {
+            orderByNext = ", " + getSortWithPrefix(sort.sortNext(), prefix);
+        }
+
+        return orderBy + orderByNext;
     }
 }

@@ -72,30 +72,26 @@
                 hide-details
             ></v-text-field>
         </v-col>
+
         <v-col>
             <div class="py-2">
-                <v-date-input
+                <CustomDateInput
                     v-model="filter.issuedAtStart"
-                    @keydown="$event.preventDefault()"
-                    @click:clear="filter.issuedAtStart = null"
+                    placeholder="Issued at from"
                     density="compact"
-                    placeholder="Start issued at"
-                    hide-details
-                    clearable
-                ></v-date-input>
+                    hideDetails
+                >
+                </CustomDateInput>
             </div>
 
             <div class="py-2">
-                <v-date-input
+                <CustomDateInput
                     v-model="filter.issuedAtEnd"
-                    @keydown="$event.preventDefault()"
-                    @click:clear="filter.issuedAtEnd = null"
-                    class="py-2"
+                    placeholder="Issued at to"
                     density="compact"
-                    placeholder="End issued at"
-                    hide-details
-                    clearable
-                ></v-date-input>
+                    hideDetails
+                >
+                </CustomDateInput>
             </div>
         </v-col>
     </v-row>
@@ -103,6 +99,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { toEpochMilli } from "@/util/date";
 
 const emit = defineEmits(["filter"]);
 
@@ -129,7 +126,19 @@ function validateDigit(event) {
 }
 
 function emitFilter() {
-    emit("filter", { ...filter.value });
+    let newFilter = { ...filter.value };
+
+    if (newFilter.issuedAtStart) {
+        newFilter.issuedAtStart.setHours(0, 0, 1);
+        newFilter.issuedAtStart = toEpochMilli(newFilter.issuedAtStart);
+    }
+
+    if (newFilter.issuedAtEnd) {
+        newFilter.issuedAtEnd.setHours(23, 59, 59);
+        newFilter.issuedAtEnd = toEpochMilli(newFilter.issuedAtEnd);
+    }
+
+    emit("filter", newFilter);
 }
 </script>
 
