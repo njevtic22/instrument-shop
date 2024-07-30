@@ -28,10 +28,11 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static com.instrument.shop.faker.FakerUtil.generateCode;
-import static com.instrument.shop.faker.FakerUtil.generateLoremQuote;
+import static com.instrument.shop.faker.FakerUtil.generateLorem;
 import static com.instrument.shop.faker.FakerUtil.generatePastLocalDateTime;
 import static com.instrument.shop.faker.FakerUtil.getImageUrlIterator;
 import static com.instrument.shop.faker.FakerUtil.getInstrumentTypeIterator;
+import static com.instrument.shop.faker.FakerUtil.nextBrand;
 import static com.instrument.shop.faker.SqlUtil.toSqlAlterSequenceRestart;
 import static com.instrument.shop.faker.SqlUtil.toSqlInsert;
 
@@ -41,7 +42,7 @@ public class FakeDatabaseGenerator {
     private final String LINE = "-";
     private final String LINES = LINE.repeat(200);
 
-    private final int LOREM_LENGTH = 1000;
+    private final int LOREM_LENGTH = 2000;
     private final int QUOTE_LENGTH = 900;
 
     private final Role[] roles = {Role.MANAGER, Role.SALESMAN, Role.CUSTOMER};
@@ -251,9 +252,9 @@ public class FakeDatabaseGenerator {
                 AvailableInstrument instrument = new AvailableInstrument(
                         instrumentId.next(),
                         generateCode(instrumentId.current(), 3),
-                        faker.music().instrument() + ": " + instrumentId.current(),
-                        faker.dragonBall().character() + ": " + instrumentId.current(),
-                        generateLoremQuote(faker, faker.chuckNorris().fact(), QUOTE_LENGTH, LOREM_LENGTH),
+                        faker.music().instrument(),
+                        nextBrand(faker),
+                        generateLorem(faker, LOREM_LENGTH),
                         (float) faker.number().numberBetween(100, 1000) + 0.99f,
                         Arrays.asList(instrumentImages),
                         AVAILABLE_INSTRUMENTS_QUANTITY,

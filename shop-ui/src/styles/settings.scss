@@ -8,6 +8,9 @@
 // @use 'vuetify/settings' with (
 //   $color-pack: false
 // );
-html {
-    overflow-y: auto;
-}
+
+// Uncommenting this causes some sort of tick on instruments (and other) page
+// when clicking on apply/reset button while scrolled down
+// html {
+//     overflow-y: auto;
+// }

@@ -27,6 +27,32 @@ public class FakerUtil {
         return new CycleIterator<>(urls.toArray(new String[0]));
     }
 
+    private static final ArrayList<String> brands = new ArrayList<>();
+    private static void initializeBrands() throws IOException {
+        BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/brands.txt"));
+        String line;
+        while ((line = in.readLine()) != null) {
+            if (line.startsWith("# source")) {
+                continue;
+            }
+            brands.add(line);
+        }
+
+        in.close();
+    }
+
+    public static String nextBrand(Faker faker) {
+        if (brands.isEmpty()) {
+            try {
+                initializeBrands();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return faker.options().nextElement(brands);
+    }
+
+
     public static Iterator<String> getInstrumentTypeIterator() throws IOException {
         BufferedReader in = new BufferedReader(new FileReader("./src/main/resources/instrument types.txt"));
         ArrayList<String> typesTemp = new ArrayList<>(12);
