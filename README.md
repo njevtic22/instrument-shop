@@ -16,7 +16,8 @@ First install sparkjava-context maven project in local repository and then build
 
 ### Technologies
 - Java 19 for sparkjava-shop, Java 8 for sparkjava-context
-- [Spark java v2.9.4](http://sparkjava.com/) backend framework
+- [SparkJava v2.9.4](http://sparkjava.com/) backend framework
+- [SparkJava-context](https://github.com/njevtic22/musical-instrument-shop/tree/main/shop-api/sparkjava-context)
 - [Vue v3.4.0](https://vuejs.org/) frontend framework
 - [Postgresql database](https://www.postgresql.org/)
 - [Hibernate orm v6.5.0.Final](https://hibernate.org/orm/releases/6.5/)
