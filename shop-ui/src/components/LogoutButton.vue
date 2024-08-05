@@ -12,6 +12,8 @@ import { clear as clearReceiptItem } from "@/store/receiptItem";
 import { clear as clearUser } from "@/store/user";
 import { clear as clearBoughtInstrument } from "@/store/boughtInstrument";
 import { clear as clearType } from "@/store/instrumentType";
+import { clear as clearAvailableInstrument } from "@/store/availableInstrument";
+import { clear as clearCart } from "@/store/cart";
 
 const router = useRouter();
 
@@ -20,7 +22,7 @@ function logout() {
     localStorage.removeItem("role");
 
     delete axios.defaults.headers.common["Authorization"];
-    router.push("/");
+    router.push("/login");
 
     // v-data-table update:options event is fired
     // when data is cleared and first page is not currently shown
@@ -33,7 +35,9 @@ function logout() {
         clearReceiptItem();
         clearUser();
         clearBoughtInstrument();
+        clearAvailableInstrument();
         clearType();
+        clearCart();
     }, 0.1 * 1000);
 }
 </script>
