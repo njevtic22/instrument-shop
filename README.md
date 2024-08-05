@@ -12,7 +12,7 @@ username: [role][1-10]
 password: #Intel1#
 
 ### How to run
-First install sparkjava-context maven project in local repository and then build and run sparkjava-shop with maven. Install dependencies for vue with `npm install` and then run vue application with `npm run dev`.
+First install sparkjava-context maven project in local repository and then build and run sparkjava-shop with maven using command `mvn exec:java`. Install dependencies for vue with `npm install` and then run vue application with `npm run dev`.
 
 ### Technologies
 - Java 19 for sparkjava-shop, Java 8 for sparkjava-context
