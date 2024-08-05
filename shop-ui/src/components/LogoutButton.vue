@@ -22,7 +22,7 @@ function logout() {
     localStorage.removeItem("role");
 
     delete axios.defaults.headers.common["Authorization"];
-    router.push("/");
+    router.push("/login");
 
     // v-data-table update:options event is fired
     // when data is cleared and first page is not currently shown
