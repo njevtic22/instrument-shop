@@ -1,6 +1,7 @@
 ## [SparkJava context is here](https://github.com/njevtic22/musical-instrument-shop/tree/main/shop-api/sparkjava-context)
 
-# Description
+# Musical Instrument Shop
+## Description
 Web application for managing a shop of musical instruments. There are 4 possible user roles: manager, salesman, customer and anonymous user. Anonymous user can only view available instrument, login and register. Manager can view available instruments, all bought instruments, instrument types and receipts. Salesman can add, view, edit and delete available instruments and instrument types. Customer can view available instruments and all his bought instruments. Customer can also add instrument to cart and therefore buy all instruments in cart.
 
 ## Test data
