@@ -291,24 +291,12 @@ public class SparkJavaContext {
         this.authenticator = auth;
     }
 
-    public void setAuthorizer(Set<String> allRoles, RolesGetter rolesGetter) {
+    public void setAuthorizer(RolesGetter rolesGetter) {
         if (endpointsCreated) {
             throw new RuntimeException("Authorizer can not be set because endpoints or exception handlers are already created");
         }
-        this.authorizer = new Authorizer(allRoles, rolesGetter);
+        this.authorizer = new Authorizer(rolesGetter);
     }
-
-//    private List<Annotation> getMappings2(Method method, Set<Class<? extends Annotation>> mappings) {
-//        ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
-//
-//        for (Annotation annotation : method.getAnnotations()) {
-//            if (mappings.contains(annotation.annotationType())) {
-//                endpointAnnotations.add(annotation);
-//            }
-//        }
-//
-//        return endpointAnnotations;
-//    }
 
     private List<Annotation> getMappings(Method method, Set<Class<? extends Annotation>> mappings) {
         ArrayList<Annotation> endpointAnnotations = new ArrayList<>();
