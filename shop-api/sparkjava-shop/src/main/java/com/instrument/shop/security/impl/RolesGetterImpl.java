@@ -11,6 +11,7 @@ import java.util.Set;
 @Singleton
 public class RolesGetterImpl implements RolesGetter {
     private final AuthenticationService service;
+    private final Set<String> allRoles = Set.of("MANAGER", "SALESMAN", "CUSTOMER");
 
     @Inject
     public RolesGetterImpl(AuthenticationService service) {
@@ -18,11 +19,16 @@ public class RolesGetterImpl implements RolesGetter {
     }
 
     @Override
-    public Set<String> get(Request request) throws Exception {
+    public Set<String> getRoles(Request request) throws Exception {
         String jwt = request.headers("Authorization").substring(7);
         service.getUserFromToken(jwt);
 
         String role = service.getRoleFromToken(jwt);
         return Set.of(role);
+    }
+
+    @Override
+    public Set<String> getAllRoles() throws Exception {
+        return allRoles;
     }
 }

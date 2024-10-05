@@ -27,7 +27,6 @@ import com.sparkjava.context.core.Authenticator;
 import com.sparkjava.context.core.RolesGetter;
 
 import java.util.Properties;
-import java.util.Set;
 
 public class Main {
     public static void main(String[] args) {
@@ -52,7 +51,7 @@ public class Main {
         );
 
         sparkCtx.setAuthenticator(injector.getInstance(Authenticator.class));
-        sparkCtx.setAuthorizer(Set.of("MANAGER", "SALESMAN", "CUSTOMER"), injector.getInstance(RolesGetter.class));
+        sparkCtx.setAuthorizer(injector.getInstance(RolesGetter.class));
 
         sparkCtx.createEndpoints(
                 injector.getInstance(ConfigController.class),
