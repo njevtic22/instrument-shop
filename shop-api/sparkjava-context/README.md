@@ -247,8 +247,8 @@ import java.util.ArrayList;
 @PostMapping(value = "files", consumes = "multipart/form-data")
 public void addFiles(
         @MultipartValues ArrayList<Part> allParts, 
-        @MultipartValues({"key1", "key2", "key3"}) ArrayList<Part> ArrayList<Part> parts123, 
-        @MultipartValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<Part> ArrayList<Part> parts567
+        @MultipartValues({"key1", "key2", "key3"}) ArrayList<Part> parts123, 
+        @MultipartValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<Part> parts567
 ) {
     // part allParts is required non empty by default and it will load all multiparts (text and file)
     // part parts123 is required non empty by default and it will load multiparts (text and file) with desired keys
@@ -291,8 +291,8 @@ import java.util.ArrayList;
 @PostMapping(value = "texts", consumes = "multipart/form-data")
 public void addTexts(
         @MultipartTextValues ArrayList<String> allTexts,
-        @MultipartValues({"key1", "key2", "key3"}) ArrayList<Part> ArrayList<String> texts123,
-        @MultipartValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<Part> ArrayList<String> texts567
+        @MultipartTextValues({"key1", "key2", "key3"}) ArrayList<String> texts123,
+        @MultipartTextValues(value = {"key5", "key6", "key7"}, requiredNonEmpty = false) ArrayList<String> texts567
 ) {
     // part allTexts is required non empty by default and it will load all multiparts (text and file)
     // part texts123 is required non empty by default and it will load multiparts (text and file) with desired keys
@@ -351,6 +351,7 @@ import com.sparkjava.context.SparkJavaContext;
 import com.sparkjava.context.core.RequestTransformer;
 
 public class CustomTransformer implements RequestTransformer {
+    @Override
     public Object parse(String body, Class<?> modelClass) throws Exception {
         // return parsed object
     }
@@ -420,6 +421,7 @@ import com.sparkjava.context.SparkJavaContext;
 import com.sparkjava.context.core.Validator;
 
 public class CustomValidator implements Validator {
+    @Override
     public void validate(Object toValidate) {
         // validate object
     }
@@ -464,6 +466,7 @@ When starting server you can specify default serializer for response body. Defau
 import spark.ResponseTransformer;
 
 public class CustomSerializer implements ResponseTransformer {
+    @Override
     public String render(Object model) throws Exception {
         // return serialized model
     }
@@ -683,6 +686,7 @@ import com.sparkjava.context.SparkJavaContext;
 import com.sparkjava.context.core.Authenticator;
 
 public class CustomAuthenticator implements Authenticator {
+    @Override
     public Object authenticate(Request request) throws Exception {
         // return object representing user
     }
@@ -721,23 +725,28 @@ public class GlobalExceptionHandler {
 ```
 
 ### @PreAuthorize
-Used for restricting access to controller methods. Using this annotation, specify array of roles. Authenticated user 
-needs to have at least one of the specified roles in order for annotated method to be invoked. To enable this, it needs 
-to be specified how to retrieve users roles from request. This is done by implementing `RolesGetter` functional 
-interface.
+Used for restricting access to controller methods. Using this annotation you can specify permitted roles. Authenticated 
+user needs to have at least one of the permitted roles in order for annotated method to be invoked. If annotation is used,
+but no roles are specified, then permitted roles are all possible roles in system. To enable this, it needs to be specified
+how to retrieve users roles from request and all possible roles in system. This is done by implementing`RolesGetter` interface.
 
 ```java
 import com.sparkjava.context.core.RolesGetter;
 
 public class CustomRolesGetter implements RolesGetter {
+    @Override
     public Set<String> get(Request request) throws Exception {
-        // return set of roles which authenticated user have
+        // return set of roles which authenticated user has
+    }
+
+    @Override
+    public Set<String> getAllRoles() throws Exception {
+        // return set of all possible roles in system
     }
 }
 ```
 
-Then, it needs to be passed it to `SparkJavaContext` instance **before** creating endpoints alongside with all possible role
-which user can have in system. This is done by calling `setAuthorizer` method.
+Then, it needs to be passed it to `SparkJavaContext` instance **before** creating endpoints. This is done by calling `setAuthorizer` method.
 
 ```java
 import com.sparkjava.context.SparkJavaContext;
@@ -748,10 +757,9 @@ public static void main(String[] args) {
     SparkJavaContext ctx = new SparkJavaContext(8080);
 
     // this method MUST be called before createEndpoints method
-    ctx.setAuthorizer(Set.of("ADMIN", "MANAGER", "USER"), new CustomRolesGetter());
+    ctx.setAuthorizer(new CustomRolesGetter());
 
     ctx.createEndpoints(...);
-
 }
 ```
 
