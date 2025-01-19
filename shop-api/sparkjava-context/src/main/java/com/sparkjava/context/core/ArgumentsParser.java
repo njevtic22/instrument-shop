@@ -98,10 +98,7 @@ public abstract class ArgumentsParser {
                 params.add(parseMultipartTextValues(mptv, request));
 
             } else if (parameter.isAnnotationPresent(Authenticated.class)) {
-                if (authenticator == null) {
-                    throw new InternalServerException(new NullPointerException("Authenticator is not set"));
-                }
-                params.add(authenticator.authenticate(request));
+                params.add(parseAuthenticated(request));
 
             } else {
                 throw new InternalServerException(new IllegalArgumentException("Unsupported argument type: " + paramType));
@@ -109,6 +106,13 @@ public abstract class ArgumentsParser {
         }
 
         return params;
+    }
+
+    private Object parseAuthenticated(Request request) throws Exception {
+        if (authenticator == null) {
+            throw new InternalServerException(new NullPointerException("Authenticator is not set"));
+        }
+        return authenticator.authenticate(request);
     }
 
     private Object parsePathParam(PathParam pp, Request request, Class<?> paramType) {
